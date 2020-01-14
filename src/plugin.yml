@@ -1,0 +1,39 @@
+name: NaturalDisasters
+main: me.tcklpl.naturaldisaster.Main
+version: 1.2.8a
+api-version: "1.15"
+prefix: Natural Disasters
+commands:
+  world:
+    description: World creation and management.
+    aliases: w
+    permission: op
+    usage: "Usage: /<command> [create/tp] [void] [name]"
+  creative:
+    description: Changes gamemode to CREATIVE.
+    aliases: c
+    permission: op
+    usage: "Usage: /<command>"
+  survival:
+    description: Changes gamemode to SURVIVAL.
+    aliases: s
+    permission: op
+    usage: "Usage: /<command>"
+  adventure:
+    description: Changes gamemode to ADVENTURE.
+    aliases: a
+    permission: op
+    usage: "Usage: /<command>"
+  spectator:
+    description: Changes gamemode to SPECTATOR.
+    aliases: sp
+    permission: op
+    usage: "Usage: /<command>"
+  arena:
+    description: Criação de arenas.
+    permission: op
+    usage: "Usage: /<command> [create/tp/list/info]"
+  teststart:
+    description: texti
+    permission: op
+    usage: "Usage: /<command>"

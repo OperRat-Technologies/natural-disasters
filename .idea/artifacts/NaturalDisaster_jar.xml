@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="NaturalDisaster:jar">
+    <output-path>$USER_HOME$/Documents/natural disaster/plugins</output-path>
+    <root id="archive" name="NaturalDisaster.jar">
+      <element id="module-output" name="NaturalDisaster" />
+    </root>
+  </artifact>
+</component>
