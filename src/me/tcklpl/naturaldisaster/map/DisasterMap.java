@@ -3,6 +3,7 @@ package me.tcklpl.naturaldisaster.map;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -56,6 +57,10 @@ public class DisasterMap {
         this.spawns = spawns;
     }
 
+    public World getWorld() {
+        return pos1.getWorld();
+    }
+
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -77,6 +82,12 @@ public class DisasterMap {
 
     public void removePlayerOnArena(String name) {
         playersInArena.remove(name);
+    }
+
+    public void addAllPlayersToArena() {
+        playersInArena = new ArrayList<>();
+        for (Player p : Bukkit.getOnlinePlayers())
+            playersInArena.add(p.getName());
     }
 
     public void teleportPlayersToSpawns() {

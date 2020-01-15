@@ -56,7 +56,7 @@ public class MapCreator implements CommandExecutor {
                 return true;
             } else if (args[0].equalsIgnoreCase("finalize")) {
                 if (args.length != 1) return false;
-                MapManager.registerArena(map);
+                MapManager.getInstance().registerArena(map);
                 p.sendMessage(ChatColor.GREEN + "Finalizado e registrado o mapa '" + map.getName() + "'");
                 map = null;
                 return true;
@@ -65,8 +65,8 @@ public class MapCreator implements CommandExecutor {
             if (args[0].equalsIgnoreCase("tp")) {
                 if (args.length != 2) return false;
                 String mapname = args[1];
-                if (MapManager.getMapByName(mapname) != null) {
-                    p.teleport(Objects.requireNonNull(MapManager.getMapByName(mapname)).getSpawns().get(0));
+                if (MapManager.getInstance().getMapByName(mapname) != null) {
+                    p.teleport(Objects.requireNonNull(MapManager.getInstance().getMapByName(mapname)).getSpawns().get(0));
                     p.sendMessage(ChatColor.GREEN + "Teleportado para o primeiro spawn");
                     return true;
                 } else {
@@ -80,7 +80,7 @@ public class MapCreator implements CommandExecutor {
                 StringBuilder message = new StringBuilder();
                 message.append(ChatColor.GREEN);
                 message.append("Arenas: ");
-                for (DisasterMap map : MapManager.getAllArenas()) {
+                for (DisasterMap map : MapManager.getInstance().getAllArenas()) {
                     message.append(map.getName());
                     message.append(" ");
                 }
@@ -91,8 +91,8 @@ public class MapCreator implements CommandExecutor {
             if (args[0].equalsIgnoreCase("info")) {
                 if (args.length != 2) return false;
                 String name = args[1];
-                if (MapManager.getMapByName(name) != null) {
-                    DisasterMap map = MapManager.getMapByName(name);
+                if (MapManager.getInstance().getMapByName(name) != null) {
+                    DisasterMap map = MapManager.getInstance().getMapByName(name);
                     p.sendMessage(ChatColor.YELLOW + "Nome: " + map.getName());
                     p.sendMessage(ChatColor.YELLOW + "Pos1: " + map.getPos1().getBlockX() + " " + map.getPos1().getBlockY() + " " + map.getPos1().getBlockZ());
                     p.sendMessage(ChatColor.YELLOW + "Pos2: " + map.getPos2().getBlockX() + " " + map.getPos2().getBlockY() + " " + map.getPos2().getBlockZ());
