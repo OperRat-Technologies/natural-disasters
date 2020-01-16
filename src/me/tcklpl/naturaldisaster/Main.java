@@ -12,13 +12,10 @@ import java.util.Objects;
 
 public class Main extends JavaPlugin {
 
-    GameStatus currentStatus;
     WorldManager worldManager;
 
     @Override
     public void onEnable() {
-
-        currentStatus = GameStatus.PREPARING;
 
         List<String> managedWorlds = getConfig().getStringList("worlds");
         worldManager = new WorldManager(managedWorlds);
@@ -26,12 +23,15 @@ public class Main extends JavaPlugin {
         MapManager.getInstance().setMainReference(this);
         MapManager.getInstance().setupDisasters();
         MapManager.getInstance().setupArenas();
+        MapManager.getInstance().setCurrentStatus(GameStatus.IN_LOBBY);
 
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new Motd(), this);
         pm.registerEvents(new Join(), this);
         pm.registerEvents(new Death(), this);
         pm.registerEvents(new PickItem(), this);
+        pm.registerEvents(new MobSpawn(), this);
+        pm.registerEvents(new FoodLevel(), this);
 
         Objects.requireNonNull(getCommand("world")).setExecutor(new WorldCommands(worldManager));
         GamemodeCommands gmc = new GamemodeCommands();

@@ -1,7 +1,7 @@
 package me.tcklpl.naturaldisaster.map;
 
-import me.tcklpl.naturaldisaster.disasters.Disaster;
-import me.tcklpl.naturaldisaster.disasters.TNTRain;
+import me.tcklpl.naturaldisaster.GameStatus;
+import me.tcklpl.naturaldisaster.disasters.*;
 import me.tcklpl.naturaldisaster.util.ActionBar;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -23,7 +23,7 @@ public class MapManager {
     private DisasterMap currentMap;
     private Disaster currentDisaster;
     private int counterId;
-    private boolean isInGame = false;
+    private GameStatus currentStatus;
 
 
     private static MapManager INSTANCE;
@@ -35,6 +35,14 @@ public class MapManager {
         if (INSTANCE == null)
             INSTANCE = new MapManager();
         return INSTANCE;
+    }
+
+    public GameStatus getCurrentStatus() {
+        return currentStatus;
+    }
+
+    public void setCurrentStatus(GameStatus currentStatus) {
+        this.currentStatus = currentStatus;
     }
 
     public void registerArena(DisasterMap map) {
@@ -72,6 +80,9 @@ public class MapManager {
 
     public void setupDisasters() {
         disasters.add(new TNTRain(null, mainReference));
+        disasters.add(new ToxicRain(null, mainReference));
+        disasters.add(new Thunderstorm(null, mainReference));
+        disasters.add(new Flooding(null, mainReference));
     }
 
     public void randomNextMap() {
@@ -112,7 +123,6 @@ public class MapManager {
         if (mainReference.getConfig().getConfigurationSection("arenas") != null)
             for (String arena : Objects.requireNonNull(mainReference.getConfig().getConfigurationSection("arenas")).getKeys(false)) {
                 String path = "arenas." + arena;
-                String world = mainReference.getConfig().getString(path + ".world");
                 int pos1X = mainReference.getConfig().getInt(path + ".pos1.x");
                 int pos1Y = mainReference.getConfig().getInt(path + ".pos1.y");
                 int pos1Z = mainReference.getConfig().getInt(path + ".pos1.z");
@@ -142,7 +152,6 @@ public class MapManager {
     public void saveArenas() {
         for (DisasterMap map : getAllArenas()) {
             try {
-                mainReference.getConfig().set("arenas." + map.getName() + ".world", Objects.requireNonNull(map.getPos1().getWorld()).getName());
                 mainReference.getConfig().set("arenas." + map.getName() + ".pos1.x", map.getPos1().getBlockX());
                 mainReference.getConfig().set("arenas." + map.getName() + ".pos1.y", map.getPos1().getBlockY());
                 mainReference.getConfig().set("arenas." + map.getName() + ".pos1.z", map.getPos1().getBlockZ());
@@ -170,7 +179,7 @@ public class MapManager {
     public void startNextGame() {
         if (currentMap != null && currentDisaster != null) {
 
-            isInGame = true;
+            currentStatus = GameStatus.STARTING;
             currentMap.addAllPlayersToArena();
 
             AtomicInteger counter = new AtomicInteger(5);
@@ -188,6 +197,7 @@ public class MapManager {
                 currentDisaster.startDisaster();
                 ActionBar ab = new ActionBar(ChatColor.RED + "Boa sorte!");
                 ab.sendToAll();
+                currentStatus = GameStatus.IN_GAME;
             }, 130L);
         }
     }
@@ -195,21 +205,25 @@ public class MapManager {
     public void finishGame() {
         currentDisaster.stopDisaster();
 
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            p.setGameMode(GameMode.ADVENTURE);
-            p.teleport(new Location(Bukkit.getWorld("void"), 8, 8, 8));
-            p.setHealth(20);
-            p.setFoodLevel(20);
-            p.getInventory().clear();
-        }
+        // Wait 1s to teleport 'cause players may still be ticking
+        Bukkit.getScheduler().scheduleSyncDelayedTask(mainReference, () -> {
+            for (Player p : Bukkit.getOnlinePlayers()) {
+                p.setGameMode(GameMode.ADVENTURE);
+                p.teleport(new Location(Bukkit.getWorld("void"), 8, 8, 8));
+                p.setHealth(20);
+                p.setFoodLevel(20);
+                p.getInventory().clear();
+            }
+        }, 20L);
 
+        // Wait 6s to unload map in order to give time to all unfinished delayed schedules
         Bukkit.getScheduler().scheduleSyncDelayedTask(mainReference, () -> {
             if (Bukkit.unloadWorld(Objects.requireNonNull(currentMap.getPos1().getWorld()), false)) {
                 Bukkit.getLogger().info("Mundo " + currentMap.getName() + " descarregado.");
             } else Bukkit.getLogger().severe("Falha ao descarregar mundo " + currentMap);
             currentMap = null;
             currentDisaster = null;
-            isInGame = false;
+            currentStatus = GameStatus.IN_LOBBY;
         }, 120L);
     }
 
@@ -241,5 +255,5 @@ public class MapManager {
         }
     }
 
-    public boolean isIsInGame() { return isInGame; }
+    public boolean isIsInGame() { return currentStatus == GameStatus.IN_GAME || currentStatus == GameStatus.STARTING; }
 }

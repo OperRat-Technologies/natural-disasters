@@ -1,6 +1,6 @@
 name: NaturalDisasters
 main: me.tcklpl.naturaldisaster.Main
-version: 1.3.2a
+version: 1.3.8a
 api-version: "1.15"
 prefix: Natural Disasters
 commands:
