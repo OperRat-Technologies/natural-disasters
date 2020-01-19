@@ -8,6 +8,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class TNTRain extends Disaster {
 
@@ -17,7 +18,6 @@ public class TNTRain extends Disaster {
     public TNTRain(DisasterMap map, JavaPlugin main) {
         super(map, main);
         this.main = main;
-        r = new Random();
         name = "TNT Rain";
     }
 
@@ -26,21 +26,31 @@ public class TNTRain extends Disaster {
 
         super.startDisaster();
 
-        updateBlockGap();
+        r = random;
+
+        map.makeRain(true);
+
+        AtomicInteger tntToSpawn = new AtomicInteger(1);
+        AtomicInteger timesRunned = new AtomicInteger(0);
 
         taskId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(main, () -> {
-            int x = minX + r.nextInt(gapX);
-            int z = minZ + r.nextInt(gapZ);
-            Location loc = new Location(map.getWorld(), x, top, z);
 
-            TNTPrimed tnt = Objects.requireNonNull(map.getWorld()).spawn(loc, TNTPrimed.class);
+            for (int i = 0; i < tntToSpawn.get(); i++) {
+                int x = map.minX + r.nextInt(map.gapX);
+                int z = map.minZ + r.nextInt(map.gapZ);
+                Location loc = new Location(map.getWorld(), x, map.top, z);
 
+                TNTPrimed tnt = Objects.requireNonNull(map.getWorld()).spawn(loc, TNTPrimed.class);
 
-            tnt.setTicksLived(5);
+                tnt.setTicksLived(5);
 
-            tnt.setFuseTicks(20 + 20 * Math.floorDiv(top - floor, 20)); // 1s inicial + 1s p/ cada 20 blocos
+                tnt.setFuseTicks(20 + 20 * Math.floorDiv(map.top - map.floor, 20)); // 1s inicial + 1s p/ cada 20 blocos
+            }
 
-        }, 0L, 15L);
+            if ((timesRunned.incrementAndGet() % 10) == 0)
+                tntToSpawn.addAndGet(1);
+
+        }, startDelay, 20L);
 
     }
 

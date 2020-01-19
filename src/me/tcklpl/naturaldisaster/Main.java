@@ -3,10 +3,12 @@ package me.tcklpl.naturaldisaster;
 import me.tcklpl.naturaldisaster.commands.*;
 import me.tcklpl.naturaldisaster.events.*;
 import me.tcklpl.naturaldisaster.map.MapManager;
+import me.tcklpl.naturaldisaster.player.CustomPlayerManager;
 import me.tcklpl.naturaldisaster.worlds.WorldManager;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -25,6 +27,9 @@ public class Main extends JavaPlugin {
         MapManager.getInstance().setupArenas();
         MapManager.getInstance().setCurrentStatus(GameStatus.IN_LOBBY);
 
+        CustomPlayerManager.getInstance().setMainInstance(this);
+        CustomPlayerManager.getInstance().setupPlayers();
+
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new Motd(), this);
         pm.registerEvents(new Join(), this);
@@ -32,6 +37,8 @@ public class Main extends JavaPlugin {
         pm.registerEvents(new PickItem(), this);
         pm.registerEvents(new MobSpawn(), this);
         pm.registerEvents(new FoodLevel(), this);
+        pm.registerEvents(new IceMelt(), this);
+        pm.registerEvents(new Leave(), this);
 
         Objects.requireNonNull(getCommand("world")).setExecutor(new WorldCommands(worldManager));
         GamemodeCommands gmc = new GamemodeCommands();
@@ -39,8 +46,9 @@ public class Main extends JavaPlugin {
         Objects.requireNonNull(getCommand("survival")).setExecutor(gmc);
         Objects.requireNonNull(getCommand("adventure")).setExecutor(gmc);
         Objects.requireNonNull(getCommand("spectator")).setExecutor(gmc);
-        Objects.requireNonNull(getCommand("arena")).setExecutor(new MapCreator());
+        Objects.requireNonNull(getCommand("arena")).setExecutor(new MapCreator(this));
         Objects.requireNonNull(getCommand("start")).setExecutor(new Start(this));
+        Objects.requireNonNull(getCommand("balance")).setExecutor(new Balance());
     }
 
     @Override
@@ -48,6 +56,11 @@ public class Main extends JavaPlugin {
 
         getConfig().set("worlds", worldManager.getManagedWorlds());
         MapManager.getInstance().saveArenas();
+//        try {
+//            CustomPlayerManager.getInstance().savePlayers();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
         saveConfig();
 

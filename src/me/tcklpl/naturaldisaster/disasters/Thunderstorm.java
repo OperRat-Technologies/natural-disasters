@@ -22,10 +22,9 @@ public class Thunderstorm extends Disaster {
     public void startDisaster() {
         super.startDisaster();
 
-        makeRain();
+        map.makeRain(false);
 
-        Random r = new Random();
-        updateBlockGap();
+        Random r = random;
 
         int strikechance = 10;
 
@@ -78,7 +77,7 @@ public class Thunderstorm extends Disaster {
 
             }
 
-        }, 0L, 20L);
+        }, startDelay, 20L);
 
     }
 }

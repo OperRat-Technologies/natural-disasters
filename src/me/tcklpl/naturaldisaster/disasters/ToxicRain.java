@@ -26,10 +26,9 @@ public class ToxicRain extends Disaster {
 
         super.startDisaster();
 
-        makeRain();
+        map.makeRain(false);
 
-        Random r = new Random();
-        updateBlockGap();
+        Random r = random;
 
         AtomicInteger blocksToBreak = new AtomicInteger(5);
         AtomicInteger timesExecuted = new AtomicInteger(0);
@@ -63,10 +62,10 @@ public class ToxicRain extends Disaster {
 
                 // Destroy blocks
                 for (int i = 0; i < blocksToBreak.get(); i++) {
-                    int blockX = minX + r.nextInt(gapX);
-                    int blockY = top;
-                    int blockZ = minZ + r.nextInt(gapZ);
-                    for (; blockY >= floor; blockY--) {
+                    int blockX = map.minX + r.nextInt(map.gapX);
+                    int blockY = map.top;
+                    int blockZ = map.minZ + r.nextInt(map.gapZ);
+                    for (; blockY >= map.floor; blockY--) {
                         Block b = map.getWorld().getBlockAt(blockX, blockY, blockZ);
                         Block bUnder = map.getWorld().getBlockAt(blockX, blockY - 1, blockZ);
                         if (b.getBlockData().getMaterial() != Material.AIR) {
@@ -94,6 +93,6 @@ public class ToxicRain extends Disaster {
                     currentDamage.addAndGet(1);
             }
 
-        }, 0L, 20L);
+        }, startDelay, 20L);
     }
 }

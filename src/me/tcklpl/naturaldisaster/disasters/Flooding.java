@@ -7,6 +7,8 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -21,11 +23,10 @@ public class Flooding extends Disaster {
     public void startDisaster() {
         super.startDisaster();
 
-        makeRain();
+        map.makeRain(false);
 
-        updateBlockGap();
-        Random r = new Random();
-        AtomicInteger currentY = new AtomicInteger(floor);
+        Random r = random;
+        AtomicInteger currentY = new AtomicInteger(map.floor);
         AtomicInteger floodRiseChance = new AtomicInteger(50);
         AtomicInteger currentDamage = new AtomicInteger(1);
         AtomicInteger currentCycles = new AtomicInteger(0);
@@ -37,16 +38,20 @@ public class Flooding extends Disaster {
 
             // Only execute each 5-10 seconds
             if ((currentCycles.get() % currentRandomTime.get()) == 0)
-            if (currentY.get() <= top) {
+            if (currentY.get() <= map.top) {
 
                 if (r.nextInt(100) <= floodRiseChance.get()) {
 
-                    for (int x = minX; x <= minX + gapX; x++) {
-                        for (int z = minZ; z <= minZ + gapZ; z++) {
+                    List<Block> blocksToChange = new ArrayList<>();
+
+                    for (int x = map.minX; x <= map.minX + map.gapX; x++) {
+                        for (int z = map.minZ; z <= map.minZ + map.gapZ; z++) {
                             Block b = map.getWorld().getBlockAt(x, currentY.get(), z);
-                            b.setType(Material.WATER);
+                            blocksToChange.add(b);
                         }
                     }
+
+                    map.bufferedBreakBlocks(blocksToChange, Material.WATER, 300, false);
 
                     currentY.getAndIncrement();
                     floodRiseChance.addAndGet(5);
@@ -63,6 +68,6 @@ public class Flooding extends Disaster {
                     p.damage(currentDamage.get());
             }
 
-        }, 0L, 20L);
+        }, startDelay, 20L);
     }
 }

@@ -9,6 +9,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +18,11 @@ import java.util.Objects;
 public class MapCreator implements CommandExecutor {
 
     private static DisasterMap map;
+
+    private JavaPlugin main;
+    public MapCreator(JavaPlugin main) {
+        this.main = main;
+    }
 
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String alias, String[] args) {
@@ -29,7 +35,7 @@ public class MapCreator implements CommandExecutor {
             if (args[0].equalsIgnoreCase("create")) {
                 if (args.length != 2) return false;
                 String name = args[1];
-                map = new DisasterMap(null, null, name, null);
+                map = new DisasterMap(main, null, null, name, null);
                 p.sendMessage(ChatColor.GREEN + "Iniciada a criação do mapa " + name);
                 return true;
             } else if (args[0].equalsIgnoreCase("pos1")) {

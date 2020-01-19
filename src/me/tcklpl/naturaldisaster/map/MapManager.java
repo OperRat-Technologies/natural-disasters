@@ -81,8 +81,11 @@ public class MapManager {
     public void setupDisasters() {
         disasters.add(new TNTRain(null, mainReference));
         disasters.add(new ToxicRain(null, mainReference));
-        disasters.add(new Thunderstorm(null, mainReference));
         disasters.add(new Flooding(null, mainReference));
+        disasters.add(new Earthquake( null, mainReference));
+        disasters.add(new Blizzard(null, mainReference));
+        disasters.add(new Fire(null, mainReference));
+//        disasters.add(new Thunderstorm(null, mainReference));
     }
 
     public void randomNextMap() {
@@ -103,11 +106,10 @@ public class MapManager {
         assert w != null;
         w.setAutoSave(false);
 
+        w.setStorm(false);
+
         // Update locations with current world object
-        currentMap.getPos1().setWorld(w);
-        currentMap.getPos2().setWorld(w);
-        for (Location loc : currentMap.getSpawns())
-            loc.setWorld(w);
+        currentMap.updateArenaWorld(w);
 
         // Stop disaster if per any chance theres one running
         if (currentDisaster != null)
@@ -143,7 +145,7 @@ public class MapManager {
                     spawns.add(spawnLoc);
                 }
 
-                DisasterMap map = new DisasterMap(pos1, pos2, arena, spawns);
+                DisasterMap map = new DisasterMap(mainReference, pos1, pos2, arena, spawns);
                 registerArena(map);
                 Bukkit.getLogger().info("Carregada arena: " + arena);
             }
@@ -228,30 +230,33 @@ public class MapManager {
     }
 
     public void teleportSpectatorToArena(Player p) {
+        p.setGameMode(GameMode.SPECTATOR);
         if (currentMap != null)
             if (currentMap.getPlayersInArena().size() > 0)
                 p.teleport(Objects.requireNonNull(Bukkit.getPlayer(currentMap.getPlayersInArena().get(0))).getLocation());
     }
 
     public void updateArenaForDeadPlayer(String name) {
-        if (currentMap != null)
+        if (currentMap == null) {
+            Bukkit.broadcastMessage(ChatColor.YELLOW + name + " saiu do servidor");
+        } else
         if (currentMap.getPlayersInArena().contains(name)) {
             currentMap.getPlayersInArena().remove(name);
             // If the game ends
             if (currentMap.getPlayersInArena().size() <= 1) {
-                if (currentMap.getPlayersInArena().size() == 0)
-                    Bukkit.broadcastMessage(ChatColor.GREEN + name + " venceu!");
-                else Bukkit.broadcastMessage(ChatColor.GREEN + currentMap.getPlayersInArena().get(0) + " venceu!");
+                Bukkit.broadcastMessage(ChatColor.YELLOW + "O jogo acabou.");
+                if (currentMap.getPlayersInArena().size() == 1)
+                    Bukkit.broadcastMessage(ChatColor.GREEN + currentMap.getPlayersInArena().get(0) + " venceu!");
                 finishGame();
             } else {
                 Bukkit.broadcastMessage(ChatColor.YELLOW + name + " morreu, ainda restam " + currentMap.getPlayersInArena().size() + " jogadores vivos!");
                 Player p = Bukkit.getPlayer(name);
                 assert p != null;
                 p.setGameMode(GameMode.SPECTATOR);
-                p.setHealth(20);
-                p.setFoodLevel(20);
-                p.teleport(Objects.requireNonNull(Bukkit.getPlayer(currentMap.getPlayersInArena().get(0))).getLocation());
+                teleportSpectatorToArena(p);
             }
+        } else {
+            Bukkit.broadcastMessage(ChatColor.YELLOW + name + " saiu do servidor");
         }
     }
 
