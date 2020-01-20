@@ -19,6 +19,7 @@ public class ToxicRain extends Disaster {
     public ToxicRain(DisasterMap map, JavaPlugin main) {
         super(map, main);
         name = "Toxic Rain";
+        hint = "Procure abrigo.";
     }
 
     @Override

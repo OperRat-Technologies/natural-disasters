@@ -10,7 +10,7 @@ public abstract class Disaster {
 
     DisasterMap map;
     JavaPlugin main;
-    String name;
+    String name, hint;
     int taskId;
     boolean isActive;
 
@@ -37,5 +37,7 @@ public abstract class Disaster {
     public String getName() { return name; }
 
     public void setMap(DisasterMap map) { this.map = map; }
+
+    public String getHint() { return hint; }
 
 }

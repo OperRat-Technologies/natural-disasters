@@ -85,7 +85,7 @@ public class MapManager {
         disasters.add(new Earthquake( null, mainReference));
         disasters.add(new Blizzard(null, mainReference));
         disasters.add(new Fire(null, mainReference));
-//        disasters.add(new Thunderstorm(null, mainReference));
+        disasters.add(new Thunderstorm(null, mainReference));
     }
 
     public void randomNextMap() {
@@ -200,6 +200,7 @@ public class MapManager {
                 ActionBar ab = new ActionBar(ChatColor.RED + "Boa sorte!");
                 ab.sendToAll();
                 currentStatus = GameStatus.IN_GAME;
+                Bukkit.broadcastMessage(ChatColor.GRAY + currentDisaster.getHint());
             }, 130L);
         }
     }

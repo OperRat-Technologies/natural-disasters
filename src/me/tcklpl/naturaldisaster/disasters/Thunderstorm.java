@@ -5,10 +5,15 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Creeper;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.LightningStrike;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 public class Thunderstorm extends Disaster {
@@ -16,6 +21,7 @@ public class Thunderstorm extends Disaster {
     public Thunderstorm(DisasterMap map, JavaPlugin main) {
         super(map, main);
         name = "Thunderstorm";
+        hint = "Evite locais altos.";
     }
 
     @Override
@@ -30,52 +36,63 @@ public class Thunderstorm extends Disaster {
 
         taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
 
+            HashMap<Location, Integer> creeperChargedSpawns = new HashMap<>();
+
             for (String playerName : map.getPlayersInArena()) {
 
                 Player p = Bukkit.getPlayer(playerName);
                 assert p != null;
+                Location l = p.getLocation();
 
                 if (p.getGameMode() == GameMode.ADVENTURE) {
 
-                    if (r.nextInt(100) <= strikechance) {
+                    int chanceOfStrike = 0;
+                    int playersNearby = 0;
 
-                        Location l = p.getLocation();
-
-                        int offsetX = r.nextInt(5) - 3;
-                        int offsetZ = r.nextInt(5) - 3;
-
-                        l.setX(l.getBlockX() + offsetX);
-                        l.setZ(l.getBlockZ() + offsetZ);
-
-
-                        int topo = Math.max(map.getPos1().getBlockY(), map.getPos2().getBlockY());
-                        boolean blockAbove = false;
-                        int y;
-                        for (y = l.getBlockY() + 1; y <= topo && !blockAbove; y++) {
-                            if (map.getWorld().getBlockAt(l.getBlockX(), y, l.getBlockZ()).getBlockData().getMaterial() != Material.AIR)
-                                blockAbove = true;
+                    // Lightning chance of spawning per factor
+                    if (l.getY() >= Math.floorDiv(map.top - map.floor, 2))
+                        chanceOfStrike += 30;
+                    if (map.getWorld().getHighestBlockYAt(l.getBlockX(), l.getBlockZ()) <= l.getBlockY())
+                        chanceOfStrike += 80;
+                    for (Entity nearby : p.getNearbyEntities(5, 2, 5)) {
+                        if (nearby instanceof Player) {
+                            playersNearby += 1;
+                            chanceOfStrike += 10;
                         }
-                        if (blockAbove) {
-                            Location blockLoc = new Location(map.getWorld(), l.getBlockX(), y, l.getBlockZ());
-                            map.getWorld().spawn(blockLoc, LightningStrike.class);
-
-                            map.getWorld().getBlockAt(blockLoc).setType(Material.FIRE);
-                            map.getWorld().getBlockAt(blockLoc.add(1, 0, 0)).setType(Material.FIRE);
-                            map.getWorld().getBlockAt(blockLoc.add(0, 0, 1)).setType(Material.FIRE);
-                            map.getWorld().getBlockAt(blockLoc.subtract(1, 0, 0)).setType(Material.FIRE);
-                            map.getWorld().getBlockAt(blockLoc.subtract(0, 0, 1)).setType(Material.FIRE);
-
-                        } else {
-                            map.getWorld().spawn(l, LightningStrike.class);
-                        }
-
-
                     }
 
+                    // Spawn lightning based of player chance of it
+                    if (chanceOfStrike != 0)
+                    if (r.nextInt(100) < chanceOfStrike) {
+                        map.getWorld().spawn(map.getWorld().getHighestBlockAt(l.getBlockX(), l.getBlockZ()).getLocation(), LightningStrike.class);
+                    }
+
+                    // Add creeper charged spawn if there are more players nearby
+                    if (playersNearby > 0)
+                        if (!creeperChargedSpawns.containsKey(l))
+                            creeperChargedSpawns.put(l, playersNearby);
+
                 }
-
-
             }
+
+            if (creeperChargedSpawns.size() > 0) {
+                for (Map.Entry<Location, Integer> entry : creeperChargedSpawns.entrySet()) {
+                    if (r.nextInt(4) <= entry.getValue()) {
+                        Location l = entry.getKey();
+                        boolean spawned = false;
+                        while (!spawned) {
+                            Location temp = l.add(r.nextInt(7) - 3, 0, r.nextInt(7) - 3);
+                            if (temp.getBlock().getRelative(BlockFace.UP).getType() == Material.AIR) {
+                                Creeper c = map.getWorld().spawn(temp, Creeper.class);
+                                c.setPowered(true);
+                                spawned = true;
+                            }
+                        }
+                    }
+                }
+                creeperChargedSpawns.clear();
+            }
+
 
         }, startDelay, 20L);
 

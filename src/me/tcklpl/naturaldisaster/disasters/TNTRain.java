@@ -19,6 +19,7 @@ public class TNTRain extends Disaster {
         super(map, main);
         this.main = main;
         name = "TNT Rain";
+        hint = "Procure abrigo.";
     }
 
     @Override

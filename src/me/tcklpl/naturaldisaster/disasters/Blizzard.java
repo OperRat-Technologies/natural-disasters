@@ -17,6 +17,7 @@ public class Blizzard extends Disaster {
     public Blizzard(DisasterMap map, JavaPlugin main) {
         super(map, main);
         name = "Blizzard";
+        hint = "Procure abrigo.";
     }
 
     @Override

@@ -39,6 +39,7 @@ public class Main extends JavaPlugin {
         pm.registerEvents(new FoodLevel(), this);
         pm.registerEvents(new IceMelt(), this);
         pm.registerEvents(new Leave(), this);
+        pm.registerEvents(new Move(), this);
 
         Objects.requireNonNull(getCommand("world")).setExecutor(new WorldCommands(worldManager));
         GamemodeCommands gmc = new GamemodeCommands();

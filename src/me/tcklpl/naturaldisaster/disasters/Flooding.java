@@ -17,6 +17,7 @@ public class Flooding extends Disaster {
     public Flooding(DisasterMap map, JavaPlugin main) {
         super(map, main);
         name = "Flooding";
+        hint = "Procure locais altos.";
     }
 
     @Override

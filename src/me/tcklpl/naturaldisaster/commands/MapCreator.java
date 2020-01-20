@@ -1,6 +1,5 @@
 package me.tcklpl.naturaldisaster.commands;
 
-import me.tcklpl.naturaldisaster.disasters.Disaster;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.map.MapManager;
 import org.bukkit.ChatColor;
@@ -84,11 +83,11 @@ public class MapCreator implements CommandExecutor {
             if (args[0].equalsIgnoreCase("list")) {
                 if (args.length != 1) return false;
                 StringBuilder message = new StringBuilder();
-                message.append(ChatColor.GREEN);
-                message.append("Arenas: ");
+                p.sendMessage(ChatColor.GREEN + "Arenas:");
                 for (DisasterMap map : MapManager.getInstance().getAllArenas()) {
+                    message.append(ChatColor.GRAY);
+                    message.append(" - ");
                     message.append(map.getName());
-                    message.append(" ");
                 }
                 p.sendMessage(message.toString());
                 return true;

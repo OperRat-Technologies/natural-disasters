@@ -22,6 +22,7 @@ public class Earthquake extends Disaster {
     public Earthquake(DisasterMap map, JavaPlugin main) {
         super(map, main);
         name = "Earthquake";
+        hint = "Evite locais altos.";
     }
 
     private void destroyYColumn(int x, int z) {
