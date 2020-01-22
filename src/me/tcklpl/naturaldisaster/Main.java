@@ -8,7 +8,6 @@ import me.tcklpl.naturaldisaster.worlds.WorldManager;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -40,6 +39,7 @@ public class Main extends JavaPlugin {
         pm.registerEvents(new IceMelt(), this);
         pm.registerEvents(new Leave(), this);
         pm.registerEvents(new Move(), this);
+        pm.registerEvents(new AdminInventoryClick(), this);
 
         Objects.requireNonNull(getCommand("world")).setExecutor(new WorldCommands(worldManager));
         GamemodeCommands gmc = new GamemodeCommands();
@@ -50,6 +50,8 @@ public class Main extends JavaPlugin {
         Objects.requireNonNull(getCommand("arena")).setExecutor(new MapCreator(this));
         Objects.requireNonNull(getCommand("start")).setExecutor(new Start(this));
         Objects.requireNonNull(getCommand("balance")).setExecutor(new Balance());
+        Objects.requireNonNull(getCommand("admin")).setExecutor(new ArenaAdmin());
+        Objects.requireNonNull(getCommand("sch")).setExecutor(new SchematicCommand());
     }
 
     @Override

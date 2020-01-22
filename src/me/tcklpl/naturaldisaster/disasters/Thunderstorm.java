@@ -5,16 +5,20 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Biome;
+import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Creeper;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LightningStrike;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Thunderstorm extends Disaster {
 
@@ -26,18 +30,20 @@ public class Thunderstorm extends Disaster {
 
     @Override
     public void startDisaster() {
+        map.getWorld().setMonsterSpawnLimit(100);
         super.startDisaster();
 
+        map.setArenaBiome(Biome.PLAINS);
         map.makeRain(false);
 
         Random r = random;
 
-        int strikechance = 10;
+        HashMap<Location, Integer> creeperChargedSpawns = new HashMap<>();
+        AtomicInteger timesRunned = new AtomicInteger(0);
 
         taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
 
-            HashMap<Location, Integer> creeperChargedSpawns = new HashMap<>();
-
+            if ((timesRunned.incrementAndGet() % 3) == 0)
             for (String playerName : map.getPlayersInArena()) {
 
                 Player p = Bukkit.getPlayer(playerName);
@@ -46,25 +52,34 @@ public class Thunderstorm extends Disaster {
 
                 if (p.getGameMode() == GameMode.ADVENTURE) {
 
-                    int chanceOfStrike = 0;
+                    int chanceOfStrike = 15;
                     int playersNearby = 0;
 
                     // Lightning chance of spawning per factor
                     if (l.getY() >= Math.floorDiv(map.top - map.floor, 2))
                         chanceOfStrike += 30;
                     if (map.getWorld().getHighestBlockYAt(l.getBlockX(), l.getBlockZ()) <= l.getBlockY())
-                        chanceOfStrike += 80;
+                        chanceOfStrike += 50;
                     for (Entity nearby : p.getNearbyEntities(5, 2, 5)) {
                         if (nearby instanceof Player) {
                             playersNearby += 1;
-                            chanceOfStrike += 10;
+                            chanceOfStrike += 20;
                         }
                     }
 
                     // Spawn lightning based of player chance of it
                     if (chanceOfStrike != 0)
                     if (r.nextInt(100) < chanceOfStrike) {
-                        map.getWorld().spawn(map.getWorld().getHighestBlockAt(l.getBlockX(), l.getBlockZ()).getLocation(), LightningStrike.class);
+                        LightningStrike ls = map.getWorld().spawn(map.getWorld().getHighestBlockAt(l.getBlockX(), l.getBlockZ()).getLocation(), LightningStrike.class);
+                        Block b = ls.getLocation().getBlock();
+                        for (int x = b.getX() - 1; x <= b.getX() + 1; x++) {
+                            for (int y = b.getY() - 1; y <= b.getY() + 1; y++) {
+                                for (int z = b.getZ() - 1; z <= b.getZ() + 1; z++) {
+                                    Block toBreak = map.getWorld().getBlockAt(x, y, z);
+                                    toBreak.breakNaturally(new ItemStack(Material.AIR));
+                                }
+                            }
+                        }
                     }
 
                     // Add creeper charged spawn if there are more players nearby

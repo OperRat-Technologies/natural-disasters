@@ -4,6 +4,7 @@ import me.tcklpl.naturaldisaster.map.DisasterMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.FallingBlock;
@@ -174,7 +175,7 @@ public class Earthquake extends Disaster {
 
         Random r = new Random();
         // Blocos podem ser afetados por gravidade acima de 1/5 da altura do mapa + [0, 1/4 da altura do mapa]
-        int yTreshold = Math.floorDiv(map.top - map.floor, 4) + r.nextInt(Math.floorDiv(map.top - map.floor, 4));
+        int yTreshold = Math.floorDiv(map.top - map.floor, 2) + r.nextInt(Math.floorDiv(map.top - map.floor, 4));
 
         for (int y = yTreshold; y <= map.top; y++) {
             for (int x = map.minX; x <= map.minX + map.gapX; x++)
@@ -198,6 +199,9 @@ public class Earthquake extends Disaster {
     @Override
     public void startDisaster() {
         super.startDisaster();
+
+        map.setArenaBiome(Biome.PLAINS);
+        map.makeRain(true);
 
         Random r = random;
         // XZ = 0 norte - sul

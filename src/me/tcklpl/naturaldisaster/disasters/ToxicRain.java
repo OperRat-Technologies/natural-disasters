@@ -5,10 +5,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.Random;
@@ -27,6 +27,7 @@ public class ToxicRain extends Disaster {
 
         super.startDisaster();
 
+        map.setArenaBiome(Biome.PLAINS);
         map.makeRain(false);
 
         Random r = random;

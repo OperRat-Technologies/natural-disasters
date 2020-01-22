@@ -61,7 +61,7 @@ public class Blizzard extends Disaster {
             if ((timesRunned.incrementAndGet() % nextIteration.get()) == 0) {
 
                 nextIteration.set(10 + r.nextInt(6));
-                map.bufferedBreakBlocks(blocksToChangePerLevel.get(currentY.getAndDecrement()), blockPallete, 30, false);
+                map.bufferedBreakBlocks(blocksToChangePerLevel.get(currentY.getAndDecrement()), blockPallete, 500, false);
 
             }
 

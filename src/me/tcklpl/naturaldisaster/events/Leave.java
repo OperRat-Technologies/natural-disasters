@@ -1,5 +1,6 @@
 package me.tcklpl.naturaldisaster.events;
 
+import me.tcklpl.naturaldisaster.GameStatus;
 import me.tcklpl.naturaldisaster.map.MapManager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -9,7 +10,8 @@ public class Leave implements Listener {
 
     @EventHandler
     public void onLeave(PlayerQuitEvent e) {
-        MapManager.getInstance().updateArenaForDeadPlayer(e.getPlayer().getName());
+        if (MapManager.getInstance().getCurrentStatus() != GameStatus.IN_LOBBY)
+            MapManager.getInstance().updateArenaForDeadPlayer(e.getPlayer().getName());
         e.setQuitMessage("");
     }
 

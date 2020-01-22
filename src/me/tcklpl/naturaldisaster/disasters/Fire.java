@@ -3,6 +3,7 @@ package me.tcklpl.naturaldisaster.disasters;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -22,9 +23,9 @@ public class Fire extends Disaster {
     public Fire(DisasterMap map, JavaPlugin main) {
         super(map, main);
         name = "Fire";
+        hint = "Procure abrigo.";
         burnedBlocksMaterials = new ArrayList<>();
         burnedBlocksMaterials.add(Material.COAL_BLOCK);
-        burnedBlocksMaterials.add(Material.BLACK_CONCRETE);
     }
 
     private boolean theresBlockInY(int x, int z) {
@@ -38,6 +39,8 @@ public class Fire extends Disaster {
     @Override
     public void startDisaster() {
         super.startDisaster();
+
+        map.setArenaBiome(Biome.PLAINS);
 
         Random r = new Random();
         int sourceX, sourceY, sourceZ;
@@ -69,7 +72,7 @@ public class Fire extends Disaster {
             if (timesCycled.get() == 0)
                 sourceBlock.setType(Material.COAL_BLOCK, false);
 
-            if ((timesCycled.incrementAndGet() % 5) == 0) {
+            if ((timesCycled.incrementAndGet() % 3) == 0) {
 
                 AtomicInteger currentBlockIndex = new AtomicInteger(0);
 

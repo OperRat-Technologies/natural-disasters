@@ -3,6 +3,7 @@ package me.tcklpl.naturaldisaster.disasters;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.block.Biome;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -29,6 +30,7 @@ public class TNTRain extends Disaster {
 
         r = random;
 
+        map.setArenaBiome(Biome.PLAINS);
         map.makeRain(true);
 
         AtomicInteger tntToSpawn = new AtomicInteger(1);

@@ -89,13 +89,11 @@ public class MapManager {
     }
 
     public void randomNextMap() {
-        // Unload if by any chance it wasn't
-        if (currentMap != null)
-            if (Bukkit.unloadWorld(Objects.requireNonNull(currentMap.getPos1().getWorld()), false)) {
-                Bukkit.getLogger().info("Mundo " + currentMap.getName() + " descarregado.");
-            } else Bukkit.getLogger().severe("Falha ao descarregar mundo " + currentMap);
         Random random = new Random();
-        currentMap = arenas.get(random.nextInt(arenas.size()));
+
+        if (currentMap == null) {
+            currentMap = arenas.get(random.nextInt(arenas.size()));
+        }
 
         Bukkit.getLogger().info("Carregando próximo mapa: " + currentMap.getName());
         ActionBar ab = new ActionBar(ChatColor.GOLD + "Próximo mapa: " + currentMap.getName());
@@ -111,11 +109,11 @@ public class MapManager {
         // Update locations with current world object
         currentMap.updateArenaWorld(w);
 
-        // Stop disaster if per any chance theres one running
-        if (currentDisaster != null)
-            currentDisaster.stopDisaster();
+        if (currentDisaster == null) {
+            currentDisaster = disasters.get(random.nextInt(disasters.size()));
+        }
 
-        currentDisaster = disasters.get(random.nextInt(disasters.size()));
+        assert currentDisaster != null;
         currentDisaster.setMap(currentMap);
 
         Bukkit.getLogger().info("Próximo desastre: " + currentDisaster.getName());
@@ -238,9 +236,6 @@ public class MapManager {
     }
 
     public void updateArenaForDeadPlayer(String name) {
-        if (currentMap == null) {
-            Bukkit.broadcastMessage(ChatColor.YELLOW + name + " saiu do servidor");
-        } else
         if (currentMap.getPlayersInArena().contains(name)) {
             currentMap.getPlayersInArena().remove(name);
             // If the game ends
@@ -256,10 +251,34 @@ public class MapManager {
                 p.setGameMode(GameMode.SPECTATOR);
                 teleportSpectatorToArena(p);
             }
-        } else {
-            Bukkit.broadcastMessage(ChatColor.YELLOW + name + " saiu do servidor");
         }
     }
 
     public boolean isIsInGame() { return currentStatus == GameStatus.IN_GAME || currentStatus == GameStatus.STARTING; }
+
+    public void setCurrentMap(DisasterMap map) {
+        if (currentStatus == GameStatus.IN_LOBBY)
+            currentMap = map;
+    }
+
+    public void setCurrentDisaster(Disaster disaster) {
+        if (currentStatus == GameStatus.IN_LOBBY)
+            currentDisaster = disaster;
+    }
+
+    public List<DisasterMap> getAllMaps() {
+        return arenas;
+    }
+
+    public List<Disaster> getAllDisasters() {
+        return disasters;
+    }
+
+    public Disaster getDisasterByName(String name) {
+        for (Disaster dis : disasters) {
+            if (dis.getName().equalsIgnoreCase(name))
+                return dis;
+        }
+        return null;
+    }
 }

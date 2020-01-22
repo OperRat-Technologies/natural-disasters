@@ -3,6 +3,7 @@ package me.tcklpl.naturaldisaster.disasters;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -24,6 +25,7 @@ public class Flooding extends Disaster {
     public void startDisaster() {
         super.startDisaster();
 
+        map.setArenaBiome(Biome.PLAINS);
         map.makeRain(false);
 
         Random r = random;
@@ -52,7 +54,7 @@ public class Flooding extends Disaster {
                         }
                     }
 
-                    map.bufferedBreakBlocks(blocksToChange, Material.WATER, 300, false);
+                    map.bufferedBreakBlocks(blocksToChange, Material.WATER, 500, false);
 
                     currentY.getAndIncrement();
                     floodRiseChance.addAndGet(5);

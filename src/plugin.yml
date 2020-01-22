@@ -1,6 +1,6 @@
 name: NaturalDisasters
 main: me.tcklpl.naturaldisaster.Main
-version: 1.4.4a
+version: 1.5.0a
 api-version: "1.15"
 prefix: Natural Disasters
 commands:
@@ -40,3 +40,11 @@ commands:
   balance:
     description: Mostra a situação financeira
     usage: "Usage: /<command>"
+  admin:
+    description: Ferramenta de damin.
+    permission: op
+    usage: "Usage: /<command> [set] [map/disaster]"
+  sch:
+    description: Criação de schematics.
+    permission: op
+    usage: "Usage: /<command> [create/pos1/pos2/finalize/load] (name)"
