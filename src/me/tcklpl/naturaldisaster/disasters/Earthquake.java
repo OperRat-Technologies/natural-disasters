@@ -183,6 +183,7 @@ public class Earthquake extends Disaster {
                     if (map.getWorld().getBlockAt(x, y, z).getType() != Material.AIR) {
                         Block b = map.getWorld().getBlockAt(x, y, z);
                         Block downRelative = b.getRelative(BlockFace.DOWN);
+                        if (!b.getType().toString().contains("LEAVES"))
                         if (downRelative.getType() == Material.AIR || downRelative.isPassable() || gravityCandidates.contains(downRelative))
                             gravityCandidates.add(b);
                     }

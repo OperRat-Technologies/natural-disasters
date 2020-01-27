@@ -68,7 +68,6 @@ public class Thunderstorm extends Disaster {
                     }
 
                     // Spawn lightning based of player chance of it
-                    if (chanceOfStrike != 0)
                     if (r.nextInt(100) < chanceOfStrike) {
                         LightningStrike ls = map.getWorld().spawn(map.getWorld().getHighestBlockAt(l.getBlockX(), l.getBlockZ()).getLocation(), LightningStrike.class);
                         Block b = ls.getLocation().getBlock();

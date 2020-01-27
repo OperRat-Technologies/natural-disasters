@@ -82,6 +82,10 @@ public class DisasterMap {
         return pos1.getWorld();
     }
 
+    /**
+     * Function to get the max Y level of all the map
+     * @return the max Y level
+     */
     public int getMaxYLevel() {
         List<Integer> topBlocks = new ArrayList<>();
         for (int x = minX; x <= minX + gapX + 1; x++) {
@@ -93,6 +97,10 @@ public class DisasterMap {
         return topBlocks.get(topBlocks.size() - 1);
     }
 
+    /**
+     * Updates arena-relative positions with given world
+     * @param w the world
+     */
     public void updateArenaWorld(World w) {
         pos1.setWorld(w);
         pos2.setWorld(w);
@@ -120,8 +128,6 @@ public class DisasterMap {
                     arenaChunks.add(getWorld().getChunkAt(b));
             }
         }
-
-        getWorld().setMonsterSpawnLimit(0);
         getWorld().setWaterAnimalSpawnLimit(0);
     }
 
@@ -193,6 +199,14 @@ public class DisasterMap {
         }
     }
 
+    /**
+     * Replaces blocks in given list with replacement material in said buffer (per tick) with the possibility of
+     * spawnings fallingblock entities on the replaced blocks' location.
+     * @param blocks the list of blocks to be replaced.
+     * @param replacement the replacement material.
+     * @param buffer the size of the buffer to be executed per tick.
+     * @param fallingBlock to create or not fallingblock entities of replaced blocks, to be used when destroying them.
+     */
     public void bufferedBreakBlocks(List<Block> blocks, Material replacement, int buffer, boolean fallingBlock) {
 
         if (blocks.size() == 0) return;
@@ -221,6 +235,14 @@ public class DisasterMap {
         }
     }
 
+    /**
+     * Randomly replaces block in given list with the materials in the replacement list (with even percentages) using
+     * said buffer (per tick) with the possibility of spawning fallingblock entities on the replaced blocks' location.
+     * @param blocks the list of blocks to be replaced.
+     * @param replacement the list of replacement materials.
+     * @param buffer the size of the buffer to be executed per tick.
+     * @param fallingBlock to create or not fallingblock entities of replaced blocks, to be used when destroying them.
+     */
     public void bufferedBreakBlocks(List<Block> blocks, List<Material> replacement, int buffer, boolean fallingBlock) {
 
         if (blocks.size() == 0) return;

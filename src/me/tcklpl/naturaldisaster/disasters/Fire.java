@@ -72,7 +72,7 @@ public class Fire extends Disaster {
             if (timesCycled.get() == 0)
                 sourceBlock.setType(Material.COAL_BLOCK, false);
 
-            if ((timesCycled.incrementAndGet() % 3) == 0) {
+            if ((timesCycled.incrementAndGet() % 2) == 0) {
 
                 AtomicInteger currentBlockIndex = new AtomicInteger(0);
 
@@ -146,8 +146,8 @@ public class Fire extends Disaster {
                 assert p != null;
                 Material m = p.getLocation().getBlock().getRelative(BlockFace.DOWN).getType();
                 if (m == Material.MAGMA_BLOCK || m == Material.COAL_BLOCK || m == Material.BLACK_TERRACOTTA) {
-                    p.damage(2);
-                    p.setFireTicks(20);
+                    p.damage(4);
+                    p.setFireTicks(60);
                 }
             }
 

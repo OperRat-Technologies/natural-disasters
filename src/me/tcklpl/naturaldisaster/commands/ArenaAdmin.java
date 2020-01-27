@@ -1,9 +1,11 @@
 package me.tcklpl.naturaldisaster.commands;
 
+import me.tcklpl.naturaldisaster.GameStatus;
 import me.tcklpl.naturaldisaster.disasters.Disaster;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.map.MapManager;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -26,6 +28,11 @@ public class ArenaAdmin implements CommandExecutor {
                 if (args.length != 2) return false;
 
                 if (args[0].equalsIgnoreCase("set")) {
+
+                    if (MapManager.getInstance().getCurrentStatus() != GameStatus.IN_LOBBY) {
+                        sender.sendMessage(ChatColor.RED + "Só é possível definir mapa e desastre quando estiver em lobby, se o jogo já acabou aguarde alguns segundos.");
+                        return true;
+                    }
 
                     if (args[1].equalsIgnoreCase("map")) {
 

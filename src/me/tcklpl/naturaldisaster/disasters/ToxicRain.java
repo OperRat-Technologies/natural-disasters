@@ -35,7 +35,7 @@ public class ToxicRain extends Disaster {
         AtomicInteger blocksToBreak = new AtomicInteger(5);
         AtomicInteger timesExecuted = new AtomicInteger(0);
         AtomicInteger currentDamage = new AtomicInteger(1);
-        AtomicInteger poisonDuration = new AtomicInteger(20);
+        AtomicInteger poisonDuration = new AtomicInteger(2);
         AtomicInteger poisonStrenght = new AtomicInteger(1);
 
         taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {

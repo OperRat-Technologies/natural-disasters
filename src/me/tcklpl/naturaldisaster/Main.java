@@ -34,12 +34,13 @@ public class Main extends JavaPlugin {
         pm.registerEvents(new Join(), this);
         pm.registerEvents(new Death(), this);
         pm.registerEvents(new PickItem(), this);
-        pm.registerEvents(new MobSpawn(), this);
         pm.registerEvents(new FoodLevel(), this);
         pm.registerEvents(new IceMelt(), this);
         pm.registerEvents(new Leave(), this);
         pm.registerEvents(new Move(), this);
         pm.registerEvents(new AdminInventoryClick(), this);
+        pm.registerEvents(new Chat(), this);
+        pm.registerEvents(new Damage(), this);
 
         Objects.requireNonNull(getCommand("world")).setExecutor(new WorldCommands(worldManager));
         GamemodeCommands gmc = new GamemodeCommands();

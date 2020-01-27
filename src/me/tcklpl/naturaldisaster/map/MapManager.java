@@ -3,9 +3,13 @@ package me.tcklpl.naturaldisaster.map;
 import me.tcklpl.naturaldisaster.GameStatus;
 import me.tcklpl.naturaldisaster.disasters.*;
 import me.tcklpl.naturaldisaster.util.ActionBar;
+import me.tcklpl.naturaldisaster.util.NamesAndColors;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.ScoreboardManager;
+import org.bukkit.scoreboard.Team;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,13 +83,14 @@ public class MapManager {
     }
 
     public void setupDisasters() {
-        disasters.add(new TNTRain(null, mainReference));
-        disasters.add(new ToxicRain(null, mainReference));
-        disasters.add(new Flooding(null, mainReference));
-        disasters.add(new Earthquake( null, mainReference));
-        disasters.add(new Blizzard(null, mainReference));
-        disasters.add(new Fire(null, mainReference));
-        disasters.add(new Thunderstorm(null, mainReference));
+//        disasters.add(new TNTRain(null, mainReference));
+//        disasters.add(new ToxicRain(null, mainReference));
+//        disasters.add(new Flooding(null, mainReference));
+//        disasters.add(new Earthquake( null, mainReference));
+//        disasters.add(new Blizzard(null, mainReference));
+//        disasters.add(new Fire(null, mainReference));
+//        disasters.add(new Thunderstorm(null, mainReference));
+        disasters.add(new Biohazard(null, mainReference));
     }
 
     public void randomNextMap() {
@@ -182,6 +187,8 @@ public class MapManager {
             currentStatus = GameStatus.STARTING;
             currentMap.addAllPlayersToArena();
 
+            assignRandomNames();
+
             AtomicInteger counter = new AtomicInteger(5);
             counterId = Bukkit.getScheduler().scheduleSyncRepeatingTask(mainReference, () -> {
                 if (counter.get() == 0)
@@ -205,6 +212,13 @@ public class MapManager {
 
     public void finishGame() {
         currentDisaster.stopDisaster();
+
+        for (Player p : Bukkit.getOnlinePlayers()) {
+            p.setDisplayName(p.getName());
+            p.setPlayerListName(p.getName());
+            p.setScoreboard(Objects.requireNonNull(Bukkit.getScoreboardManager()).getNewScoreboard());
+        }
+
 
         // Wait 1s to teleport 'cause players may still be ticking
         Bukkit.getScheduler().scheduleSyncDelayedTask(mainReference, () -> {
@@ -245,9 +259,9 @@ public class MapManager {
                     Bukkit.broadcastMessage(ChatColor.GREEN + currentMap.getPlayersInArena().get(0) + " venceu!");
                 finishGame();
             } else {
-                Bukkit.broadcastMessage(ChatColor.YELLOW + name + " morreu, ainda restam " + currentMap.getPlayersInArena().size() + " jogadores vivos!");
                 Player p = Bukkit.getPlayer(name);
                 assert p != null;
+                Bukkit.broadcastMessage(p.getDisplayName() + ChatColor.YELLOW + "( " + name + " ) morreu, ainda restam " + currentMap.getPlayersInArena().size() + " jogadores vivos!");
                 p.setGameMode(GameMode.SPECTATOR);
                 teleportSpectatorToArena(p);
             }
@@ -280,5 +294,30 @@ public class MapManager {
                 return dis;
         }
         return null;
+    }
+
+    public void assignRandomNames() {
+        if (currentMap != null) {
+
+            ScoreboardManager manager = Bukkit.getScoreboardManager();
+            assert manager != null;
+            Scoreboard board = manager.getNewScoreboard();
+
+            int playerCount = currentMap.getPlayersInArena().size();
+            List<String> names = NamesAndColors.pickRandomNames(playerCount);
+            List<ChatColor> colors = NamesAndColors.pickRandomColors(playerCount);
+            for (int i = 0; i < playerCount; i++) {
+                Player p = Bukkit.getPlayer(currentMap.getPlayersInArena().get(i));
+                assert p != null;
+                p.setDisplayName(colors.get(i) + names.get(i));
+                p.setPlayerListName(colors.get(i) + names.get(i));
+
+                Team team = board.registerNewTeam(p.getName());
+                p.setScoreboard(board);
+                team.setPrefix(colors.get(i) + "");
+                team.addEntry(p.getName());
+                team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS);
+            }
+        }
     }
 }
