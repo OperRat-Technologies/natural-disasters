@@ -66,9 +66,8 @@ public class Blizzard extends Disaster {
             }
 
             if (map.getPlayersInArena().size() > 0)
-            for (String playerName : map.getPlayersInArena()) {
+            for (Player p : map.getPlayersInArena()) {
 
-                Player p = Bukkit.getPlayer(playerName);
                 assert p != null;
 
                 if (p.getGameMode() == GameMode.ADVENTURE) {

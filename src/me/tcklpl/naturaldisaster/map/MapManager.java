@@ -2,14 +2,13 @@ package me.tcklpl.naturaldisaster.map;
 
 import me.tcklpl.naturaldisaster.GameStatus;
 import me.tcklpl.naturaldisaster.disasters.*;
+import me.tcklpl.naturaldisaster.player.ArenaPlayerManager;
 import me.tcklpl.naturaldisaster.util.ActionBar;
 import me.tcklpl.naturaldisaster.util.NamesAndColors;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scoreboard.Scoreboard;
-import org.bukkit.scoreboard.ScoreboardManager;
-import org.bukkit.scoreboard.Team;
+import org.bukkit.potion.PotionEffect;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,11 +28,11 @@ public class MapManager {
     private int counterId;
     private GameStatus currentStatus;
 
+    private ArenaPlayerManager arenaPlayerManager;
+
 
     private static MapManager INSTANCE;
-    private MapManager() {
-
-    }
+    private MapManager() {}
 
     public static MapManager getInstance() {
         if (INSTANCE == null)
@@ -55,10 +54,6 @@ public class MapManager {
         }
     }
 
-    public JavaPlugin getMainReference() {
-        return mainReference;
-    }
-
     public void setMainReference(JavaPlugin mainReference) {
         this.mainReference = mainReference;
     }
@@ -74,7 +69,7 @@ public class MapManager {
         return null;
     }
 
-    public DisasterMap getPlayerMap(String player) {
+    public DisasterMap getPlayerMap(Player player) {
         for (DisasterMap map : arenas) {
             if (map.getPlayersInArena().contains(player))
                 return map;
@@ -83,13 +78,13 @@ public class MapManager {
     }
 
     public void setupDisasters() {
-//        disasters.add(new TNTRain(null, mainReference));
-//        disasters.add(new ToxicRain(null, mainReference));
-//        disasters.add(new Flooding(null, mainReference));
-//        disasters.add(new Earthquake( null, mainReference));
-//        disasters.add(new Blizzard(null, mainReference));
-//        disasters.add(new Fire(null, mainReference));
-//        disasters.add(new Thunderstorm(null, mainReference));
+        disasters.add(new TNTRain(null, mainReference));
+        disasters.add(new ToxicRain(null, mainReference));
+        disasters.add(new Flooding(null, mainReference));
+        disasters.add(new Earthquake( null, mainReference));
+        disasters.add(new Blizzard(null, mainReference));
+        disasters.add(new Fire(null, mainReference));
+        disasters.add(new Thunderstorm(null, mainReference));
         disasters.add(new Biohazard(null, mainReference));
     }
 
@@ -184,6 +179,7 @@ public class MapManager {
     public void startNextGame() {
         if (currentMap != null && currentDisaster != null) {
 
+            arenaPlayerManager = new ArenaPlayerManager(mainReference);
             currentStatus = GameStatus.STARTING;
             currentMap.addAllPlayersToArena();
 
@@ -213,6 +209,9 @@ public class MapManager {
     public void finishGame() {
         currentDisaster.stopDisaster();
 
+        for (Player p : currentMap.getPlayersInArena())
+            arenaPlayerManager.returnPlayerToNormal(p);
+
         for (Player p : Bukkit.getOnlinePlayers()) {
             p.setDisplayName(p.getName());
             p.setPlayerListName(p.getName());
@@ -227,7 +226,11 @@ public class MapManager {
                 p.teleport(new Location(Bukkit.getWorld("void"), 8, 8, 8));
                 p.setHealth(20);
                 p.setFoodLevel(20);
+                p.setFireTicks(0);
+                p.setFallDistance(0);
                 p.getInventory().clear();
+                for (PotionEffect pe : p.getActivePotionEffects())
+                    p.removePotionEffect(pe.getType());
             }
         }, 20L);
 
@@ -246,21 +249,23 @@ public class MapManager {
         p.setGameMode(GameMode.SPECTATOR);
         if (currentMap != null)
             if (currentMap.getPlayersInArena().size() > 0)
-                p.teleport(Objects.requireNonNull(Bukkit.getPlayer(currentMap.getPlayersInArena().get(0))).getLocation());
+                p.teleport(currentMap.getPlayersInArena().get(0).getLocation());
     }
 
-    public void updateArenaForDeadPlayer(String name) {
-        if (currentMap.getPlayersInArena().contains(name)) {
-            currentMap.getPlayersInArena().remove(name);
+    public void updateArenaForDeadPlayer(Player p) {
+
+        arenaPlayerManager.returnPlayerToNormal(p);
+        String name = p.getName();
+
+        if (currentMap.getPlayersInArena().contains(p)) {
+            currentMap.getPlayersInArena().remove(p);
             // If the game ends
             if (currentMap.getPlayersInArena().size() <= 1) {
                 Bukkit.broadcastMessage(ChatColor.YELLOW + "O jogo acabou.");
                 if (currentMap.getPlayersInArena().size() == 1)
-                    Bukkit.broadcastMessage(ChatColor.GREEN + currentMap.getPlayersInArena().get(0) + " venceu!");
+                    Bukkit.broadcastMessage(ChatColor.GREEN + currentMap.getPlayersInArena().get(0).getName() + " venceu!");
                 finishGame();
             } else {
-                Player p = Bukkit.getPlayer(name);
-                assert p != null;
                 Bukkit.broadcastMessage(p.getDisplayName() + ChatColor.YELLOW + "( " + name + " ) morreu, ainda restam " + currentMap.getPlayersInArena().size() + " jogadores vivos!");
                 p.setGameMode(GameMode.SPECTATOR);
                 teleportSpectatorToArena(p);
@@ -299,24 +304,13 @@ public class MapManager {
     public void assignRandomNames() {
         if (currentMap != null) {
 
-            ScoreboardManager manager = Bukkit.getScoreboardManager();
-            assert manager != null;
-            Scoreboard board = manager.getNewScoreboard();
-
             int playerCount = currentMap.getPlayersInArena().size();
             List<String> names = NamesAndColors.pickRandomNames(playerCount);
             List<ChatColor> colors = NamesAndColors.pickRandomColors(playerCount);
             for (int i = 0; i < playerCount; i++) {
-                Player p = Bukkit.getPlayer(currentMap.getPlayersInArena().get(i));
+                Player p = currentMap.getPlayersInArena().get(i);
                 assert p != null;
-                p.setDisplayName(colors.get(i) + names.get(i));
-                p.setPlayerListName(colors.get(i) + names.get(i));
-
-                Team team = board.registerNewTeam(p.getName());
-                p.setScoreboard(board);
-                team.setPrefix(colors.get(i) + "");
-                team.addEntry(p.getName());
-                team.setOption(Team.Option.NAME_TAG_VISIBILITY, Team.OptionStatus.ALWAYS);
+                arenaPlayerManager.disguisePlayer(p, colors.get(i).toString() + names.get(i));
             }
         }
     }

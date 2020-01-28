@@ -19,7 +19,7 @@ public class DisasterMap {
     private Location pos1, pos2;
     private String name;
     private List<Location> spawns;
-    private List<String> playersInArena;
+    private List<Player> playersInArena;
     private List<Chunk> arenaChunks;
     public int x1, x2, y1, y2, z1, z2, minX, minZ, gapX, gapZ, top, floor;
     private Random r;
@@ -133,31 +133,31 @@ public class DisasterMap {
 
     // Arena player management related funcions
 
-    public List<String> getPlayersInArena() {
+    public List<Player> getPlayersInArena() {
         return playersInArena;
     }
 
-    public void setPlayersInArena(List<String> playersInArena) {
+    public void setPlayersInArena(List<Player> playersInArena) {
         this.playersInArena = playersInArena;
     }
 
-    public void addPlayerOnArena(String name) {
-        playersInArena.add(name);
+    public void addPlayerOnArena(Player p) {
+        playersInArena.add(p);
     }
 
-    public void removePlayerOnArena(String name) {
-        playersInArena.remove(name);
+    public void removePlayerOnArena(Player p) {
+        playersInArena.remove(p);
     }
 
     public void addAllPlayersToArena() {
         playersInArena = new ArrayList<>();
-        for (Player p : Bukkit.getOnlinePlayers())
-            playersInArena.add(p.getName());
+        playersInArena.addAll(Bukkit.getOnlinePlayers());
     }
 
     public void teleportPlayersToSpawns() {
+        Collections.shuffle(playersInArena);
         for (int i = 0; i < playersInArena.size(); i++) {
-            Player p = Bukkit.getPlayer(playersInArena.get(i));
+            Player p = playersInArena.get(i);
             Location spawn = spawns.get(i);
             assert spawn != null;
             assert p != null;
@@ -183,8 +183,8 @@ public class DisasterMap {
         for (Chunk c : arenaChunks) {
             CraftChunk nmsChunk = (CraftChunk) c;
             PacketPlayOutMapChunk packet = new PacketPlayOutMapChunk(nmsChunk.getHandle(), 65535);
-            for (String name : getPlayersInArena()) {
-                ((CraftPlayer) Objects.requireNonNull(Bukkit.getPlayer(name))).getHandle().playerConnection.sendPacket(packet);
+            for (Player player : getPlayersInArena()) {
+                ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
             }
         }
 

@@ -140,9 +140,8 @@ public class Fire extends Disaster {
             }
 
             // Do damage to the player
-            for (String playerName : map.getPlayersInArena()) {
+            for (Player p : map.getPlayersInArena()) {
 
-                Player p = Bukkit.getPlayer(playerName);
                 assert p != null;
                 Material m = p.getLocation().getBlock().getRelative(BlockFace.DOWN).getType();
                 if (m == Material.MAGMA_BLOCK || m == Material.COAL_BLOCK || m == Material.BLACK_TERRACOTTA) {

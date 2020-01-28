@@ -53,6 +53,7 @@ public class Main extends JavaPlugin {
         Objects.requireNonNull(getCommand("balance")).setExecutor(new Balance());
         Objects.requireNonNull(getCommand("admin")).setExecutor(new ArenaAdmin());
         Objects.requireNonNull(getCommand("sch")).setExecutor(new SchematicCommand());
+        Objects.requireNonNull(getCommand("heal")).setExecutor(new Heal());
     }
 
     @Override

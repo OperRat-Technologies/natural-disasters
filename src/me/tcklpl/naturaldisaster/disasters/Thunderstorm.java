@@ -44,9 +44,8 @@ public class Thunderstorm extends Disaster {
         taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
 
             if ((timesRunned.incrementAndGet() % 3) == 0)
-            for (String playerName : map.getPlayersInArena()) {
+            for (Player p : map.getPlayersInArena()) {
 
-                Player p = Bukkit.getPlayer(playerName);
                 assert p != null;
                 Location l = p.getLocation();
 

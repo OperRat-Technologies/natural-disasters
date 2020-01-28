@@ -64,8 +64,7 @@ public class Flooding extends Disaster {
             }
 
             // Damage players that are on water
-            for (String s : map.getPlayersInArena()) {
-                Player p = Bukkit.getPlayer(s);
+            for (Player p : map.getPlayersInArena()) {
                 assert p != null;
                 if (p.isSwimming() || map.getWorld().getBlockAt(p.getLocation()).getType() == Material.WATER)
                     p.damage(currentDamage.get());

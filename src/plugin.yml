@@ -1,6 +1,6 @@
 name: NaturalDisasters
 main: me.tcklpl.naturaldisaster.Main
-version: 1.5.1a
+version: 1.6.0a
 api-version: "1.15"
 prefix: Natural Disasters
 commands:
@@ -48,3 +48,7 @@ commands:
     description: Criação de schematics.
     permission: op
     usage: "Usage: /<command> [create/pos1/pos2/finalize/load] (name)"
+  heal:
+    description: Da heal
+    permission: op
+    usage: "Usage: /<command>"

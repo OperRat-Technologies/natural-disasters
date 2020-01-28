@@ -5,15 +5,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
-import org.bukkit.block.Block;
-import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -97,21 +93,20 @@ public class Biohazard extends Disaster {
         taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
 
 
-            if ((timesRunned.incrementAndGet() % 3) == 0) {
+            if ((timesRunned.incrementAndGet() % 2) == 0) {
                 currentNauseaOffset++;
                 updateEffectCoordinates();
             }
-            if ((timesRunned.get() % 6) == 0) {
+            if ((timesRunned.get() % 4) == 0) {
                 currentVenomOffset++;
                 updateEffectCoordinates();
             }
-            if ((timesRunned.get() % 12) == 0) {
+            if ((timesRunned.get() % 8) == 0) {
                 currentDecompOffset++;
                 updateEffectCoordinates();
             }
 
-            for (String name : map.getPlayersInArena()) {
-                Player p = Bukkit.getPlayer(name);
+            for (Player p : map.getPlayersInArena()) {
                 assert p != null;
                 Location l = p.getLocation();
                 int pX = l.getBlockX();
@@ -119,17 +114,17 @@ public class Biohazard extends Disaster {
                 int pZ = l.getBlockZ();
                 if (pX >= nauseaMinX && pX <= nauseaMaxX && pY >= nauseaMinY && pY <= nauseaMaxY && pZ >= nauseaMinZ && pZ <= nauseaMaxZ) {
                     if (!p.hasPotionEffect(PotionEffectType.CONFUSION))
-                        p.addPotionEffect(PotionEffectType.CONFUSION.createEffect(20, 1));
+                        p.addPotionEffect(PotionEffectType.CONFUSION.createEffect(40, 3));
                     if (pX >= venomMinX && pX <= venomMaxX && pY >= venomMinY && pY <= venomMaxY && pZ >= venomMinZ && pZ <= venomMaxZ) {
-                        p.addPotionEffect(PotionEffectType.POISON.createEffect(20, 1));
+                        p.addPotionEffect(PotionEffectType.POISON.createEffect(40, 1));
                         if (pX >= decompMinX && pX <= decompMaxX && pY >= decompMinY && pY <= decompMaxY && pZ >= decompMinZ && pZ <= decompMaxZ) {
-                            p.addPotionEffect(PotionEffectType.WITHER.createEffect(20, 1));
+                            p.addPotionEffect(PotionEffectType.WITHER.createEffect(40, 1));
                         }
                     }
                 }
             }
 
-        }, startDelay, 10L);
+        }, startDelay, 20L);
 
     }
 }

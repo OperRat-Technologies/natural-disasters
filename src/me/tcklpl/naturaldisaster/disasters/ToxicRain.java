@@ -43,10 +43,9 @@ public class ToxicRain extends Disaster {
             timesExecuted.getAndIncrement();
 
             if (map.getPlayersInArena().size() > 0)
-            for (String playerName : map.getPlayersInArena()) {
+            for (Player p : map.getPlayersInArena()) {
 
                 // Damage player
-                Player p = Bukkit.getPlayer(playerName);
                 assert p != null;
                 if (p.getGameMode() == GameMode.ADVENTURE) {
                     Location l = p.getLocation();

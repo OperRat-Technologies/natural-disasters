@@ -11,7 +11,7 @@ public class Leave implements Listener {
     @EventHandler
     public void onLeave(PlayerQuitEvent e) {
         if (MapManager.getInstance().getCurrentStatus() != GameStatus.IN_LOBBY)
-            MapManager.getInstance().updateArenaForDeadPlayer(e.getPlayer().getName());
+            MapManager.getInstance().updateArenaForDeadPlayer(e.getPlayer());
         e.setQuitMessage("");
     }
 
