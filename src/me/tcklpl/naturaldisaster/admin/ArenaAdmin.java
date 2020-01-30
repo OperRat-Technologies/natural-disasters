@@ -1,4 +1,4 @@
-package me.tcklpl.naturaldisaster.commands;
+package me.tcklpl.naturaldisaster.admin;
 
 import me.tcklpl.naturaldisaster.GameStatus;
 import me.tcklpl.naturaldisaster.disasters.Disaster;

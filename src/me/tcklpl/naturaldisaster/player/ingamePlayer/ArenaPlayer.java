@@ -1,4 +1,4 @@
-package me.tcklpl.naturaldisaster.player;
+package me.tcklpl.naturaldisaster.player.ingamePlayer;
 
 import com.mojang.authlib.GameProfile;
 import org.bukkit.entity.Player;

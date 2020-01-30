@@ -1,6 +1,6 @@
 name: NaturalDisasters
 main: me.tcklpl.naturaldisaster.Main
-version: 1.6.0a
+version: 1.6.6a
 api-version: "1.15"
 prefix: Natural Disasters
 commands:
@@ -49,6 +49,14 @@ commands:
     permission: op
     usage: "Usage: /<command> [create/pos1/pos2/finalize/load] (name)"
   heal:
-    description: Da heal
+    description: Da heal.
     permission: op
     usage: "Usage: /<command>"
+  shop:
+    description: Abre a loja.
+    aliases: loja
+    usage: "Usage: /<command>"
+  friends:
+    description: Amigos.
+    aliases: amigos
+    usage: "Usage: /<command> [add]"

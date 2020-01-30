@@ -2,7 +2,9 @@ package me.tcklpl.naturaldisaster.map;
 
 import me.tcklpl.naturaldisaster.GameStatus;
 import me.tcklpl.naturaldisaster.disasters.*;
-import me.tcklpl.naturaldisaster.player.ArenaPlayerManager;
+import me.tcklpl.naturaldisaster.player.ingamePlayer.ArenaPlayerManager;
+import me.tcklpl.naturaldisaster.player.monetaryPlayer.CustomPlayerManager;
+import me.tcklpl.naturaldisaster.player.monetaryPlayer.MonetaryPlayer;
 import me.tcklpl.naturaldisaster.util.ActionBar;
 import me.tcklpl.naturaldisaster.util.NamesAndColors;
 import org.bukkit.*;
@@ -262,13 +264,24 @@ public class MapManager {
             // If the game ends
             if (currentMap.getPlayersInArena().size() <= 1) {
                 Bukkit.broadcastMessage(ChatColor.YELLOW + "O jogo acabou.");
-                if (currentMap.getPlayersInArena().size() == 1)
-                    Bukkit.broadcastMessage(ChatColor.GREEN + currentMap.getPlayersInArena().get(0).getName() + " venceu!");
+                if (currentMap.getPlayersInArena().size() == 1) {
+                    Bukkit.getScheduler().runTaskLater(mainReference, () -> Bukkit.broadcastMessage(ChatColor.GREEN + currentMap.getPlayersInArena().get(0).getName() + " venceu!"), 20L);
+                    Player winner = currentMap.getPlayersInArena().get(0);
+                    MonetaryPlayer mp = CustomPlayerManager.getInstance().getMonetaryPlayer(winner.getUniqueId());
+                    mp.getPlayerData().setWins(mp.getPlayerData().getWins() + 1);
+                    mp.getPlayerData().setMoney(mp.getPlayerData().getMoney() + 25);
+                    winner.sendMessage(ChatColor.GOLD + "+$25 por ganhar a partida.");
+                }
                 finishGame();
             } else {
-                Bukkit.broadcastMessage(p.getDisplayName() + ChatColor.YELLOW + "( " + name + " ) morreu, ainda restam " + currentMap.getPlayersInArena().size() + " jogadores vivos!");
+                Bukkit.broadcastMessage(p.getDisplayName() + ChatColor.GRAY + "( " + name + " ) morreu, ainda restam " + currentMap.getPlayersInArena().size() + " jogadores vivos!");
                 p.setGameMode(GameMode.SPECTATOR);
                 teleportSpectatorToArena(p);
+                for (Player player : currentMap.getPlayersInArena()) {
+                    player.sendMessage(ChatColor.GRAY + "+$1 por sobreviver.");
+                    MonetaryPlayer mp = CustomPlayerManager.getInstance().getMonetaryPlayer(player.getUniqueId());
+                    mp.getPlayerData().setMoney(mp.getPlayerData().getMoney() + 1);
+                }
             }
         }
     }

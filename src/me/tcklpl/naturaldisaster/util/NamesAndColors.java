@@ -40,7 +40,7 @@ public class NamesAndColors {
     public static List<ChatColor> pickRandomColors(int count) {
         List<ChatColor> res = new ArrayList<>();
         for (int i = 0; i < count; i++) {
-            res.add(usedColors.get(r.nextInt(usedColors.size())));
+            res.add(usedColors.get(i % usedColors.size()));
         }
         return res;
     }

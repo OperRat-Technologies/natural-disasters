@@ -1,4 +1,4 @@
-package me.tcklpl.naturaldisaster.events;
+package me.tcklpl.naturaldisaster.events.arena;
 
 import me.tcklpl.naturaldisaster.map.MapManager;
 import org.bukkit.Bukkit;

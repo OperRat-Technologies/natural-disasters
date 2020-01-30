@@ -1,4 +1,4 @@
-package me.tcklpl.naturaldisaster.events;
+package me.tcklpl.naturaldisaster.admin;
 
 import me.tcklpl.naturaldisaster.disasters.Disaster;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
@@ -8,19 +8,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
-import org.bukkit.event.inventory.InventoryInteractEvent;
 
 import java.util.Objects;
 
 public class AdminInventoryClick implements Listener {
-
-    @EventHandler
-    public void onInteract(InventoryInteractEvent e) {
-        if (e.getView().getTitle().equalsIgnoreCase("Admin Map Selection"))
-            e.setCancelled(true);
-        if (e.getView().getTitle().equalsIgnoreCase("Admin Disaster Selection"))
-            e.setCancelled(true);
-    }
 
     @EventHandler
     public void onInvClick(InventoryClickEvent e) {
@@ -31,6 +22,7 @@ public class AdminInventoryClick implements Listener {
 
             if (p.isOp()) {
                 if (e.getView().getTitle().equalsIgnoreCase("Admin Map Selection")) {
+                    e.setCancelled(true);
                     String mapname = Objects.requireNonNull(Objects.requireNonNull(e.getCurrentItem()).getItemMeta()).getDisplayName();
                     DisasterMap map = MapManager.getInstance().getMapByName(mapname);
                     if (map != null) {
@@ -41,6 +33,7 @@ public class AdminInventoryClick implements Listener {
                 }
 
                 if (e.getView().getTitle().equalsIgnoreCase("Admin Disaster Selection")) {
+                    e.setCancelled(true);
                     String disname = Objects.requireNonNull(Objects.requireNonNull(e.getCurrentItem()).getItemMeta()).getDisplayName();
                     Disaster disaster = MapManager.getInstance().getDisasterByName(disname);
                     if (disaster != null) {

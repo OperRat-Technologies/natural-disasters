@@ -1,6 +1,7 @@
-package me.tcklpl.naturaldisaster.player;
+package me.tcklpl.naturaldisaster.player.ingamePlayer;
 
 import com.mojang.authlib.GameProfile;
+import me.tcklpl.naturaldisaster.player.ingamePlayer.ArenaPlayer;
 import net.minecraft.server.v1_15_R1.EntityLiving;
 import net.minecraft.server.v1_15_R1.PacketPlayOutEntityDestroy;
 import net.minecraft.server.v1_15_R1.PacketPlayOutNamedEntitySpawn;

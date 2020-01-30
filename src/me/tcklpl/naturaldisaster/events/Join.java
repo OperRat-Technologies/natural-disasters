@@ -2,14 +2,16 @@ package me.tcklpl.naturaldisaster.events;
 
 import me.tcklpl.naturaldisaster.GameStatus;
 import me.tcklpl.naturaldisaster.map.MapManager;
-import me.tcklpl.naturaldisaster.player.CustomPlayerManager;
-import me.tcklpl.naturaldisaster.player.MonetaryPlayer;
-import me.tcklpl.naturaldisaster.util.ActionBar;
+import me.tcklpl.naturaldisaster.player.monetaryPlayer.CustomPlayerManager;
+import me.tcklpl.naturaldisaster.player.monetaryPlayer.MonetaryPlayer;
+import me.tcklpl.naturaldisaster.player.monetaryPlayer.PlayerData;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+
+import java.util.ArrayList;
 
 public class Join implements Listener {
 
@@ -17,8 +19,11 @@ public class Join implements Listener {
     public void onLogin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
         if (CustomPlayerManager.getInstance().getMonetaryPlayer(p.getUniqueId()) == null) {
-            MonetaryPlayer mp = new MonetaryPlayer(p, 50);
+            PlayerData playerData = new PlayerData(p.getName(), 0, 0, 0, 50, new ArrayList<>(), new ArrayList<>());
+            playerData.setPlayerUUID(p.getUniqueId());
+            MonetaryPlayer mp = new MonetaryPlayer(p.getUniqueId(), playerData);
             CustomPlayerManager.getInstance().registerPlayer(mp);
+            p.sendMessage(ChatColor.GREEN + "Bem-vindo ao servidor!");
         } else {
             p.sendMessage(ChatColor.GREEN + "Bem-vindo de volta!");
         }

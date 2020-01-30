@@ -1,0 +1,59 @@
+package me.tcklpl.naturaldisaster.events;
+
+import me.tcklpl.naturaldisaster.GameStatus;
+import me.tcklpl.naturaldisaster.map.MapManager;
+import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
+import org.bukkit.entity.Player;
+import org.bukkit.entity.Snowball;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.material.Stairs;
+import org.spigotmc.event.entity.EntityDismountEvent;
+
+public class Chair implements Listener {
+
+    @EventHandler
+    public void onSit(PlayerInteractEvent e) {
+        Player p = e.getPlayer();
+        if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            if (MapManager.getInstance().getCurrentStatus() == GameStatus.IN_LOBBY) {
+                Block b = e.getClickedBlock();
+                assert b != null;
+                if (b.getType().toString().contains("STAIRS")) {
+                    Location l = b.getLocation().add(0.5, 0, 0.5);
+                    Location pLoc = p.getLocation();
+                    if (pLoc.getBlockY() - l.getBlockY() == 0) {
+
+                        Stairs s = (Stairs) b.getState().getData();
+                        if (!s.isInverted()) {
+
+                            Block top = b.getRelative(BlockFace.UP);
+                            if (top.getType() == Material.AIR) {
+                                Snowball sn = p.getWorld().spawn(l, Snowball.class);
+                                sn.setInvulnerable(true);
+                                sn.setGravity(false);
+                                sn.setPassenger(p);
+                            }
+
+                        }
+
+                    }
+
+                }
+            }
+        }
+    }
+
+    @EventHandler
+    public void onStandUp(EntityDismountEvent e) {
+        if (e.getDismounted() instanceof Snowball) {
+            e.getDismounted().remove();
+        }
+    }
+
+}

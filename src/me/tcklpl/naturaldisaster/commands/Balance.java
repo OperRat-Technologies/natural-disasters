@@ -1,7 +1,7 @@
 package me.tcklpl.naturaldisaster.commands;
 
-import me.tcklpl.naturaldisaster.player.CustomPlayerManager;
-import me.tcklpl.naturaldisaster.player.MonetaryPlayer;
+import me.tcklpl.naturaldisaster.player.monetaryPlayer.CustomPlayerManager;
+import me.tcklpl.naturaldisaster.player.monetaryPlayer.MonetaryPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -15,7 +15,7 @@ public class Balance implements CommandExecutor {
             if (sender instanceof Player) {
                 Player p = (Player) sender;
                 MonetaryPlayer mp = CustomPlayerManager.getInstance().getMonetaryPlayer(p.getUniqueId());
-                p.sendMessage(ChatColor.GOLD + "Capital: $" + ChatColor.BOLD + mp.getMoney());
+                p.sendMessage(ChatColor.GOLD + "Capital: $" + ChatColor.BOLD + mp.getPlayerData().getMoney());
             }
             return true;
         }
