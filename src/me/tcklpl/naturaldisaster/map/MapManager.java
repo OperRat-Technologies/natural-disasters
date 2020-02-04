@@ -203,6 +203,8 @@ public class MapManager {
                 ActionBar ab = new ActionBar(ChatColor.RED + "Boa sorte!");
                 ab.sendToAll();
                 currentStatus = GameStatus.IN_GAME;
+                for (Player all : currentMap.getPlayersInArena())
+                    all.playSound(all.getLocation(), Sound.EVENT_RAID_HORN, 1f, 1f);
                 Bukkit.broadcastMessage(ChatColor.GRAY + currentDisaster.getHint());
             }, 130L);
         }
@@ -277,6 +279,7 @@ public class MapManager {
                 Bukkit.broadcastMessage(p.getDisplayName() + ChatColor.GRAY + "( " + name + " ) morreu, ainda restam " + currentMap.getPlayersInArena().size() + " jogadores vivos!");
                 p.setGameMode(GameMode.SPECTATOR);
                 teleportSpectatorToArena(p);
+                p.playSound(p.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1f, 1f);
                 for (Player player : currentMap.getPlayersInArena()) {
                     player.sendMessage(ChatColor.GRAY + "+$1 por sobreviver.");
                     MonetaryPlayer mp = CustomPlayerManager.getInstance().getMonetaryPlayer(player.getUniqueId());

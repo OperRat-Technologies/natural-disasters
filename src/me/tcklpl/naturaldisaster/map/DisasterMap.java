@@ -129,6 +129,9 @@ public class DisasterMap {
             }
         }
         getWorld().setWaterAnimalSpawnLimit(0);
+        getWorld().setGameRule(GameRule.DO_TILE_DROPS, false);
+        getWorld().setGameRule(GameRule.DO_WEATHER_CYCLE, false);
+        getWorld().setGameRule(GameRule.DO_MOB_SPAWNING, false);
     }
 
     // Arena player management related funcions
@@ -268,6 +271,16 @@ public class DisasterMap {
                 }
             }, currentCycle + 1);
 
+        }
+    }
+
+    public void damagePlayerOutsideBounds(double dmg) {
+        for (Player p : playersInArena) {
+            Location l = p.getLocation();
+            if (l.getX() < minX || l.getX() > (minX + gapX) ||
+            l.getY() < floor || l.getY() > top ||
+            l.getZ() < minZ || l.getZ() > (minZ + gapZ))
+                p.damage(dmg);
         }
     }
 

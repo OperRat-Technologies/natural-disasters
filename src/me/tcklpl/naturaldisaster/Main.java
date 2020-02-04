@@ -11,6 +11,7 @@ import me.tcklpl.naturaldisaster.player.friends.FriendsGUI;
 import me.tcklpl.naturaldisaster.player.monetaryPlayer.CustomPlayerManager;
 import me.tcklpl.naturaldisaster.shop.ShopCommand;
 import me.tcklpl.naturaldisaster.shop.ShopInventoryClick;
+import me.tcklpl.naturaldisaster.worlds.WorldCommands;
 import me.tcklpl.naturaldisaster.worlds.WorldManager;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -60,7 +61,7 @@ public class Main extends JavaPlugin {
 
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvents(new Motd(), this);
-        pm.registerEvents(new Join(), this);
+        pm.registerEvents(new Join(this), this);
         pm.registerEvents(new Death(), this);
         pm.registerEvents(new PickItem(), this);
         pm.registerEvents(new FoodLevel(), this);

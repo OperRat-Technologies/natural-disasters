@@ -69,6 +69,10 @@ public class Flooding extends Disaster {
                 if (p.isSwimming() || map.getWorld().getBlockAt(p.getLocation()).getType() == Material.WATER)
                     p.damage(currentDamage.get());
             }
+            map.damagePlayerOutsideBounds(3);
+            if ((currentCycles.get() % 20) == 0)
+                currentDamage.addAndGet(2);
+
 
         }, startDelay, 20L);
     }

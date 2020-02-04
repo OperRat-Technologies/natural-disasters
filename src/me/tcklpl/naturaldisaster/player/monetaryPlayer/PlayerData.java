@@ -1,17 +1,21 @@
 package me.tcklpl.naturaldisaster.player.monetaryPlayer;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 public class PlayerData {
 
     private int wins, hints, respawns;
     private double money;
-    private List<UUID> friends, friendRequests;
+    private List<UUID> friends, friendRequests, blocks;
     private UUID playerUUID;
     private String name;
 
-    public PlayerData(String name, int wins, int hints, int respawns, double money, List<UUID> friends, List<UUID> friendRequests) {
+    public PlayerData(String name, int wins, int hints, int respawns, double money, List<UUID> friends, List<UUID> friendRequests, List<UUID> blocks) {
         this.name = name;
         this.wins = wins;
         this.hints = hints;
@@ -19,6 +23,7 @@ public class PlayerData {
         this.money = money;
         this.friends = friends;
         this.friendRequests = friendRequests;
+        this.blocks = blocks;
     }
 
     public void setPlayerUUID(UUID playerUUID) {
@@ -78,9 +83,16 @@ public class PlayerData {
     }
 
     public boolean addFriendRequest(UUID friendRequest) {
-        if (this.friendRequests.contains(friendRequest)) return false;
+        if (this.friendRequests.contains(friendRequest) || this.blocks.contains(friendRequest) || friends.contains(friendRequest)) return false;
         friendRequests.add(friendRequest);
+        Objects.requireNonNull(Bukkit.getPlayer(playerUUID)).
+                sendMessage(ChatColor.GRAY + Objects.requireNonNull(Bukkit.getPlayer(friendRequest)).getName() + " te enviou um pedido de amizade.");
         return true;
+    }
+
+    public void forceAddFriend(UUID uuid) {
+        if (!friends.contains(uuid))
+            friends.add(uuid);
     }
 
     public boolean acceptFriend(UUID name) {
@@ -88,6 +100,7 @@ public class PlayerData {
         if (friends.contains(name)) return false;
         friendRequests.remove(name);
         friends.add(name);
+        CustomPlayerManager.getInstance().getMonetaryPlayer(name).getPlayerData().forceAddFriend(this.playerUUID);
         return true;
     }
 
@@ -96,5 +109,32 @@ public class PlayerData {
             return acceptFriend(uuid);
         if (friends.contains(uuid)) return false;
         return CustomPlayerManager.getInstance().getMonetaryPlayer(uuid).getPlayerData().addFriendRequest(this.playerUUID);
+    }
+
+    public boolean removeFriendRequest(UUID uuid) {
+        if (friendRequests.contains(uuid))
+            return friendRequests.remove(uuid);
+        return false;
+    }
+
+    public boolean blockPlayer(UUID uuid) {
+        if (friendRequests.remove(uuid) || friends.remove(uuid)) {
+            return blocks.add(uuid);
+        }
+        return false;
+    }
+
+    public boolean removeBlock(UUID uuid) {
+        if (blocks.contains(uuid))
+            return blocks.remove(uuid);
+        return false;
+    }
+
+    public List<UUID> getBlocks() {
+        return blocks;
+    }
+
+    public boolean removeFriend(UUID uuid) {
+        return friends.remove(uuid);
     }
 }

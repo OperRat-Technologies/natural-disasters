@@ -43,8 +43,10 @@ public class CustomPlayerManager {
                     playersConfig.getStringList("players." + playerId + ".friends").forEach(friend -> friends.add(UUID.fromString(friend)));
                     List<UUID> requests = new ArrayList<>();
                     playersConfig.getStringList("players." + playerId + ".requests").forEach(request -> friends.add(UUID.fromString(request)));
+                    List<UUID> blocks = new ArrayList<>();
+                    playersConfig.getStringList("players." + playerId + ".blocks").forEach(block -> blocks.add(UUID.fromString(block)));
 
-                    PlayerData playerData = new PlayerData(name, wins, hints, respawns, money, friends, requests);
+                    PlayerData playerData = new PlayerData(name, wins, hints, respawns, money, friends, requests, blocks);
                     playerData.setPlayerUUID(UUID.fromString(playerId));
 
                     managedPlayers.add(new MonetaryPlayer(UUID.fromString(playerId), playerData));
@@ -60,8 +62,15 @@ public class CustomPlayerManager {
             playersConfig.set("players." + mp.getUUID().toString() + ".wins", mp.getPlayerData().getWins());
             playersConfig.set("players." + mp.getUUID().toString() + ".hints", mp.getPlayerData().getHints());
             playersConfig.set("players." + mp.getUUID().toString() + ".respawns", mp.getPlayerData().getRespawns());
-            playersConfig.set("players." + mp.getUUID().toString() + ".friends", mp.getPlayerData().getFriends());
-            playersConfig.set("players." + mp.getUUID().toString() + ".requests", mp.getPlayerData().getFriendRequests());
+            List<String> friends = new ArrayList<>();
+            mp.getPlayerData().getFriends().forEach(friend -> friends.add(friend.toString()));
+            playersConfig.set("players." + mp.getUUID().toString() + ".friends", friends);
+            List<String> requests = new ArrayList<>();
+            mp.getPlayerData().getFriendRequests().forEach(request -> requests.add(request.toString()));
+            playersConfig.set("players." + mp.getUUID().toString() + ".requests", requests);
+            List<String> blocks = new ArrayList<>();
+            mp.getPlayerData().getBlocks().forEach(block -> blocks.add(block.toString()));
+            playersConfig.set("players." + mp.getUUID().toString() + ".blocks", blocks);
         }
         playersConfig.save(playersFile);
 
@@ -70,6 +79,14 @@ public class CustomPlayerManager {
     public MonetaryPlayer getMonetaryPlayer(UUID uniqueId) {
         for (MonetaryPlayer mp : managedPlayers) {
             if (mp.getUUID().equals(uniqueId))
+                return mp;
+        }
+        return null;
+    }
+
+    public MonetaryPlayer getMonetaryPlayer(String name) {
+        for (MonetaryPlayer mp : managedPlayers) {
+            if (mp.getPlayerData().getName().equalsIgnoreCase(name))
                 return mp;
         }
         return null;

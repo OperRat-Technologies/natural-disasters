@@ -1,6 +1,6 @@
 name: NaturalDisasters
 main: me.tcklpl.naturaldisaster.Main
-version: 1.6.6a
+version: 1.6.7a
 api-version: "1.15"
 prefix: Natural Disasters
 commands:
@@ -8,7 +8,7 @@ commands:
     description: World creation and management.
     aliases: w
     permission: op
-    usage: "Usage: /<command> [create/tp] [void] [name]"
+    usage: "Usage: /<command> [create/tp/list/unload] [void] [name]"
   creative:
     description: Changes gamemode to CREATIVE.
     aliases: c

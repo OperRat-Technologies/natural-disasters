@@ -114,7 +114,7 @@ public class Biohazard extends Disaster {
                 int pZ = l.getBlockZ();
                 if (pX >= nauseaMinX && pX <= nauseaMaxX && pY >= nauseaMinY && pY <= nauseaMaxY && pZ >= nauseaMinZ && pZ <= nauseaMaxZ) {
                     if (!p.hasPotionEffect(PotionEffectType.CONFUSION))
-                        p.addPotionEffect(PotionEffectType.CONFUSION.createEffect(40, 3));
+                        p.addPotionEffect(PotionEffectType.CONFUSION.createEffect(120, 3));
                     if (pX >= venomMinX && pX <= venomMaxX && pY >= venomMinY && pY <= venomMaxY && pZ >= venomMinZ && pZ <= venomMaxZ) {
                         p.addPotionEffect(PotionEffectType.POISON.createEffect(40, 1));
                         if (pX >= decompMinX && pX <= decompMaxX && pY >= decompMinY && pY <= decompMaxY && pZ >= decompMinZ && pZ <= decompMaxZ) {
