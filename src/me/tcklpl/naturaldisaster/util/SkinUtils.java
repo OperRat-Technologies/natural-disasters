@@ -3,12 +3,9 @@ package me.tcklpl.naturaldisaster.util;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import me.tcklpl.naturaldisaster.player.skins.CustomSkin;
-import net.minecraft.server.v1_15_R1.EntityLiving;
-import net.minecraft.server.v1_15_R1.PacketPlayOutEntityDestroy;
-import net.minecraft.server.v1_15_R1.PacketPlayOutNamedEntitySpawn;
-import net.minecraft.server.v1_15_R1.PacketPlayOutPlayerInfo;
+import me.tcklpl.naturaldisaster.reflection.Packets;
+import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -17,9 +14,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.Timestamp;
 import java.util.UUID;
 
 public class SkinUtils {
@@ -46,7 +44,7 @@ public class SkinUtils {
         return UUID.fromString(input.replaceFirst("(\\p{XDigit}{8})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}{4})(\\p{XDigit}+)", "$1-$2-$3-$4-$5"));
     }
 
-    public static void setGameProfile(EntityLiving entityLiving, GameProfile gameProfile) {
+    public static void setGameProfile(Object entityLiving, GameProfile gameProfile) {
         try {
             Field gp2 = entityLiving.getClass().getSuperclass().getDeclaredField("bT");
             gp2.setAccessible(true);
@@ -73,7 +71,7 @@ public class SkinUtils {
                 String textureValue = reply.split("\"name\":\"textures\",\"value\":\"")[1].split("\",\"signature\"")[0];
                 String signature = reply.split(",\"signature\":\"")[1].split("\"}]}")[0];
 
-                return new CustomSkin(playerName, textureValue, signature);
+                return new CustomSkin(playerName, textureValue, signature, new Timestamp(System.currentTimeMillis()));
 
             } else {
                 Bukkit.getLogger().warning("Response NOT ok:");
@@ -89,25 +87,26 @@ public class SkinUtils {
     }
 
     public static void applySkin(JavaPlugin main, Player p, CustomSkin skin) {
-        CraftPlayer cp = (CraftPlayer) p;
-        GameProfile gp = cp.getProfile();
 
-        gp.getProperties().put("textures", new Property("textures", skin.getValue(), skin.getSignature()));
+        try {
 
-        cp.getHandle().playerConnection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, cp.getHandle()));
+            Object playerHandle = p.getClass().getMethod("getHandle").invoke(p); // EntityPlayer
 
-        setGameProfile(cp.getHandle(), gp);
+            GameProfile gameProfile = (GameProfile) p.getClass().getMethod("getProfile").invoke(p);
+            gameProfile.getProperties().put("textures", new Property("textures", skin.getValue(), skin.getSignature()));
 
-        cp.getHandle().playerConnection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, cp.getHandle()));
+            Object packetPlayerOutRemove = Packets.Play.PlayOutPlayerInfo(Packets.Play.PlayerInfoEnum.REMOVE_PLAYER, p);
+            ReflectionUtils.sendPacket(p, packetPlayerOutRemove);
 
-        for (final Player others : Bukkit.getOnlinePlayers()) {
-            if (!others.getUniqueId().equals(p.getUniqueId())) {
-                ((CraftPlayer) others).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityDestroy(p.getEntityId()));
-                ((CraftPlayer) others).getHandle().playerConnection.sendPacket(new PacketPlayOutNamedEntitySpawn(cp.getHandle()));
+            setGameProfile(playerHandle, gameProfile);
 
-                Bukkit.getScheduler().runTask(main, () -> others.hidePlayer(main, p));
-                Bukkit.getScheduler().runTaskLater(main, () -> others.showPlayer(main, p), 5);
-            }
+            Object packetPlayerOutAdd = Packets.Play.PlayOutPlayerInfo(Packets.Play.PlayerInfoEnum.ADD_PLAYER, p);
+            ReflectionUtils.sendPacket(p, packetPlayerOutAdd);
+
+            ReflectionUtils.updatePlayerForEveryone(main, p);
+
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
         }
     }
 

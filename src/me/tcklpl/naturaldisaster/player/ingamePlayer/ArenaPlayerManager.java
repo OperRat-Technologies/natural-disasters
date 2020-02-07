@@ -2,17 +2,14 @@ package me.tcklpl.naturaldisaster.player.ingamePlayer;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import me.tcklpl.naturaldisaster.player.ingamePlayer.ArenaPlayer;
-import net.minecraft.server.v1_15_R1.EntityLiving;
-import net.minecraft.server.v1_15_R1.PacketPlayOutEntityDestroy;
-import net.minecraft.server.v1_15_R1.PacketPlayOutNamedEntitySpawn;
-import net.minecraft.server.v1_15_R1.PacketPlayOutPlayerInfo;
+import me.tcklpl.naturaldisaster.reflection.Packets;
+import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.UUID;
 
@@ -36,7 +33,7 @@ public class ArenaPlayerManager {
      * @param entityLiving Reference to player but as in entityLiving object form.
      * @param disguising If it will apply the disguised game profile or the real one.
      */
-    public void setGameProfile(Player p, EntityLiving entityLiving, boolean disguising) {
+    public void setGameProfile(Player p, Object entityLiving, boolean disguising) {
         try {
             Field gp2 = entityLiving.getClass().getSuperclass().getDeclaredField("bT");
             gp2.setAccessible(true);
@@ -63,7 +60,6 @@ public class ArenaPlayerManager {
             Bukkit.getLogger().warning("Usuário " + p.getName() + " já tranformado");
             return;
         }
-        CraftPlayer cp = ((CraftPlayer) p);
         GameProfile profile = new GameProfile(p.getUniqueId(), name);
 
         //TODO: choose textures from config
@@ -81,27 +77,24 @@ public class ArenaPlayerManager {
                         "NLP+Gg+uN4qN/H+noUEYnY4/Ls58ye/EuT7JuR0X1fSenOkY3x/L79K1cqrSi3EK1MmdTOwQAdiYi9HUUcGAf0Qv6YfDt7" +
                         "UHrUcTA5F3uR66TwJmPsDjWsNTBznFE="));
 
-        EntityLiving entityLiving = cp.getHandle();
-        arenaPlayers.put(p.getUniqueId(), new ArenaPlayer(p, name, cp.getProfile(), profile));
-        p.setDisplayName(name);
-        p.setPlayerListName(name);
+        try {
+            Object entityLiving = p.getClass().getMethod("getHandle").invoke(p);
+            GameProfile originalProfile = (GameProfile) p.getClass().getMethod("getProfile").invoke(p);
+            arenaPlayers.put(p.getUniqueId(), new ArenaPlayer(p, name, originalProfile, profile));
+            p.setDisplayName(name);
+            p.setPlayerListName(name);
 
-        // remove the player
-        cp.getHandle().playerConnection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, cp.getHandle()));
+            // remove the player
+            ReflectionUtils.sendPacket(p, Packets.Play.PlayOutPlayerInfo(Packets.Play.PlayerInfoEnum.REMOVE_PLAYER, p));
 
-        setGameProfile(p, entityLiving, false);
+            setGameProfile(p, entityLiving, false);
 
-        // add the player
-        cp.getHandle().playerConnection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, cp.getHandle()));
+            // add the player
+            ReflectionUtils.sendPacket(p, Packets.Play.PlayOutPlayerInfo(Packets.Play.PlayerInfoEnum.ADD_PLAYER, p));
 
-        for (final Player others : Bukkit.getOnlinePlayers()) {
-            if (!others.getUniqueId().equals(p.getUniqueId())) {
-                ((CraftPlayer) others).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityDestroy(p.getEntityId()));
-                ((CraftPlayer) others).getHandle().playerConnection.sendPacket(new PacketPlayOutNamedEntitySpawn(cp.getHandle()));
-
-                Bukkit.getScheduler().runTask(main, () -> others.hidePlayer(main, p));
-                Bukkit.getScheduler().runTaskLater(main, () -> others.showPlayer(main, p), 5);
-            }
+            ReflectionUtils.updatePlayerForEveryone(main, p);
+        } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+            e.printStackTrace();
         }
     }
 
@@ -112,28 +105,23 @@ public class ArenaPlayerManager {
     public void returnPlayerToNormal(Player p) {
         if (arenaPlayers.containsKey(p.getUniqueId())) {
 
-            CraftPlayer cp = ((CraftPlayer) p);
-            EntityLiving entityLiving = cp.getHandle();
+            try {
 
-            // remove the player
-            cp.getHandle().playerConnection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.REMOVE_PLAYER, cp.getHandle()));
+                Object entityLiving = p.getClass().getMethod("getHandle").invoke(p);
+                // remove the player
+                ReflectionUtils.sendPacket(p, Packets.Play.PlayOutPlayerInfo(Packets.Play.PlayerInfoEnum.REMOVE_PLAYER, p));
 
-            setGameProfile(p, entityLiving, true);
+                setGameProfile(p, entityLiving, true);
 
-            // add the player
-            cp.getHandle().playerConnection.sendPacket(new PacketPlayOutPlayerInfo(PacketPlayOutPlayerInfo.EnumPlayerInfoAction.ADD_PLAYER, cp.getHandle()));
+                // add the player
+                ReflectionUtils.sendPacket(p, Packets.Play.PlayOutPlayerInfo(Packets.Play.PlayerInfoEnum.ADD_PLAYER, p));
 
-            for (final Player others : Bukkit.getOnlinePlayers()) {
-                if (!others.getUniqueId().equals(p.getUniqueId())) {
-                    ((CraftPlayer) others).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityDestroy(p.getEntityId()));
-                    ((CraftPlayer) others).getHandle().playerConnection.sendPacket(new PacketPlayOutNamedEntitySpawn(cp.getHandle()));
+                ReflectionUtils.updatePlayerForEveryone(main, p);
 
-                    Bukkit.getScheduler().runTask(main, () -> others.hidePlayer(main, p));
-                    Bukkit.getScheduler().runTaskLater(main, () -> others.showPlayer(main, p), 5);
-                }
+                arenaPlayers.remove(p.getUniqueId());
+            } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                e.printStackTrace();
             }
-
-            arenaPlayers.remove(p.getUniqueId());
 
         }
     }

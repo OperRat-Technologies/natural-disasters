@@ -1,6 +1,6 @@
 name: NaturalDisasters
 main: me.tcklpl.naturaldisaster.Main
-version: 1.6.7a
+version: "1.7.0"
 api-version: "1.15"
 prefix: Natural Disasters
 commands:
@@ -60,3 +60,6 @@ commands:
     description: Amigos.
     aliases: amigos
     usage: "Usage: /<command> [add]"
+  refresh:
+    description: Atualiza dados da conta.
+    usage: "Usage: /<command> [skin] (--force)"

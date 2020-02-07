@@ -5,6 +5,7 @@ import me.tcklpl.naturaldisaster.disasters.*;
 import me.tcklpl.naturaldisaster.player.ingamePlayer.ArenaPlayerManager;
 import me.tcklpl.naturaldisaster.player.monetaryPlayer.CustomPlayerManager;
 import me.tcklpl.naturaldisaster.player.monetaryPlayer.MonetaryPlayer;
+import me.tcklpl.naturaldisaster.player.skins.SkinManager;
 import me.tcklpl.naturaldisaster.util.ActionBar;
 import me.tcklpl.naturaldisaster.util.NamesAndColors;
 import org.bukkit.*;
@@ -122,8 +123,10 @@ public class MapManager {
     }
 
     public void setupArenas() {
+        int arenas = 0;
         if (mainReference.getConfig().getConfigurationSection("arenas") != null)
             for (String arena : Objects.requireNonNull(mainReference.getConfig().getConfigurationSection("arenas")).getKeys(false)) {
+                arenas++;
                 String path = "arenas." + arena;
                 int pos1X = mainReference.getConfig().getInt(path + ".pos1.x");
                 int pos1Y = mainReference.getConfig().getInt(path + ".pos1.y");
@@ -147,8 +150,8 @@ public class MapManager {
 
                 DisasterMap map = new DisasterMap(mainReference, pos1, pos2, arena, spawns);
                 registerArena(map);
-                Bukkit.getLogger().info("Carregada arena: " + arena);
             }
+        Bukkit.getLogger().info("Carregadas " + arenas + " arenas");
     }
 
     public void saveArenas() {
@@ -222,6 +225,7 @@ public class MapManager {
             p.setScoreboard(Objects.requireNonNull(Bukkit.getScoreboardManager()).getNewScoreboard());
         }
 
+        SkinManager.getInstance().applyAfterGameSkinChanges();
 
         // Wait 1s to teleport 'cause players may still be ticking
         Bukkit.getScheduler().scheduleSyncDelayedTask(mainReference, () -> {

@@ -1,11 +1,10 @@
 package me.tcklpl.naturaldisaster.map;
 
-import net.minecraft.server.v1_15_R1.PacketPlayOutMapChunk;
+import me.tcklpl.naturaldisaster.reflection.Packets;
+import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
-import org.bukkit.craftbukkit.v1_15_R1.CraftChunk;
-import org.bukkit.craftbukkit.v1_15_R1.entity.CraftPlayer;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -184,10 +183,9 @@ public class DisasterMap {
         }
 
         for (Chunk c : arenaChunks) {
-            CraftChunk nmsChunk = (CraftChunk) c;
-            PacketPlayOutMapChunk packet = new PacketPlayOutMapChunk(nmsChunk.getHandle(), 65535);
+            Object packet = Packets.Play.PlayOutMapChunk(c);
             for (Player player : getPlayersInArena()) {
-                ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+                ReflectionUtils.sendPacket(player, packet);
             }
         }
 

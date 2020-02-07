@@ -27,7 +27,9 @@ public class CustomPlayerManager {
 
     public void setMainInstance(JavaPlugin main) {
         playersFile = new File(main.getDataFolder(), "players.yml");
-        playersConfig = YamlConfiguration.loadConfiguration(playersFile);
+        if (playersFile.exists())
+            playersConfig = YamlConfiguration.loadConfiguration(playersFile);
+        else playersConfig = new YamlConfiguration();
     }
 
     public void setupPlayers() {

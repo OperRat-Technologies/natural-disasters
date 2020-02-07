@@ -6,13 +6,14 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.Bisected;
+import org.bukkit.block.data.type.Stairs;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Snowball;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.material.Stairs;
 import org.spigotmc.event.entity.EntityDismountEvent;
 
 public class Chair implements Listener {
@@ -29,15 +30,16 @@ public class Chair implements Listener {
                     Location pLoc = p.getLocation();
                     if (pLoc.getBlockY() - l.getBlockY() == 0) {
 
-                        Stairs s = (Stairs) b.getState().getData();
-                        if (!s.isInverted()) {
+                        Stairs st = (Stairs) b.getBlockData();
+
+                        if (st.getHalf() == Bisected.Half.BOTTOM) {
 
                             Block top = b.getRelative(BlockFace.UP);
                             if (top.getType() == Material.AIR) {
                                 Snowball sn = p.getWorld().spawn(l, Snowball.class);
                                 sn.setInvulnerable(true);
                                 sn.setGravity(false);
-                                sn.setPassenger(p);
+                                sn.addPassenger(p);
                             }
 
                         }

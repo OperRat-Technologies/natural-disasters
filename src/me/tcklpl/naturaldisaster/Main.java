@@ -9,6 +9,8 @@ import me.tcklpl.naturaldisaster.events.arena.Death;
 import me.tcklpl.naturaldisaster.map.MapManager;
 import me.tcklpl.naturaldisaster.player.friends.FriendsGUI;
 import me.tcklpl.naturaldisaster.player.monetaryPlayer.CustomPlayerManager;
+import me.tcklpl.naturaldisaster.player.skins.RefreshSkin;
+import me.tcklpl.naturaldisaster.player.skins.SkinManager;
 import me.tcklpl.naturaldisaster.shop.ShopCommand;
 import me.tcklpl.naturaldisaster.shop.ShopInventoryClick;
 import me.tcklpl.naturaldisaster.worlds.WorldCommands;
@@ -17,8 +19,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Main extends JavaPlugin {
 
@@ -26,6 +27,7 @@ public class Main extends JavaPlugin {
 
     @Override
     public void onEnable() {
+
 
         List<String> managedWorlds = getConfig().getStringList("worlds");
         worldManager = new WorldManager(managedWorlds);
@@ -37,6 +39,9 @@ public class Main extends JavaPlugin {
 
         CustomPlayerManager.getInstance().setMainInstance(this);
         CustomPlayerManager.getInstance().setupPlayers();
+
+        SkinManager.getInstance().setMainInstance(this);
+        SkinManager.getInstance().setupSkins();
 
         registerEvents();
         registerCommands();
@@ -50,6 +55,7 @@ public class Main extends JavaPlugin {
         MapManager.getInstance().saveArenas();
         try {
             CustomPlayerManager.getInstance().savePlayers();
+            SkinManager.getInstance().saveSkins();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -94,6 +100,7 @@ public class Main extends JavaPlugin {
         Objects.requireNonNull(getCommand("heal")).setExecutor(new Heal());
         Objects.requireNonNull(getCommand("shop")).setExecutor(new ShopCommand());
         Objects.requireNonNull(getCommand("friends")).setExecutor(new FriendsGUI());
+        Objects.requireNonNull(getCommand("refresh")).setExecutor(new RefreshSkin());
 
     }
 }
