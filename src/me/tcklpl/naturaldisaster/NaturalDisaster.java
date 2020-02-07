@@ -3,6 +3,7 @@ package me.tcklpl.naturaldisaster;
 import me.tcklpl.naturaldisaster.admin.AdminInventoryClick;
 import me.tcklpl.naturaldisaster.admin.ArenaAdmin;
 import me.tcklpl.naturaldisaster.commands.*;
+import me.tcklpl.naturaldisaster.database.Database;
 import me.tcklpl.naturaldisaster.events.*;
 import me.tcklpl.naturaldisaster.events.arena.Damage;
 import me.tcklpl.naturaldisaster.events.arena.Death;
@@ -21,13 +22,16 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.IOException;
 import java.util.*;
 
-public class Main extends JavaPlugin {
+public class NaturalDisaster extends JavaPlugin {
 
     WorldManager worldManager;
+    Database database;
 
     @Override
     public void onEnable() {
 
+        database = new Database(getDataFolder() + "/database.db");
+        database.assertDefaults();
 
         List<String> managedWorlds = getConfig().getStringList("worlds");
         worldManager = new WorldManager(managedWorlds);

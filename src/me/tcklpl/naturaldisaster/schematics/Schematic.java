@@ -2,7 +2,6 @@ package me.tcklpl.naturaldisaster.schematics;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
 
 import java.io.Serializable;

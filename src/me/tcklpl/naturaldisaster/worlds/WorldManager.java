@@ -27,9 +27,9 @@ public class WorldManager {
                 return;
             } else {
                 managedWorlds.add(world);
-                Bukkit.getLogger().log(Level.INFO, "Registered world: " + world);
             }
         }
+        Bukkit.getLogger().info("Carregados " + managedWorlds.size() + " mundos");
     }
 
     public boolean createVoidWorld(String name) {

@@ -6,14 +6,22 @@ import org.bukkit.entity.Player;
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Objects;
 
+/**
+ * Class with packets used in the plugin, used to call all packets using reflection and to keep normal classes cleaner
+ */
 public class Packets {
 
     public static class Play {
 
         public enum PlayerInfoEnum {
             REMOVE_PLAYER, ADD_PLAYER
+        }
+
+        public enum ChatMessageType {
+            CHAT, SYSTEM, GAME_INFO
         }
 
         public static Object PlayOutPlayerInfo(PlayerInfoEnum playerInfoEnum, Player player) {
@@ -70,6 +78,27 @@ public class Packets {
                         );
                 return mapChunk.newInstance(nmsChunk, 65535);
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }
+
+        public static Object PlayOutChat(String text, ChatMessageType type) {
+            try {
+                Constructor<?> packet = Objects.requireNonNull(ReflectionUtils.getNMSClass("PacketPlayOutChat"))
+                        .getConstructor(
+                                ReflectionUtils.getNMSClass("IChatBaseComponent"),
+                                ReflectionUtils.getNMSClass("ChatMessageType")
+                        );
+                Class<?> chatBaseComponentClass = Objects.requireNonNull(ReflectionUtils.getNMSClass("IChatBaseComponent$ChatSerializer"));
+                Method target = chatBaseComponentClass.getDeclaredMethod("a", String.class);
+
+                Object chatBaseComponent = target.invoke(null, text);
+                Object originalEnum = Objects.requireNonNull(ReflectionUtils.getNMSClass("ChatMessageType")).getField(type.name()).get(null);
+
+                return packet.newInstance(chatBaseComponent, originalEnum);
+
+            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | NoSuchFieldException | InstantiationException e) {
                 e.printStackTrace();
                 return null;
             }
