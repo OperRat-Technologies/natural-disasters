@@ -1,7 +1,7 @@
 package me.tcklpl.naturaldisaster.player.friends;
 
-import me.tcklpl.naturaldisaster.player.monetaryPlayer.CustomPlayerManager;
-import me.tcklpl.naturaldisaster.player.monetaryPlayer.MonetaryPlayer;
+import me.tcklpl.naturaldisaster.NaturalDisaster;
+import me.tcklpl.naturaldisaster.player.cPlayer.CPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -26,7 +26,7 @@ public class FriendsGUI implements CommandExecutor, Listener {
         if (sender instanceof Player) {
             Player p = (Player) sender;
             if (cmd.getName().equalsIgnoreCase("friends") || alias.equalsIgnoreCase("amigos")) {
-                MonetaryPlayer mp = CustomPlayerManager.getInstance().getMonetaryPlayer(p.getUniqueId());
+                CPlayer cPlayer = NaturalDisaster.getPlayerManager().getCPlayer(p.getUniqueId());
                 if (args.length == 0) {
                     openFriendsGUI(p);
                     return true;
@@ -38,7 +38,7 @@ public class FriendsGUI implements CommandExecutor, Listener {
                             try {
                                 Player request = Bukkit.getPlayer(requestName);
                                 assert request != null;
-                                if (CustomPlayerManager.getInstance().getMonetaryPlayer(p.getUniqueId()).getPlayerData().sendFriendRequest(request.getUniqueId())) {
+                                if (cPlayer.getPlayerData().sendFriendRequest(request.getUniqueId())) {
                                     p.sendMessage(ChatColor.GREEN + "Pedido enviado");
                                 } else p.sendMessage(ChatColor.RED + "Falha oa enviar pedido. Você já o enviou?");
                                 return true;
@@ -58,16 +58,16 @@ public class FriendsGUI implements CommandExecutor, Listener {
     public void onFriendsGUIClick(InventoryClickEvent e) {
         if (!(e.getWhoClicked() instanceof Player)) return;
         Player p = (Player) e.getWhoClicked();
-        MonetaryPlayer mp = CustomPlayerManager.getInstance().getMonetaryPlayer(p.getUniqueId());
+        CPlayer cPlayer = NaturalDisaster.getPlayerManager().getCPlayer(p.getUniqueId());
         if (e.getView().getTitle().equalsIgnoreCase("Amigos")) {
             e.setCancelled(true);
             if (e.getCurrentItem() != null && e.getCurrentItem().getType() == Material.LIME_DYE) {
-                Inventory i = Bukkit.createInventory(p, 9 + 9 * Math.floorDiv(mp.getPlayerData().getFriendRequests().size(), 9), "Requests");
-                for (UUID uuid : mp.getPlayerData().getFriendRequests()) {
+                Inventory i = Bukkit.createInventory(p, 9 + 9 * Math.floorDiv(cPlayer.getPlayerData().getFriendRequests().size(), 9), "Requests");
+                for (UUID uuid : cPlayer.getPlayerData().getFriendRequests()) {
                     ItemStack is = new ItemStack(Material.PLAYER_HEAD);
                     ItemMeta im = is.getItemMeta();
                     assert im != null;
-                    im.setDisplayName(CustomPlayerManager.getInstance().getMonetaryPlayer(uuid).getPlayerData().getName());
+                    im.setDisplayName(NaturalDisaster.getPlayerManager().getCPlayer(uuid).getPlayerData().getName());
                     is.setItemMeta(im);
                     i.addItem(is);
                 }
@@ -103,7 +103,7 @@ public class FriendsGUI implements CommandExecutor, Listener {
                 e.setCancelled(true);
                 if (e.getCurrentItem() != null && e.getCurrentItem().getType() == Material.PLAYER_HEAD) {
                     String name = Objects.requireNonNull(e.getCurrentItem().getItemMeta()).getDisplayName();
-                    MonetaryPlayer request = CustomPlayerManager.getInstance().getMonetaryPlayer(name);
+                    CPlayer request = NaturalDisaster.getPlayerManager().getCPlayer(name);
 
                     Inventory i = Bukkit.createInventory(p, 9, "Pedido de amizade de " + request.getPlayerData().getName());
 
@@ -137,22 +137,22 @@ public class FriendsGUI implements CommandExecutor, Listener {
                     e.setCancelled(true);
 
                     String name = e.getView().getTitle().replace("Pedido de amizade de ", "");
-                    MonetaryPlayer request = CustomPlayerManager.getInstance().getMonetaryPlayer(name);
+                    CPlayer request = NaturalDisaster.getPlayerManager().getCPlayer(name);
 
                     if (e.getCurrentItem() != null && e.getCurrentItem().getType() == Material.LIME_CONCRETE) {
-                        if (mp.getPlayerData().acceptFriend(request.getUUID()))
+                        if (cPlayer.getPlayerData().acceptFriend(request.getUuid()))
                             p.sendMessage(ChatColor.GREEN + "Pedido aceito");
                         else p.sendMessage(ChatColor.RED + "Falha ao aceitar pedido.");
                         p.closeInventory();
                         openFriendsGUI(p);
                     } else if (e.getCurrentItem() != null && e.getCurrentItem().getType() == Material.RED_CONCRETE) {
-                        if (mp.getPlayerData().removeFriendRequest(request.getUUID()))
+                        if (cPlayer.getPlayerData().removeFriendRequest(request.getUuid()))
                             p.sendMessage(ChatColor.GREEN + "Pedido recusado");
                         else p.sendMessage(ChatColor.RED + "Falha ao recusar pedido.");
                         p.closeInventory();
                         openFriendsGUI(p);
                     } else if (e.getCurrentItem() != null && e.getCurrentItem().getType() == Material.BARRIER) {
-                        if (mp.getPlayerData().blockPlayer(request.getUUID()))
+                        if (cPlayer.getPlayerData().blockPlayer(request.getUuid()))
                             p.sendMessage(ChatColor.GREEN + "Jogador bloqueado");
                         else p.sendMessage(ChatColor.RED + "Falha ao bloquear jogador.");
                         p.closeInventory();
@@ -163,16 +163,16 @@ public class FriendsGUI implements CommandExecutor, Listener {
                         e.setCancelled(true);
 
                         String name = e.getView().getTitle().replace("Opções para ", "");
-                        MonetaryPlayer target = CustomPlayerManager.getInstance().getMonetaryPlayer(name);
+                        CPlayer target = NaturalDisaster.getPlayerManager().getCPlayer(name);
 
                         if (e.getCurrentItem() != null && e.getCurrentItem().getType() == Material.RED_CONCRETE) {
-                            if (mp.getPlayerData().removeFriend(target.getUUID()))
+                            if (cPlayer.getPlayerData().removeFriend(target.getUuid()))
                                 p.sendMessage(ChatColor.GREEN + "Amigo excluído");
                             else p.sendMessage(ChatColor.RED + "Falha ao excluir amigo.");
                             p.closeInventory();
                             openFriendsGUI(p);
                         } else if (e.getCurrentItem() != null && e.getCurrentItem().getType() == Material.BARRIER) {
-                            if (mp.getPlayerData().blockPlayer(target.getUUID()))
+                            if (cPlayer.getPlayerData().blockPlayer(target.getUuid()))
                                 p.sendMessage(ChatColor.GREEN + "Jogador bloqueado");
                             else p.sendMessage(ChatColor.RED + "Falha ao bloquear jogador.");
                             p.closeInventory();
@@ -185,11 +185,11 @@ public class FriendsGUI implements CommandExecutor, Listener {
     }
 
     private void openFriendsGUI(Player p) {
-        MonetaryPlayer mp = CustomPlayerManager.getInstance().getMonetaryPlayer(p.getUniqueId());
-        Inventory i = Bukkit.createInventory(p, 18 + 9 * Math.floorDiv(mp.getPlayerData().getFriends().size() - 1, 9), "Amigos");
-        if (mp.getPlayerData().getFriends().size() > 0) {
+        CPlayer cPlayer = NaturalDisaster.getPlayerManager().getCPlayer(p.getUniqueId());
+        Inventory i = Bukkit.createInventory(p, 18 + 9 * Math.floorDiv(cPlayer.getPlayerData().getFriends().size() - 1, 9), "Amigos");
+        if (cPlayer.getPlayerData().getFriends().size() > 0) {
             int index = 0;
-            for (UUID uniqueId : mp.getPlayerData().getFriends()) {
+            for (UUID uniqueId : cPlayer.getPlayerData().getFriends()) {
                 ItemStack is;
                 Material mat;
                 ChatColor nameColor;
@@ -208,7 +208,7 @@ public class FriendsGUI implements CommandExecutor, Listener {
                 is = new ItemStack(mat);
                 ItemMeta im = is.getItemMeta();
                 assert im != null;
-                String friendName = CustomPlayerManager.getInstance().getMonetaryPlayer(uniqueId).getPlayerData().getName();
+                String friendName = NaturalDisaster.getPlayerManager().getCPlayer(uniqueId).getPlayerData().getName();
                 im.setDisplayName(nameColor + friendName);
                 is.setItemMeta(im);
                 i.setItem(9 + index++, is);
@@ -221,13 +221,13 @@ public class FriendsGUI implements CommandExecutor, Listener {
             is.setItemMeta(im);
             i.setItem(13, is);
         }
-        ItemStack is = new ItemStack(mp.getPlayerData().getFriendRequests().size() > 0 ? Material.LIME_DYE : Material.GRAY_DYE);
+        ItemStack is = new ItemStack(cPlayer.getPlayerData().getFriendRequests().size() > 0 ? Material.LIME_DYE : Material.GRAY_DYE);
         ItemMeta im = is.getItemMeta();
         assert im != null;
-        im.setDisplayName(mp.getPlayerData().getFriendRequests().size() > 0 ?
-                        (mp.getPlayerData().getFriendRequests().size() == 1 ?
+        im.setDisplayName(cPlayer.getPlayerData().getFriendRequests().size() > 0 ?
+                        (cPlayer.getPlayerData().getFriendRequests().size() == 1 ?
                                 ChatColor.GREEN + "1 pedido de amizade pendente":
-                ChatColor.GREEN + "" + mp.getPlayerData().getFriendRequests().size() + " pedidos de amizade pendentes"):
+                ChatColor.GREEN + "" + cPlayer.getPlayerData().getFriendRequests().size() + " pedidos de amizade pendentes"):
                 ChatColor.GRAY + "Sem pedidos de amizade pendentes.");
         is.setItemMeta(im);
         i.setItem(8, is);

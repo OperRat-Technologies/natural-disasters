@@ -63,3 +63,6 @@ commands:
   refresh:
     description: Atualiza dados da conta.
     usage: "Usage: /<command> [skin] (--force)"
+  crypt:
+    description: teste.
+    usage: "Usage: /<command> [msg]"

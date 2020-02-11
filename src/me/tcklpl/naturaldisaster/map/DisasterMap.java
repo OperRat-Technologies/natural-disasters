@@ -1,5 +1,6 @@
 package me.tcklpl.naturaldisaster.map;
 
+import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.reflection.Packets;
 import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.*;
@@ -164,7 +165,7 @@ public class DisasterMap {
             assert spawn != null;
             assert p != null;
             p.setGameMode(GameMode.ADVENTURE);
-            Bukkit.getLogger().info("Teleportando " + p.getName() + " para spawn " + i + " no mapa " +
+            NaturalDisaster.getMainReference().getLogger().info("Teleportando " + p.getName() + " para spawn " + i + " no mapa " +
                     Objects.requireNonNull(spawn.getWorld()).getName() + " (" + spawn.getBlockX() + " " + spawn.getBlockY() + " " +
                     spawn.getBlockZ() + ")");
             p.teleport(spawn);

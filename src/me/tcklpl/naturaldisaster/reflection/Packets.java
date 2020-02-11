@@ -48,6 +48,11 @@ public class Packets {
 
         }
 
+        /**
+         * Generates a packet for entity despawn
+         * @param entityId the id of the entity
+         * @return the generated packet
+         */
         public static Object PlayOutEntityDestroy(int entityId) {
             try {
                 Constructor<?> entityDestroy = Objects.requireNonNull(ReflectionUtils.getNMSClass("PacketPlayOutEntityDestroy")).getConstructor(int[].class);
@@ -58,6 +63,11 @@ public class Packets {
             }
         }
 
+        /**
+         * Generates a packet for human spawn, to be used for updating game profiles or NPCs
+         * @param entityHuman the entity to be spawned
+         * @return the generated packet
+         */
         public static Object PlayOutNamedEntitySpawn(Object entityHuman) {
             try {
                 Constructor<?> entitySpawn = Objects.requireNonNull(ReflectionUtils.getNMSClass("PacketPlayOutNamedEntitySpawn")).getConstructor(ReflectionUtils.getNMSClass("EntityHuman"));

@@ -2,6 +2,7 @@ package me.tcklpl.naturaldisaster.util;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.player.skins.CustomSkin;
 import me.tcklpl.naturaldisaster.reflection.Packets;
 import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
@@ -74,13 +75,13 @@ public class SkinUtils {
                 return new CustomSkin(playerName, textureValue, signature, new Timestamp(System.currentTimeMillis()));
 
             } else {
-                Bukkit.getLogger().warning("Response NOT ok:");
-                Bukkit.getLogger().warning(connection.getResponseMessage());
+                NaturalDisaster.getMainReference().getLogger().warning("Response NOT ok:");
+                NaturalDisaster.getMainReference().getLogger().warning(connection.getResponseMessage());
                 return null;
             }
 
         } catch (IOException e) {
-            Bukkit.getLogger().warning("Exception");
+            NaturalDisaster.getMainReference().getLogger().warning("Exception");
             e.printStackTrace();
         }
         return null;

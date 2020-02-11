@@ -18,5 +18,7 @@
         </SOURCES>
       </library>
     </orderEntry>
+    <orderEntry type="library" name="de.mkammerer:argon2-jvm:2.6" level="project" />
+    <orderEntry type="library" name="org.reflections:reflections:0.9.12" level="project" />
   </component>
 </module>

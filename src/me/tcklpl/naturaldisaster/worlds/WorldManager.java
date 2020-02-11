@@ -1,5 +1,6 @@
 package me.tcklpl.naturaldisaster.worlds;
 
+import me.tcklpl.naturaldisaster.NaturalDisaster;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.WorldCreator;
@@ -23,13 +24,13 @@ public class WorldManager {
         for(String world : worlds) {
             File folder = new File(Bukkit.getServer().getWorldContainer(), world);
             if (!folder.exists()) {
-                Bukkit.getLogger().log(Level.WARNING, "Could not load world " + world + ", exiting world load");
+                NaturalDisaster.getMainReference().getLogger().log(Level.WARNING, "Could not load world " + world + ", exiting world load");
                 return;
             } else {
                 managedWorlds.add(world);
             }
         }
-        Bukkit.getLogger().info("Carregados " + managedWorlds.size() + " mundos");
+        NaturalDisaster.getMainReference().getLogger().info("Carregados " + managedWorlds.size() + " mundos");
     }
 
     public boolean createVoidWorld(String name) {

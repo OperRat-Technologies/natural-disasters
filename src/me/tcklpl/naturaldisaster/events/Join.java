@@ -1,11 +1,10 @@
 package me.tcklpl.naturaldisaster.events;
 
 import me.tcklpl.naturaldisaster.GameStatus;
+import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.map.MapManager;
-import me.tcklpl.naturaldisaster.player.monetaryPlayer.CustomPlayerManager;
-import me.tcklpl.naturaldisaster.player.monetaryPlayer.MonetaryPlayer;
+import me.tcklpl.naturaldisaster.player.cPlayer.CPlayer;
 import me.tcklpl.naturaldisaster.player.monetaryPlayer.PlayerData;
-import me.tcklpl.naturaldisaster.player.skins.CustomSkin;
 import me.tcklpl.naturaldisaster.player.skins.SkinManager;
 import me.tcklpl.naturaldisaster.util.SkinUtils;
 import org.bukkit.ChatColor;
@@ -27,11 +26,12 @@ public class Join implements Listener {
     @EventHandler
     public void onLogin(PlayerJoinEvent e) {
         Player p = e.getPlayer();
-        if (CustomPlayerManager.getInstance().getMonetaryPlayer(p.getUniqueId()) == null) {
+        if (NaturalDisaster.getPlayerManager().getCPlayer(p.getUniqueId()) == null) {
             PlayerData playerData = new PlayerData(p.getName(), 0, 0, 0, 50, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
             playerData.setPlayerUUID(p.getUniqueId());
-            MonetaryPlayer mp = new MonetaryPlayer(p.getUniqueId(), playerData);
-            CustomPlayerManager.getInstance().registerPlayer(mp);
+            CPlayer cp = new CPlayer(p.getUniqueId(), null, null, playerData);
+            if (!NaturalDisaster.getPlayerManager().registerCPlayer(cp))
+                NaturalDisaster.getMainReference().getLogger().warning("Falha ao registrar player " + p.getName());
             p.sendMessage(ChatColor.GREEN + "Bem-vindo ao servidor!");
         } else {
             p.sendMessage(ChatColor.GREEN + "Bem-vindo de volta!");

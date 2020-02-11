@@ -2,6 +2,7 @@ package me.tcklpl.naturaldisaster.player.ingamePlayer;
 
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.reflection.Packets;
 import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.Bukkit;
@@ -57,7 +58,7 @@ public class ArenaPlayerManager {
      */
     public void disguisePlayer(final Player p, String name) {
         if (getPlayer(p) != null) {
-            Bukkit.getLogger().warning("Usuário " + p.getName() + " já tranformado");
+            NaturalDisaster.getMainReference().getLogger().warning("Usuário " + p.getName() + " já tranformado");
             return;
         }
         GameProfile profile = new GameProfile(p.getUniqueId(), name);

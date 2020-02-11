@@ -1,6 +1,7 @@
 package me.tcklpl.naturaldisaster.map;
 
 import me.tcklpl.naturaldisaster.GameStatus;
+import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.disasters.*;
 import me.tcklpl.naturaldisaster.player.ingamePlayer.ArenaPlayerManager;
 import me.tcklpl.naturaldisaster.player.monetaryPlayer.CustomPlayerManager;
@@ -12,11 +13,10 @@ import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
+import org.reflections.Reflections;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Random;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 
@@ -81,14 +81,16 @@ public class MapManager {
     }
 
     public void setupDisasters() {
-        disasters.add(new TNTRain(null, mainReference));
-        disasters.add(new ToxicRain(null, mainReference));
-        disasters.add(new Flooding(null, mainReference));
-        disasters.add(new Earthquake( null, mainReference));
-        disasters.add(new Blizzard(null, mainReference));
-        disasters.add(new Fire(null, mainReference));
-        disasters.add(new Thunderstorm(null, mainReference));
-        disasters.add(new Biohazard(null, mainReference));
+        Reflections reflections = new Reflections("me.tcklpl.naturaldisaster.disasters");
+        Set<Class<? extends Disaster>> disasterClasses = reflections.getSubTypesOf(Disaster.class);
+        try {
+            for (Class<? extends Disaster> disasterClass : disasterClasses) {
+                disasters.add(disasterClass.getConstructor(DisasterMap.class, JavaPlugin.class).newInstance(null, mainReference));
+            }
+        } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        NaturalDisaster.getMainReference().getLogger().info("Carregados " + disasterClasses.size() + " desastres");
     }
 
     public void randomNextMap() {
@@ -98,7 +100,7 @@ public class MapManager {
             currentMap = arenas.get(random.nextInt(arenas.size()));
         }
 
-        Bukkit.getLogger().info("Carregando próximo mapa: " + currentMap.getName());
+        NaturalDisaster.getMainReference().getLogger().info("Carregando próximo mapa: " + currentMap.getName());
         ActionBar ab = new ActionBar(ChatColor.GOLD + "Próximo mapa: " + currentMap.getName());
         ab.sendToAll();
 
@@ -119,7 +121,7 @@ public class MapManager {
         assert currentDisaster != null;
         currentDisaster.setMap(currentMap);
 
-        Bukkit.getLogger().info("Próximo desastre: " + currentDisaster.getName());
+        NaturalDisaster.getMainReference().getLogger().info("Próximo desastre: " + currentDisaster.getName());
     }
 
     public void setupArenas() {
@@ -151,7 +153,7 @@ public class MapManager {
                 DisasterMap map = new DisasterMap(mainReference, pos1, pos2, arena, spawns);
                 registerArena(map);
             }
-        Bukkit.getLogger().info("Carregadas " + arenas + " arenas");
+        NaturalDisaster.getMainReference().getLogger().info("Carregadas " + arenas + " arenas");
     }
 
     public void saveArenas() {
@@ -172,7 +174,7 @@ public class MapManager {
                     count++;
                 }
             } catch (NullPointerException e) {
-                Bukkit.getLogger().log(Level.WARNING, "Erro ao salvar arena " + map.getName() + ", mapa provavelmente não carregado");
+                NaturalDisaster.getMainReference().getLogger().log(Level.WARNING, "Erro ao salvar arena " + map.getName() + ", mapa provavelmente não carregado");
             }
         }
     }
@@ -245,8 +247,8 @@ public class MapManager {
         // Wait 6s to unload map in order to give time to all unfinished delayed schedules
         Bukkit.getScheduler().scheduleSyncDelayedTask(mainReference, () -> {
             if (Bukkit.unloadWorld(Objects.requireNonNull(currentMap.getPos1().getWorld()), false)) {
-                Bukkit.getLogger().info("Mundo " + currentMap.getName() + " descarregado.");
-            } else Bukkit.getLogger().severe("Falha ao descarregar mundo " + currentMap);
+                NaturalDisaster.getMainReference().getLogger().info("Mundo " + currentMap.getName() + " descarregado.");
+            } else NaturalDisaster.getMainReference().getLogger().severe("Falha ao descarregar mundo " + currentMap);
             currentMap = null;
             currentDisaster = null;
             currentStatus = GameStatus.IN_LOBBY;

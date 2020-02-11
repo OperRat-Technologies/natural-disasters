@@ -1,6 +1,7 @@
 package me.tcklpl.naturaldisaster.player.skins;
 
 import me.tcklpl.naturaldisaster.GameStatus;
+import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.map.MapManager;
 import me.tcklpl.naturaldisaster.util.SkinUtils;
 import org.bukkit.Bukkit;
@@ -76,7 +77,7 @@ public class SkinManager {
                     assert timestamp != null;
                     managedSkins.add(new CustomSkin(skinName, value, signature, Timestamp.valueOf(timestamp)));
                 }
-                Bukkit.getLogger().info("Carregadas " + managedSkins.size() + " skins para lobby");
+                NaturalDisaster.getMainReference().getLogger().info("Carregadas " + managedSkins.size() + " skins para lobby");
             }
         }
     }

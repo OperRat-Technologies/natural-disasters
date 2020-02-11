@@ -3,6 +3,7 @@ package me.tcklpl.naturaldisaster.util;
 import org.bukkit.ChatColor;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 
@@ -39,6 +40,7 @@ public class NamesAndColors {
      */
     public static List<ChatColor> pickRandomColors(int count) {
         List<ChatColor> res = new ArrayList<>();
+        Collections.shuffle(usedColors);
         for (int i = 0; i < count; i++) {
             res.add(usedColors.get(i % usedColors.size()));
         }

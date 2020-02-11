@@ -2,12 +2,15 @@ package me.tcklpl.naturaldisaster;
 
 import me.tcklpl.naturaldisaster.admin.AdminInventoryClick;
 import me.tcklpl.naturaldisaster.admin.ArenaAdmin;
+import me.tcklpl.naturaldisaster.auth.AuthCommands;
+import me.tcklpl.naturaldisaster.auth.AuthManager;
 import me.tcklpl.naturaldisaster.commands.*;
 import me.tcklpl.naturaldisaster.database.Database;
 import me.tcklpl.naturaldisaster.events.*;
 import me.tcklpl.naturaldisaster.events.arena.Damage;
 import me.tcklpl.naturaldisaster.events.arena.Death;
 import me.tcklpl.naturaldisaster.map.MapManager;
+import me.tcklpl.naturaldisaster.player.cPlayer.CPlayerManager;
 import me.tcklpl.naturaldisaster.player.friends.FriendsGUI;
 import me.tcklpl.naturaldisaster.player.monetaryPlayer.CustomPlayerManager;
 import me.tcklpl.naturaldisaster.player.skins.RefreshSkin;
@@ -25,13 +28,16 @@ import java.util.*;
 public class NaturalDisaster extends JavaPlugin {
 
     WorldManager worldManager;
-    Database database;
+    private static Database database;
+    private static JavaPlugin mainReference;
+    private static AuthManager authManager;
+    private static CPlayerManager cPlayerManager;
 
     @Override
     public void onEnable() {
 
-        database = new Database(getDataFolder() + "/database.db");
-        database.assertDefaults();
+        mainReference = this;
+        authManager = new AuthManager();
 
         List<String> managedWorlds = getConfig().getStringList("worlds");
         worldManager = new WorldManager(managedWorlds);
@@ -41,14 +47,17 @@ public class NaturalDisaster extends JavaPlugin {
         MapManager.getInstance().setupArenas();
         MapManager.getInstance().setCurrentStatus(GameStatus.IN_LOBBY);
 
-        CustomPlayerManager.getInstance().setMainInstance(this);
-        CustomPlayerManager.getInstance().setupPlayers();
-
         SkinManager.getInstance().setMainInstance(this);
         SkinManager.getInstance().setupSkins();
 
+        cPlayerManager = new CPlayerManager();
+        cPlayerManager.loadPlayers();
+
         registerEvents();
         registerCommands();
+
+        database = new Database(getDataFolder() + "/database.db");
+        database.assertDefaults();
 
     }
 
@@ -57,8 +66,8 @@ public class NaturalDisaster extends JavaPlugin {
 
         getConfig().set("worlds", worldManager.getManagedWorlds());
         MapManager.getInstance().saveArenas();
+        cPlayerManager.savePlayers();
         try {
-            CustomPlayerManager.getInstance().savePlayers();
             SkinManager.getInstance().saveSkins();
         } catch (IOException e) {
             e.printStackTrace();
@@ -105,6 +114,19 @@ public class NaturalDisaster extends JavaPlugin {
         Objects.requireNonNull(getCommand("shop")).setExecutor(new ShopCommand());
         Objects.requireNonNull(getCommand("friends")).setExecutor(new FriendsGUI());
         Objects.requireNonNull(getCommand("refresh")).setExecutor(new RefreshSkin());
+        Objects.requireNonNull(getCommand("crypt")).setExecutor(new AuthCommands());
 
     }
+
+    public static AuthManager getAuthManager() { return authManager; }
+
+    public static JavaPlugin getMainReference() {
+        return mainReference;
+    }
+
+    public static Database getDatabase() {
+        return database;
+    }
+
+    public static CPlayerManager getPlayerManager() { return  cPlayerManager; }
 }

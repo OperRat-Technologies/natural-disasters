@@ -1,5 +1,6 @@
 package me.tcklpl.naturaldisaster.schematics;
 
+import me.tcklpl.naturaldisaster.NaturalDisaster;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.BlockData;
@@ -50,14 +51,14 @@ public class SchematicManager {
         Schematic schematic = new Schematic(materials, blockData, width, height, lenght);
         if (!new File(Bukkit.getWorldContainer() + "/schematics").exists()) {
             if (!new File(Bukkit.getWorldContainer() + "/schematics").mkdirs()) {
-                Bukkit.getLogger().warning("Erro ao criar diretório schematics");
+                NaturalDisaster.getMainReference().getLogger().warning("Erro ao criar diretório schematics");
             }
         }
         File saveFile = new File(Bukkit.getWorldContainer() + "/schematics", name + ".schematic");
         if (saveFile.exists()) {
-            Bukkit.getLogger().warning("Schematic " + name + " já existente, substituindo...");
+            NaturalDisaster.getMainReference().getLogger().warning("Schematic " + name + " já existente, substituindo...");
             if (!saveFile.delete()) {
-                Bukkit.getLogger().warning("Erro ao apagar arquivo");
+                NaturalDisaster.getMainReference().getLogger().warning("Erro ao apagar arquivo");
                 return false;
             }
         }
@@ -70,10 +71,10 @@ public class SchematicManager {
             objectOutputStream = new ObjectOutputStream(fileOutputStream);
             objectOutputStream.writeObject(schematic);
             objectOutputStream.close();
-            Bukkit.getLogger().info("Schematic " + name + " salvo com sucesso!");
+            NaturalDisaster.getMainReference().getLogger().info("Schematic " + name + " salvo com sucesso!");
             return true;
         } catch (IOException e) {
-            Bukkit.getLogger().severe("ERRO AO SALVAR SCHEMATIC");
+            NaturalDisaster.getMainReference().getLogger().severe("ERRO AO SALVAR SCHEMATIC");
             e.printStackTrace();
             return false;
         }
@@ -86,12 +87,12 @@ public class SchematicManager {
         int originZ = origin.getBlockZ();
 
         if (!new File(Bukkit.getWorldContainer() + "/schematics").exists()) {
-            Bukkit.getLogger().warning("Diretório de schematics não existe.");
+            NaturalDisaster.getMainReference().getLogger().warning("Diretório de schematics não existe.");
             return false;
         }
         File loadFile = new File(Bukkit.getWorldContainer() + "/schematics", name + ".schematic");
         if (!loadFile.exists()) {
-            Bukkit.getLogger().warning("Schematic " + name + " inexistente.");
+            NaturalDisaster.getMainReference().getLogger().warning("Schematic " + name + " inexistente.");
             return false;
         }
 
