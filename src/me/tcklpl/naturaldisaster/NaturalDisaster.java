@@ -12,18 +12,20 @@ import me.tcklpl.naturaldisaster.events.arena.Death;
 import me.tcklpl.naturaldisaster.map.MapManager;
 import me.tcklpl.naturaldisaster.player.cPlayer.CPlayerManager;
 import me.tcklpl.naturaldisaster.player.friends.FriendsGUI;
-import me.tcklpl.naturaldisaster.player.monetaryPlayer.CustomPlayerManager;
 import me.tcklpl.naturaldisaster.player.skins.RefreshSkin;
 import me.tcklpl.naturaldisaster.player.skins.SkinManager;
 import me.tcklpl.naturaldisaster.shop.ShopCommand;
 import me.tcklpl.naturaldisaster.shop.ShopInventoryClick;
 import me.tcklpl.naturaldisaster.worlds.WorldCommands;
 import me.tcklpl.naturaldisaster.worlds.WorldManager;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Filter;
+import java.util.logging.LogRecord;
 
 public class NaturalDisaster extends JavaPlugin {
 
@@ -135,4 +137,5 @@ public class NaturalDisaster extends JavaPlugin {
     public static AuthManager getAuthenticationManager() {
         return authManager;
     }
+
 }

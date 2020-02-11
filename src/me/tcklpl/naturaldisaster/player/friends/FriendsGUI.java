@@ -186,8 +186,7 @@ public class FriendsGUI implements CommandExecutor, Listener {
 
     private void openFriendsGUI(Player p) {
         CPlayer cPlayer = NaturalDisaster.getPlayerManager().getCPlayer(p.getUniqueId());
-        Inventory i = Bukkit.createInventory(p, 18 + 9 * Math.floorDiv(cPlayer.getPlayerData().getFriends().size() - 1, 9), "Amigos");
-        p.sendMessage(cPlayer.getPlayerData().getFriends().size() + " amigos");
+        Inventory i = Bukkit.createInventory(p, 18 + 9 * Math.floorDiv(cPlayer.getPlayerData().getFriends().size(), 9), "Amigos");
         if (cPlayer.getPlayerData().getFriends().size() > 0) {
             int index = 0;
             for (UUID uniqueId : cPlayer.getPlayerData().getFriends()) {

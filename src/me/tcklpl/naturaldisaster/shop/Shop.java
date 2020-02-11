@@ -2,8 +2,6 @@ package me.tcklpl.naturaldisaster.shop;
 
 import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.player.cPlayer.CPlayer;
-import me.tcklpl.naturaldisaster.player.monetaryPlayer.CustomPlayerManager;
-import me.tcklpl.naturaldisaster.player.monetaryPlayer.MonetaryPlayer;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

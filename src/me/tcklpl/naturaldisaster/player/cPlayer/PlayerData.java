@@ -1,6 +1,6 @@
 package me.tcklpl.naturaldisaster.player.cPlayer;
 
-import me.tcklpl.naturaldisaster.player.monetaryPlayer.CustomPlayerManager;
+import me.tcklpl.naturaldisaster.NaturalDisaster;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 
@@ -113,7 +113,7 @@ public class PlayerData implements Serializable {
         if (friends.contains(name)) return false;
         friendRequests.remove(name);
         friends.add(name);
-        CustomPlayerManager.getInstance().getMonetaryPlayer(name).getPlayerData().forceAddFriend(this.playerUUID);
+        NaturalDisaster.getPlayerManager().getCPlayer(name).getPlayerData().forceAddFriend(this.playerUUID);
         modified = true;
         return true;
     }
@@ -123,7 +123,7 @@ public class PlayerData implements Serializable {
             return acceptFriend(uuid);
         if (friends.contains(uuid)) return false;
         modified = true;
-        return CustomPlayerManager.getInstance().getMonetaryPlayer(uuid).getPlayerData().addFriendRequest(this.playerUUID);
+        return NaturalDisaster.getPlayerManager().getCPlayer(uuid).getPlayerData().addFriendRequest(this.playerUUID);
     }
 
     public boolean removeFriendRequest(UUID uuid) {
