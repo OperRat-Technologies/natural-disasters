@@ -3,11 +3,14 @@ package me.tcklpl.naturaldisaster.auth;
 import de.mkammerer.argon2.Argon2;
 import de.mkammerer.argon2.Argon2Factory;
 import me.tcklpl.naturaldisaster.NaturalDisaster;
+import me.tcklpl.naturaldisaster.player.cPlayer.CPlayer;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.sql.SQLException;
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Queue;
 
 public class HashingManager {
@@ -33,12 +36,19 @@ public class HashingManager {
     }
 
     public void acceptTask(HashingService service) {
-        if (service.hashData.option == HashingOption.HASH)
-            try {
-                NaturalDisaster.getDatabase().insert("passwords", new String[] {"uuid", "pass"}, new Object[] {service.hashData.player.getUniqueId().toString(), service.hashData.getHash()});
-            } catch (SQLException e) {
-                service.hashData.player.sendMessage("erro");
-            }
+        if (service.hashData.option == HashingOption.HASH) {
+            CPlayer cp = NaturalDisaster.getPlayerManager().getCPlayer(service.hashData.player.getUniqueId());
+            cp.setPassword(service.hashData.hash);
+            if (NaturalDisaster.getAuthenticationManager().authPlayer(service.hashData.player))
+                service.hashData.player.sendMessage(ChatColor.GREEN + "Autenticado com sucesso.");
+            else service.hashData.player.sendMessage(ChatColor.RED + "Falha ao autenticar jogador");
+        } else if (service.hashData.option == HashingOption.COMPARE) {
+            if (service.success) {
+                if (NaturalDisaster.getAuthenticationManager().authPlayer(service.hashData.player))
+                    service.hashData.player.sendMessage(ChatColor.GREEN + "Autenticado com sucesso.");
+                else service.hashData.player.sendMessage(ChatColor.RED + "Falha ao autenticar jogador");
+            } else service.hashData.player.sendMessage(ChatColor.RED + "A senha está incorreta.");
+        }
         if (queue.size() > 0)
             computeHash();
     }
@@ -52,6 +62,10 @@ public class HashingManager {
         HASH, COMPARE
     }
 
+    public boolean isInQueue(HashData hashData) {
+        return queue.contains(new HashingService(this, hashData));
+    }
+
     public static class HashData {
 
         private String password, hash;
@@ -63,6 +77,14 @@ public class HashingManager {
             this.password = password;
             this.hash = hash;
             this.option = option;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            HashData hashData = (HashData) o;
+            return Objects.equals(player, hashData.player);
         }
 
         public String getPassword() {

@@ -2,6 +2,7 @@ package me.tcklpl.naturaldisaster.auth;
 
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AuthManager {
@@ -11,10 +12,19 @@ public class AuthManager {
 
     public AuthManager() {
         hashingManager = new HashingManager();
+        authenticatedPlayers = new ArrayList<>();
     }
 
     public HashingManager getHashingManager() {
         return hashingManager;
+    }
+
+    public boolean authPlayer(Player p) {
+        return authenticatedPlayers.add(p);
+    }
+
+    public boolean isAuthenticated(Player p) {
+        return authenticatedPlayers.contains(p);
     }
 
 

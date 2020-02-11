@@ -3,9 +3,8 @@ package me.tcklpl.naturaldisaster.map;
 import me.tcklpl.naturaldisaster.GameStatus;
 import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.disasters.*;
+import me.tcklpl.naturaldisaster.player.cPlayer.CPlayer;
 import me.tcklpl.naturaldisaster.player.ingamePlayer.ArenaPlayerManager;
-import me.tcklpl.naturaldisaster.player.monetaryPlayer.CustomPlayerManager;
-import me.tcklpl.naturaldisaster.player.monetaryPlayer.MonetaryPlayer;
 import me.tcklpl.naturaldisaster.player.skins.SkinManager;
 import me.tcklpl.naturaldisaster.util.ActionBar;
 import me.tcklpl.naturaldisaster.util.NamesAndColors;
@@ -275,9 +274,10 @@ public class MapManager {
                 if (currentMap.getPlayersInArena().size() == 1) {
                     Bukkit.getScheduler().runTaskLater(mainReference, () -> Bukkit.broadcastMessage(ChatColor.GREEN + currentMap.getPlayersInArena().get(0).getName() + " venceu!"), 20L);
                     Player winner = currentMap.getPlayersInArena().get(0);
-                    MonetaryPlayer mp = CustomPlayerManager.getInstance().getMonetaryPlayer(winner.getUniqueId());
-                    mp.getPlayerData().setWins(mp.getPlayerData().getWins() + 1);
-                    mp.getPlayerData().setMoney(mp.getPlayerData().getMoney() + 25);
+
+                    CPlayer cp = NaturalDisaster.getPlayerManager().getCPlayer(winner.getUniqueId());
+                    cp.getPlayerData().setWins(cp.getPlayerData().getWins() + 1);
+                    cp.getPlayerData().setMoney(cp.getPlayerData().getMoney() + 25);
                     winner.sendMessage(ChatColor.GOLD + "+$25 por ganhar a partida.");
                 }
                 finishGame();
@@ -288,11 +288,25 @@ public class MapManager {
                 p.playSound(p.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1f, 1f);
                 for (Player player : currentMap.getPlayersInArena()) {
                     player.sendMessage(ChatColor.GRAY + "+$1 por sobreviver.");
-                    MonetaryPlayer mp = CustomPlayerManager.getInstance().getMonetaryPlayer(player.getUniqueId());
-                    mp.getPlayerData().setMoney(mp.getPlayerData().getMoney() + 1);
+
+                    CPlayer cp = NaturalDisaster.getPlayerManager().getCPlayer(player.getUniqueId());
+                    cp.getPlayerData().setMoney(cp.getPlayerData().getMoney() + 1);
                 }
             }
         }
+    }
+
+    public void arenaTimeout() {
+
+        for (Player p : currentMap.getPlayersInArena()) {
+            CPlayer cp = NaturalDisaster.getPlayerManager().getCPlayer(p.getUniqueId());
+            cp.getPlayerData().setWins(cp.getPlayerData().getWins() + 1);
+            cp.getPlayerData().setMoney(cp.getPlayerData().getMoney() + 25);
+            p.sendMessage(ChatColor.GOLD + "+$25 por ganhar a partida.");
+        }
+
+        Bukkit.broadcastMessage(ChatColor.YELLOW + "Acabou o tempo do mapa, todos ainda vivos ganharam");
+        finishGame();
     }
 
     public boolean isIsInGame() { return currentStatus == GameStatus.IN_GAME || currentStatus == GameStatus.STARTING; }

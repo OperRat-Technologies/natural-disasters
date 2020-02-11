@@ -1,5 +1,6 @@
 package me.tcklpl.naturaldisaster.player.monetaryPlayer;
 
+import me.tcklpl.naturaldisaster.player.cPlayer.PlayerData;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 

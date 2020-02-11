@@ -1,6 +1,7 @@
 package me.tcklpl.naturaldisaster.disasters;
 
 import me.tcklpl.naturaldisaster.map.DisasterMap;
+import me.tcklpl.naturaldisaster.map.MapManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -11,10 +12,11 @@ public abstract class Disaster {
     DisasterMap map;
     JavaPlugin main;
     String name, hint;
-    int taskId;
+    int taskId, timeoutTaskId;
     boolean isActive;
 
     long startDelay = 100L;
+    long timeout = 3L; // minutes
     Random random;
 
     public Disaster(DisasterMap map, JavaPlugin main) {
@@ -26,11 +28,20 @@ public abstract class Disaster {
 
     public void startDisaster() {
         isActive = true;
+        timeoutTaskId = Bukkit.getScheduler().scheduleSyncDelayedTask(main, this::endByTimeout, timeout * 20 * 60);
+    }
+
+    private void endByTimeout() {
+        isActive = false;
+        Bukkit.getScheduler().cancelTask(taskId);
+        MapManager.getInstance().arenaTimeout();
     }
 
     public void stopDisaster() {
-        if (isActive)
+        if (isActive) {
             Bukkit.getScheduler().cancelTask(taskId);
+            Bukkit.getScheduler().cancelTask(timeoutTaskId);
+        }
         isActive = false;
     }
 

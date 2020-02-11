@@ -6,7 +6,6 @@ import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.player.skins.CustomSkin;
 import me.tcklpl.naturaldisaster.reflection.Packets;
 import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 

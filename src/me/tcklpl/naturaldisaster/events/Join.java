@@ -4,7 +4,7 @@ import me.tcklpl.naturaldisaster.GameStatus;
 import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.map.MapManager;
 import me.tcklpl.naturaldisaster.player.cPlayer.CPlayer;
-import me.tcklpl.naturaldisaster.player.monetaryPlayer.PlayerData;
+import me.tcklpl.naturaldisaster.player.cPlayer.PlayerData;
 import me.tcklpl.naturaldisaster.player.skins.SkinManager;
 import me.tcklpl.naturaldisaster.util.SkinUtils;
 import org.bukkit.ChatColor;

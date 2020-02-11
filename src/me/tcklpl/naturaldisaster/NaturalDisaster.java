@@ -114,7 +114,9 @@ public class NaturalDisaster extends JavaPlugin {
         Objects.requireNonNull(getCommand("shop")).setExecutor(new ShopCommand());
         Objects.requireNonNull(getCommand("friends")).setExecutor(new FriendsGUI());
         Objects.requireNonNull(getCommand("refresh")).setExecutor(new RefreshSkin());
-        Objects.requireNonNull(getCommand("crypt")).setExecutor(new AuthCommands());
+        AuthCommands authCommands = new AuthCommands();
+        Objects.requireNonNull(getCommand("register")).setExecutor(authCommands);
+        Objects.requireNonNull(getCommand("login")).setExecutor(authCommands);
 
     }
 
@@ -129,4 +131,8 @@ public class NaturalDisaster extends JavaPlugin {
     }
 
     public static CPlayerManager getPlayerManager() { return  cPlayerManager; }
+
+    public static AuthManager getAuthenticationManager() {
+        return authManager;
+    }
 }

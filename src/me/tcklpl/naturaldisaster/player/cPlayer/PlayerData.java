@@ -1,5 +1,6 @@
-package me.tcklpl.naturaldisaster.player.monetaryPlayer;
+package me.tcklpl.naturaldisaster.player.cPlayer;
 
+import me.tcklpl.naturaldisaster.player.monetaryPlayer.CustomPlayerManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 

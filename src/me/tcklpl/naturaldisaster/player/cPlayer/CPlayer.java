@@ -1,7 +1,5 @@
 package me.tcklpl.naturaldisaster.player.cPlayer;
 
-import me.tcklpl.naturaldisaster.player.monetaryPlayer.PlayerData;
-
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.UUID;

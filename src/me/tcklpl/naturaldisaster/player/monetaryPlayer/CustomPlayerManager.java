@@ -1,5 +1,6 @@
 package me.tcklpl.naturaldisaster.player.monetaryPlayer;
 
+import me.tcklpl.naturaldisaster.player.cPlayer.PlayerData;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
