@@ -27,5 +27,9 @@ public class AuthManager {
         return authenticatedPlayers.contains(p);
     }
 
+    public void removeIfAuthenticated(Player p) {
+        authenticatedPlayers.remove(p);
+    }
+
 
 }

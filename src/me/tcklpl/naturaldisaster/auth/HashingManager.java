@@ -30,6 +30,10 @@ public class HashingManager {
         }
     }
 
+    public int getQueueSize() {
+        return queue.size();
+    }
+
     private void computeHash() {
         if (queue.size() > 0)
             Bukkit.getScheduler().runTaskAsynchronously(NaturalDisaster.getMainReference(), queue.remove());
@@ -85,6 +89,11 @@ public class HashingManager {
             if (o == null || getClass() != o.getClass()) return false;
             HashData hashData = (HashData) o;
             return Objects.equals(player, hashData.player);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(player);
         }
 
         public String getPassword() {

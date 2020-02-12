@@ -35,38 +35,47 @@ public class AuthCommands implements CommandExecutor {
                     p.sendMessage(ChatColor.RED + "Você já está na fila de autenticação, por favor aguarde.");
                 } else {
                     NaturalDisaster.getAuthenticationManager().getHashingManager().addToQueue(hashData);
-                    p.sendMessage(ChatColor.GRAY + "Você foi adicionado na fila de autenticação.");
+                    p.sendMessage(ChatColor.GRAY + "Você foi adicionado na fila de autenticação. (Sua posição: " + (NaturalDisaster.getAuthManager().getHashingManager().getQueueSize() + 1) +")");
                 }
             } else {
                 p.sendMessage(ChatColor.RED + "As senhas não coincidem");
             }
             return true;
-        } else if (cmd.getName().equalsIgnoreCase("login")) {
-            if (!(sender instanceof Player)) return true;
-            if (args.length != 1) return false;
+        } else {
+            if (cmd.getName().equalsIgnoreCase("login")) {
+                if (!(sender instanceof Player)) return true;
+                if (args.length != 1) return false;
 
-            Player p = (Player) sender;
+                Player p = (Player) sender;
 
-            if (NaturalDisaster.getAuthenticationManager().isAuthenticated(p)) {
-                p.sendMessage(ChatColor.GRAY + "Você já está autenticado.");
+                if (NaturalDisaster.getAuthenticationManager().isAuthenticated(p)) {
+                    p.sendMessage(ChatColor.GRAY + "Você já está autenticado.");
+                    return true;
+                }
+
+                CPlayer cp = NaturalDisaster.getPlayerManager().getCPlayer(p.getUniqueId());
+
+                if (cp.getPassword() == null) {
+                    p.sendMessage(ChatColor.RED + "Você precisa se registrar entes de se logar.");
+                    return true;
+                }
+
+                HashingManager.HashData hashData = new HashingManager.HashData(p, HashingManager.HashingOption.COMPARE, args[0], cp.getPassword());
+                if (NaturalDisaster.getAuthenticationManager().getHashingManager().isInQueue(hashData)) {
+                    p.sendMessage(ChatColor.RED + "Você já está na fila de autenticação, por favor aguarde.");
+                } else {
+                    NaturalDisaster.getAuthenticationManager().getHashingManager().addToQueue(hashData);
+                    p.sendMessage(ChatColor.GRAY + "Você foi adicionado na fila de autenticação.");
+                }
                 return true;
-            }
-
-            CPlayer cp = NaturalDisaster.getPlayerManager().getCPlayer(p.getUniqueId());
-
-            if (cp.getPassword() == null) {
-                p.sendMessage(ChatColor.RED + "Você precisa se registrar entes de se logar.");
-                return true;
-            }
-
-            HashingManager.HashData hashData = new HashingManager.HashData(p, HashingManager.HashingOption.COMPARE, args[0], cp.getPassword());
-            if (NaturalDisaster.getAuthenticationManager().getHashingManager().isInQueue(hashData)) {
-                p.sendMessage(ChatColor.RED + "Você já está na fila de autenticação, por favor aguarde.");
             } else {
-                NaturalDisaster.getAuthenticationManager().getHashingManager().addToQueue(hashData);
-                p.sendMessage(ChatColor.GRAY + "Você foi adicionado na fila de autenticação.");
+                if (cmd.getName().equalsIgnoreCase("changepassword") || alias.equalsIgnoreCase("chgpwd")) {
+                    if (args.length != 3 && args.length != 4) return false;
+                    if (!(sender instanceof Player)) return false;
+                    Player p = (Player) sender;
+
+                }
             }
-            return true;
         }
         return false;
     }
