@@ -8,6 +8,11 @@ import java.lang.reflect.InvocationTargetException;
 
 public class ReflectionUtils {
 
+    /**
+     * Reflection way to send a packet for one player without importing nms classes.
+     * @param player the player to send the packet.
+     * @param packet the packet.
+     */
     public static void sendPacket(Player player, Object packet) {
         try {
             Object handle = player.getClass().getMethod("getHandle").invoke(player);
@@ -18,6 +23,11 @@ public class ReflectionUtils {
         }
     }
 
+    /**
+     * Hides and shows again player to all online players, to be used when changing skins and/or game profiles.
+     * @param mainReference main reference, needed to hide and show players.
+     * @param p the player to be hidden and shown.
+     */
     public static void updatePlayerForEveryone(JavaPlugin mainReference, Player p) {
         try {
             Object entityHuman = p.getClass().getMethod("getHandle").invoke(p);
@@ -34,6 +44,11 @@ public class ReflectionUtils {
         }
     }
 
+    /**
+     * Fetches the current server version number and gets the requested class by name.
+     * @param name the name of the class.
+     * @return the fetched class.
+     */
     public static Class<?> getNMSClass(String name) {
         String version = Bukkit.getServer().getClass().getPackageName().split("\\.")[3];
         try {

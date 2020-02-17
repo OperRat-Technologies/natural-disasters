@@ -24,6 +24,12 @@ public class Packets {
             CHAT, SYSTEM, GAME_INFO
         }
 
+        /**
+         * Generates a packet for entity info, to be used to disguise players.
+         * @param playerInfoEnum Remove or Add.
+         * @param player the player.
+         * @return the generated packet.
+         */
         public static Object PlayOutPlayerInfo(PlayerInfoEnum playerInfoEnum, Player player) {
             try {
                 Object entityPlayer = player.getClass().getMethod("getHandle").invoke(player);
@@ -49,9 +55,9 @@ public class Packets {
         }
 
         /**
-         * Generates a packet for entity despawn
-         * @param entityId the id of the entity
-         * @return the generated packet
+         * Generates a packet for entity despawn.
+         * @param entityId the id of the entity.
+         * @return the generated packet.
          */
         public static Object PlayOutEntityDestroy(int entityId) {
             try {
@@ -64,9 +70,9 @@ public class Packets {
         }
 
         /**
-         * Generates a packet for human spawn, to be used for updating game profiles or NPCs
-         * @param entityHuman the entity to be spawned
-         * @return the generated packet
+         * Generates a packet for human spawn, to be used for updating game profiles or NPCs.
+         * @param entityHuman the entity to be spawned.
+         * @return the generated packet.
          */
         public static Object PlayOutNamedEntitySpawn(Object entityHuman) {
             try {
@@ -78,6 +84,11 @@ public class Packets {
             }
         }
 
+        /**
+         * Generates a packet of a chunk's update. To be used when changing the arena biome.
+         * @param chunkToUpdate the org.bukkit chunk.
+         * @return the generated packet.
+         */
         public static Object PlayOutMapChunk(Chunk chunkToUpdate) {
             try {
                 Object nmsChunk = chunkToUpdate.getClass().getMethod("getHandle").invoke(chunkToUpdate);
@@ -93,6 +104,12 @@ public class Packets {
             }
         }
 
+        /**
+         * Generates a packet for creating an actionbar or some other chat type info.
+         * @param text the text to be used on the packet.
+         * @param type the type of chat.
+         * @return the generated packet.
+         */
         public static Object PlayOutChat(String text, ChatMessageType type) {
             try {
                 Constructor<?> packet = Objects.requireNonNull(ReflectionUtils.getNMSClass("PacketPlayOutChat"))

@@ -19,6 +19,11 @@ public abstract class Disaster {
     long timeout = 3L; // minutes
     Random random;
 
+    /**
+     * Constructor to abstract disaster class, to be used inside children.
+     * @param map initially null, to be setted later.
+     * @param main main reference needed to schedule tasks.
+     */
     public Disaster(DisasterMap map, JavaPlugin main) {
         this.map = map;
         this.main = main;
@@ -26,17 +31,27 @@ public abstract class Disaster {
         random = new Random();
     }
 
+    /**
+     * General method to start disaster, children inherit this method to make the disasters.
+     * Method also schedules a task to timeout the arena.
+     */
     public void startDisaster() {
         isActive = true;
         timeoutTaskId = Bukkit.getScheduler().scheduleSyncDelayedTask(main, this::endByTimeout, timeout * 20 * 60);
     }
 
+    /**
+     * Private method to end by timeout, to be called by the scheduled task declared above.
+     */
     private void endByTimeout() {
         isActive = false;
         Bukkit.getScheduler().cancelTask(taskId);
         MapManager.getInstance().arenaTimeout();
     }
 
+    /**
+     * Method to be called when the game ends, it cancells (if active) the disaster main task and the timeout task.
+     */
     public void stopDisaster() {
         if (isActive) {
             Bukkit.getScheduler().cancelTask(taskId);
