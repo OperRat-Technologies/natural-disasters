@@ -32,14 +32,8 @@ public class MapManager {
 
     private ArenaPlayerManager arenaPlayerManager;
 
-
-    private static MapManager INSTANCE;
-    private MapManager() {}
-
-    public static MapManager getInstance() {
-        if (INSTANCE == null)
-            INSTANCE = new MapManager();
-        return INSTANCE;
+    public MapManager(JavaPlugin mainReference) {
+        this.mainReference = mainReference;
     }
 
     public GameStatus getCurrentStatus() {

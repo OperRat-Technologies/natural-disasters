@@ -5,6 +5,8 @@ import me.tcklpl.naturaldisaster.map.MapManager;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 public abstract class Disaster {
@@ -46,7 +48,7 @@ public abstract class Disaster {
     private void endByTimeout() {
         isActive = false;
         Bukkit.getScheduler().cancelTask(taskId);
-        MapManager.getInstance().arenaTimeout();
+        NaturalDisaster.getMapManager().arenaTimeout();
     }
 
     /**

@@ -20,8 +20,8 @@ public class Death implements Listener {
             if (p.getHealth() - e.getDamage() <= 0) {
                 e.setCancelled(true);
 
-                if (MapManager.getInstance().getPlayerMap(p) != null)
-                    MapManager.getInstance().updateArenaForDeadPlayer(p);
+                if (NaturalDisaster.getMapManager().getPlayerMap(p) != null)
+                    NaturalDisaster.getMapManager().updateArenaForDeadPlayer(p);
                 else {
                     p.teleport(Objects.requireNonNull(Bukkit.getWorld("void")).getSpawnLocation());
                 }

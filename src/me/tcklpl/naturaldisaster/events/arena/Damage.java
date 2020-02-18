@@ -15,7 +15,7 @@ public class Damage implements Listener {
         if (e.getEntity() instanceof Player) {
             Player p = (Player) e.getEntity();
             if (p.getGameMode() == GameMode.ADVENTURE)
-                if (MapManager.getInstance().getCurrentStatus() == GameStatus.STARTING || MapManager.getInstance().getCurrentStatus() == GameStatus.IN_LOBBY)
+                if (NaturalDisaster.getMapManager().getCurrentStatus() == GameStatus.STARTING || NaturalDisaster.getMapManager().getCurrentStatus() == GameStatus.IN_LOBBY)
                     e.setCancelled(true);
         }
     }

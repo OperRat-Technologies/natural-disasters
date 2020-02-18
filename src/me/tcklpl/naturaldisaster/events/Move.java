@@ -29,7 +29,7 @@ public class Move implements Listener {
             }
         }
         else
-        if (MapManager.getInstance().getCurrentStatus() == GameStatus.STARTING) {
+        if (NaturalDisaster.getMapManager().getCurrentStatus() == GameStatus.STARTING) {
             Location l = e.getFrom();
             Objects.requireNonNull(e.getTo()).setX(e.getFrom().getX());
             Objects.requireNonNull(e.getTo()).setZ(e.getFrom().getZ());

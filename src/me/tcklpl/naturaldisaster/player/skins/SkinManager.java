@@ -3,6 +3,7 @@ package me.tcklpl.naturaldisaster.player.skins;
 import me.tcklpl.naturaldisaster.GameStatus;
 import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.map.MapManager;
+import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import me.tcklpl.naturaldisaster.util.SkinUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -125,12 +126,13 @@ public class SkinManager {
                     if (online) {
                         Player target = Bukkit.getPlayer(qp.getPlayer().getUniqueId());
                         assert target != null;
-                        if (MapManager.getInstance().getCurrentStatus() != GameStatus.IN_LOBBY) {
+                        if (NaturalDisaster.getMapManager().getCurrentStatus() != GameStatus.IN_LOBBY) {
                             skinsToApplyAfterGame.put(target, skin);
                             target.sendMessage(ChatColor.GRAY + "Sua skin foi obtida, ela será aplicada assim que a partida acabar e você voltar ao lobby");
                         } else {
                             SkinUtils.applySkin(main, target, skin);
-                            target.sendMessage(ChatColor.GRAY + "Sua skin foi obtida, ela será aplicada assim que acabar a próxima partida ou você relogar");
+                            ReflectionUtils.updatePlayerForEveryone(main, target);
+                            target.sendMessage(ChatColor.GRAY + "Sua skin foi obtida, caso ela não tenha sido aplicada relogue do servidor ou aguarde o fim da próxima partida.");
                         }
                     }
                     managedSkins.remove(skin);
@@ -148,6 +150,8 @@ public class SkinManager {
         if (skinsToApplyAfterGame.size() > 0) {
             for (Player p : skinsToApplyAfterGame.keySet()) {
                 SkinUtils.applySkin(main, p, skinsToApplyAfterGame.get(p));
+                ReflectionUtils.updatePlayerForEveryone(main, p);
+                p.sendMessage(ChatColor.GRAY + "Sua skin foi aplicada. Caso não a veja relogue do servidor ou espere o final da próxima partida.");
             }
             skinsToApplyAfterGame.clear();
         }

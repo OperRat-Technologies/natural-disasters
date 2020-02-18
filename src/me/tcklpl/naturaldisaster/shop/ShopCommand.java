@@ -15,7 +15,7 @@ public class ShopCommand implements CommandExecutor {
             if (args.length != 0) return false;
             if (sender instanceof Player) {
                 Player p = (Player) sender;
-                if (MapManager.getInstance().getCurrentStatus() == GameStatus.IN_LOBBY) {
+                if (NaturalDisaster.getMapManager().getCurrentStatus() == GameStatus.IN_LOBBY) {
                     Shop s = new Shop(p);
                     s.show();
                 } else {

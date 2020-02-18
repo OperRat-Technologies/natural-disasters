@@ -22,7 +22,7 @@ public class Chair implements Listener {
     public void onSit(PlayerInteractEvent e) {
         Player p = e.getPlayer();
         if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            if (MapManager.getInstance().getCurrentStatus() == GameStatus.IN_LOBBY) {
+            if (NaturalDisaster.getMapManager().getCurrentStatus() == GameStatus.IN_LOBBY) {
                 Block b = e.getClickedBlock();
                 assert b != null;
                 if (b.getType().toString().contains("STAIRS")) {

@@ -1,6 +1,7 @@
 package me.tcklpl.naturaldisaster.admin;
 
 import me.tcklpl.naturaldisaster.GameStatus;
+import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.disasters.Disaster;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.map.MapManager;
@@ -29,14 +30,14 @@ public class ArenaAdmin implements CommandExecutor {
 
                 if (args[0].equalsIgnoreCase("set")) {
 
-                    if (MapManager.getInstance().getCurrentStatus() != GameStatus.IN_LOBBY) {
+                    if (NaturalDisaster.getMapManager().getCurrentStatus() != GameStatus.IN_LOBBY) {
                         sender.sendMessage(ChatColor.RED + "Só é possível definir mapa e desastre quando estiver em lobby, se o jogo já acabou aguarde alguns segundos.");
                         return true;
                     }
 
                     if (args[1].equalsIgnoreCase("map")) {
 
-                        List<DisasterMap> maps = MapManager.getInstance().getAllMaps();
+                        List<DisasterMap> maps = NaturalDisaster.getMapManager().getAllMaps();
                         int size = 9 + 9 * Math.floorDiv(maps.size() - 1, 9);
                         Inventory i = Bukkit.createInventory(p, size, "Admin Map Selection");
                         for (DisasterMap map : maps) {
@@ -54,7 +55,7 @@ public class ArenaAdmin implements CommandExecutor {
 
                     if (args[1].equalsIgnoreCase("disaster")) {
 
-                        List<Disaster> disasters = MapManager.getInstance().getAllDisasters();
+                        List<Disaster> disasters = NaturalDisaster.getMapManager().getAllDisasters();
                         int size = 9 + 9 * Math.floorDiv(disasters.size() - 1, 9);
                         Inventory i = Bukkit.createInventory(p, size, "Admin Disaster Selection");
                         for (Disaster disaster : disasters) {

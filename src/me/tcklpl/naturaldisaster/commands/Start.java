@@ -18,11 +18,11 @@ public class Start implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String alias, String[] args) {
         if (cmd.getName().equalsIgnoreCase("start") && sender.isOp()) {
-            if (!MapManager.getInstance().isIsInGame()) {
+            if (!NaturalDisaster.getMapManager().isIsInGame()) {
                 sender.sendMessage(ChatColor.GREEN + "Começando o jogo...");
-                MapManager.getInstance().randomNextMap();
+                NaturalDisaster.getMapManager().randomNextMap();
 
-                Bukkit.getScheduler().scheduleSyncDelayedTask(main, MapManager.getInstance()::startNextGame, 60L);
+                Bukkit.getScheduler().scheduleSyncDelayedTask(main, NaturalDisaster.getMapManager()::startNextGame, 60L);
 
             } else {
                 sender.sendMessage(ChatColor.RED + "O jogo já está rolando");

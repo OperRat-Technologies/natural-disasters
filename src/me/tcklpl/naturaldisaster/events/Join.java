@@ -36,8 +36,8 @@ public class Join implements Listener {
         } else {
             p.sendMessage(ChatColor.GREEN + "Bem-vindo de volta!");
         }
-        if (MapManager.getInstance().getCurrentStatus() != GameStatus.IN_LOBBY) {
-            MapManager.getInstance().teleportSpectatorToArena(p);
+        if (NaturalDisaster.getMapManager().getCurrentStatus() != GameStatus.IN_LOBBY) {
+            NaturalDisaster.getMapManager().teleportSpectatorToArena(p);
             p.sendMessage(ChatColor.GRAY + "O jogo já está em andamento, você jogará na próxima partida.");
         }
         if (!SkinManager.getInstance().isRegistered(p.getName())) {
