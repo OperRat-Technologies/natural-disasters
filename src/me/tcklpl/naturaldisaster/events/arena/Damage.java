@@ -1,6 +1,7 @@
 package me.tcklpl.naturaldisaster.events.arena;
 
 import me.tcklpl.naturaldisaster.GameStatus;
+import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.map.MapManager;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;

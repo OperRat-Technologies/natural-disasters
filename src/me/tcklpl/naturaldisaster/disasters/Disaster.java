@@ -1,5 +1,6 @@
 package me.tcklpl.naturaldisaster.disasters;
 
+import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.map.MapManager;
 import org.bukkit.Bukkit;

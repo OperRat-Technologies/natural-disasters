@@ -36,6 +36,7 @@ public class CPlayerManager {
     }
 
     public boolean registerCPlayer(CPlayer cp) {
+        cp.insertOnDatabase();
         return managedPlayers.add(cp);
     }
 
@@ -56,6 +57,7 @@ public class CPlayerManager {
                     objectInputStream.close();
 
                     managedPlayers.add(cp);
+                    cp.updateOnDatabase();
                 }
 
                 NaturalDisaster.getMainReference().getLogger().info("Carregados " + result.size() + " jogadores");
@@ -78,6 +80,7 @@ public class CPlayerManager {
             int count = 0;
             for (CPlayer cp : managedPlayers) {
                 if (cp.getPlayerData().isModified()) {
+                    cp.updateOnDatabase();
                     File saveFile = new File(NaturalDisaster.getMainReference().getDataFolder() + "/players", cp.getPlayerData().getName() + ".player");
                     if (saveFile.exists())
                         if (!saveFile.delete()) {
