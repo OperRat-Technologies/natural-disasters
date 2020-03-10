@@ -1,5 +1,6 @@
 package me.tcklpl.naturaldisaster.commands;
 
+import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.map.MapManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

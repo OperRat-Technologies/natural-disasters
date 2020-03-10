@@ -12,27 +12,16 @@ public class Database {
 
     private Connection connection;
 
-    public Database(String url) {
+    public Database(String ip, int port, String databaseName, String user, String pass) {
         try {
-            connection = DriverManager.getConnection("jdbc:sqlite:" + url);
+            Class.forName("com.mysql.jdbc.Driver");
+            connection = DriverManager.getConnection("jdbc:mysql://" + ip + ":" + port + "/" + databaseName + "?useSSL=false", user, pass);
             if (connection != null)
                 NaturalDisaster.getMainReference().getLogger().info("Conexão aberta com o banco de dados");
             else NaturalDisaster.getMainReference().getLogger().warning("Falha ao abrir conexão com o banco de dados");
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             NaturalDisaster.getMainReference().getLogger().warning("Falha ao abrir conexão com o banco de dados");
             e.printStackTrace();
-        }
-    }
-
-    public void assertDefaults() {
-        String passwords = "CREATE TABLE IF NOT EXISTS passwords (\n" +
-                "uuid text PRIMARY KEY,\n" +
-                "pass text NOT NULL );";
-        try {
-            Statement stmt = connection.createStatement();
-            stmt.execute(passwords);
-        } catch (SQLException e) {
-            NaturalDisaster.getMainReference().getLogger().warning("Falha ao criar tabelas padrões: " + e.getMessage());
         }
     }
 
@@ -58,25 +47,45 @@ public class Database {
         // by this point sql looks like this:
         // INSERT INTO <table>(<params>) VALUES (<values>)
 
-        try {
-            PreparedStatement stmt = connection.prepareStatement(sql.toString());
-            for (int i = 0; i < values.length; i++) {
-                // parameter index is i + 1 because preparedstatement's counting starts on 1
-                stmt.getClass().getMethod("set" + values[i].getClass().getSimpleName(), int.class, values[i].getClass()).invoke(stmt, i + 1, values[i]);
-            }
-            stmt.executeUpdate();
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            e.printStackTrace();
+        PreparedStatement stmt = connection.prepareStatement(sql.toString());
+        for (int i = 0; i < values.length; i++) {
+            stmt.setObject(i + 1, values[i]);
         }
+        stmt.executeUpdate();
     }
 
-    public List<Object> executeSelect(String query) throws SQLException {
-        List<Object> res = new ArrayList<>();
-        PreparedStatement stmt = connection.prepareStatement(query);
-        ResultSet rs = stmt.executeQuery();
-        while (rs.next())
-            res.add(rs.getObject(0));
-        return res;
+    public void update(String table, String[] fields, Object[] values, String[] discriminatorFields, Object[] discriminatorKeys) throws SQLException {
+
+        StringBuilder sql = new StringBuilder("UPDATE ");
+        sql.append(table);
+        sql.append(" SET ");
+        for (String field : fields) {
+            sql.append(field);
+            sql.append("=?,");
+        }
+        sql.deleteCharAt(sql.length() - 1);
+        sql.append(" WHERE ");
+
+        for (String field : discriminatorFields) {
+            sql.append(field);
+            sql.append("=? AND ");
+        }
+
+        for (int i = 0; i < 4; i++)
+            sql.deleteCharAt(sql.length() - 1);
+
+        PreparedStatement stmt = connection.prepareStatement(sql.toString());
+
+        int i = 0;
+        for (; i < values.length; i++) {
+            stmt.setObject(i + 1, values[i]);
+        }
+
+        for (int j = 0; j < discriminatorKeys.length; j++) {
+            stmt.setObject(i++ + 1, values[j]);
+        }
+
+        stmt.executeUpdate();
     }
 
 }

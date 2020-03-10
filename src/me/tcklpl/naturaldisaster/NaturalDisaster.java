@@ -55,13 +55,11 @@ public class NaturalDisaster extends JavaPlugin {
         skinManager.setupSkins();
 
         cPlayerManager = new CPlayerManager();
+        database = new Database("localhost", 3306, "natural_disaster", "nds", "Bsr7lbh2zv91oWDp");
         cPlayerManager.loadPlayers();
 
         registerEvents();
         registerCommands();
-
-        database = new Database(getDataFolder() + "/database.db");
-        database.assertDefaults();
 
     }
 
