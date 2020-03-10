@@ -220,7 +220,7 @@ public class MapManager {
             p.setScoreboard(Objects.requireNonNull(Bukkit.getScoreboardManager()).getNewScoreboard());
         }
 
-        SkinManager.getInstance().applyAfterGameSkinChanges();
+        NaturalDisaster.getSkinManager().applyAfterGameSkinChanges();
 
         // Wait 1s to teleport 'cause players may still be ticking
         Bukkit.getScheduler().scheduleSyncDelayedTask(mainReference, () -> {

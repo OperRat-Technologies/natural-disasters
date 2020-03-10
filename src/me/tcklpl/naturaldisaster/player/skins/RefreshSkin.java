@@ -1,5 +1,6 @@
 package me.tcklpl.naturaldisaster.player.skins;
 
+import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.util.SkinUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -30,7 +31,7 @@ public class RefreshSkin implements CommandExecutor {
                 if (args.length == 2) {
                     if (args[1].equalsIgnoreCase("-f") || args[1].equalsIgnoreCase("--force")) {
                         if (p.isOp()) {
-                            SkinManager.getInstance().addPlayerToSkinQueue(p, uuid);
+                            NaturalDisaster.getSkinManager().addPlayerToSkinQueue(p, uuid);
                         } else {
                             p.sendMessage(ChatColor.RED + "Você não tem permissão para forçar um refresh de skin.");
                         }
@@ -38,12 +39,12 @@ public class RefreshSkin implements CommandExecutor {
                     }
                 } else if (args.length == 1) {
                     Timestamp currentTimestamp = new Timestamp(System.currentTimeMillis());
-                    CustomSkin currentSkin = SkinManager.getInstance().getSkin(p.getName());
+                    CustomSkin currentSkin = NaturalDisaster.getSkinManager().getSkin(p.getName());
                     if (currentSkin != null) {
                         long diffInMil = Math.abs(currentTimestamp.getTime() - currentSkin.getTimestamp().getTime());
                         long days = TimeUnit.DAYS.convert(diffInMil, TimeUnit.MILLISECONDS);
                         if (days >= 3) {
-                            SkinManager.getInstance().addPlayerToSkinQueue(p, uuid);
+                            NaturalDisaster.getSkinManager().addPlayerToSkinQueue(p, uuid);
                         } else p.sendMessage(ChatColor.RED + "Você deve esperar ao menos 3 dias desde seu último refresh de skin");
                     } else p.sendMessage(ChatColor.RED + "Você precisa ter uma skin aplicada antes de dar refresh, aguarde até sua skin ser aplicada");
                     return true;

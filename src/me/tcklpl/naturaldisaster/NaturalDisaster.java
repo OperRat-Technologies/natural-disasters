@@ -35,6 +35,7 @@ public class NaturalDisaster extends JavaPlugin {
     private static AuthManager authManager;
     private static CPlayerManager cPlayerManager;
     private static MapManager mapManager;
+    private static SkinManager skinManager;
 
     @Override
     public void onEnable() {
@@ -50,8 +51,8 @@ public class NaturalDisaster extends JavaPlugin {
         mapManager.setupArenas();
         mapManager.setCurrentStatus(GameStatus.IN_LOBBY);
 
-        SkinManager.getInstance().setMainInstance(this);
-        SkinManager.getInstance().setupSkins();
+        skinManager = new SkinManager(this);
+        skinManager.setupSkins();
 
         cPlayerManager = new CPlayerManager();
         cPlayerManager.loadPlayers();
@@ -71,7 +72,7 @@ public class NaturalDisaster extends JavaPlugin {
         mapManager.saveArenas();
         cPlayerManager.savePlayers();
         try {
-            SkinManager.getInstance().saveSkins();
+            NaturalDisaster.getSkinManager().saveSkins();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -140,5 +141,7 @@ public class NaturalDisaster extends JavaPlugin {
     }
 
     public static MapManager getMapManager() { return mapManager; }
+
+    public static SkinManager getSkinManager() { return skinManager; }
 
 }

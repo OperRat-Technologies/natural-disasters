@@ -40,13 +40,13 @@ public class Join implements Listener {
             NaturalDisaster.getMapManager().teleportSpectatorToArena(p);
             p.sendMessage(ChatColor.GRAY + "O jogo já está em andamento, você jogará na próxima partida.");
         }
-        if (!SkinManager.getInstance().isRegistered(p.getName())) {
+        if (!NaturalDisaster.getSkinManager().isRegistered(p.getName())) {
             String uuidStr = SkinUtils.getOriginalUUIDString(p.getName());
             if (uuidStr != null) {
-                SkinManager.getInstance().addPlayerToSkinQueue(p, uuidStr);
+                NaturalDisaster.getSkinManager().addPlayerToSkinQueue(p, uuidStr);
             }
         } else {
-            SkinUtils.applySkin(main, p, SkinManager.getInstance().getSkin(p.getName()));
+            SkinUtils.applySkin(main, p, NaturalDisaster.getSkinManager().getSkin(p.getName()));
         }
     }
 }

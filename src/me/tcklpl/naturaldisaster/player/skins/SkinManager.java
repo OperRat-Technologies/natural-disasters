@@ -47,20 +47,11 @@ public class SkinManager {
     private int queueTaskId;
     private HashMap<Player, CustomSkin> skinsToApplyAfterGame;
 
-    private SkinManager() {
+    public SkinManager(JavaPlugin main) {
         managedSkins = new ArrayList<>();
         skinApplyQueue = new LinkedList<>();
         skinsToApplyAfterGame = new HashMap<>();
         queueTaskId = 0;
-    }
-
-    public static SkinManager getInstance() {
-        if (INSTANCE == null)
-            INSTANCE = new SkinManager();
-        return INSTANCE;
-    }
-
-    public void setMainInstance(JavaPlugin main) {
         this.main = main;
         skinsFile = new File(main.getDataFolder(), "skins.yml");
         if (skinsFile.exists())
