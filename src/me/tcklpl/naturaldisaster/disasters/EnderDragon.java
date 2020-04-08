@@ -1,6 +1,7 @@
 package me.tcklpl.naturaldisaster.disasters;
 
 import me.tcklpl.naturaldisaster.map.DisasterMap;
+import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -34,7 +35,7 @@ public class EnderDragon extends Disaster {
         Location spawn = new Location(map.getWorld(), epicenterX, map.top, epicenterZ);
         AtomicReference<org.bukkit.entity.EnderDragon> enderDragon = new AtomicReference<>();
 
-        map.setArenaBiome(Biome.THE_END);
+        map.setArenaRandomBiomeBasedOnPrecipitationType(ReflectionUtils.PrecipitationType.ALL);
         map.getWorld().setTime(18000);
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> {

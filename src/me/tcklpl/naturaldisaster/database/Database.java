@@ -21,7 +21,6 @@ public class Database {
             else NaturalDisaster.getMainReference().getLogger().warning("Falha ao abrir conexão com o banco de dados");
         } catch (SQLException | ClassNotFoundException e) {
             NaturalDisaster.getMainReference().getLogger().warning("Falha ao abrir conexão com o banco de dados");
-            e.printStackTrace();
         }
     }
 

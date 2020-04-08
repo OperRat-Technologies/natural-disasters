@@ -1,6 +1,7 @@
 package me.tcklpl.naturaldisaster.disasters;
 
 import me.tcklpl.naturaldisaster.map.DisasterMap;
+import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.block.Biome;
@@ -30,7 +31,7 @@ public class TNTRain extends Disaster {
 
         r = random;
 
-        map.setArenaBiome(Biome.PLAINS);
+        map.setArenaRandomBiomeBasedOnPrecipitationType(ReflectionUtils.PrecipitationType.ALL);
         map.makeRain(true);
 
         AtomicInteger tntToSpawn = new AtomicInteger(1);

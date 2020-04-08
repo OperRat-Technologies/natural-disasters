@@ -1,6 +1,7 @@
 package me.tcklpl.naturaldisaster.disasters;
 
 import me.tcklpl.naturaldisaster.map.DisasterMap;
+import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -43,7 +44,7 @@ public class Blizzard extends Disaster {
             blocksToChangePerLevel.put(y, layerBlocks);
         }
 
-        map.setArenaBiome(Biome.SNOWY_TAIGA);
+        map.setArenaRandomBiomeBasedOnPrecipitationType(ReflectionUtils.PrecipitationType.SNOW);
 
         map.makeRain(false);
 

@@ -1,12 +1,22 @@
 package me.tcklpl.naturaldisaster.reflection;
 
 import org.bukkit.Bukkit;
+import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
 
 public class ReflectionUtils {
+
+    public static enum PrecipitationType {
+        NONE, RAIN, SNOW, ALL;
+    }
 
     /**
      * Reflection way to send a packet for one player without importing nms classes.
@@ -57,6 +67,37 @@ public class ReflectionUtils {
             e.printStackTrace();
             return null;
         }
+    }
+
+    /**
+     * Gets a list of all biomes in wich the precipitation type equals the one given.
+     * @param precipitationType the requested precicipation type.
+     * @return the list of matching biomes.
+     */
+    public static List<Biome> getListOfRequiredPrecipitationBiomes(PrecipitationType precipitationType) {
+
+        Biome[] allBukkitBiomes = Biome.values();
+
+        if (precipitationType == PrecipitationType.ALL)
+            return Arrays.asList(allBukkitBiomes);
+
+        List<Biome> filteredFinalList = new ArrayList<>();
+
+        for (Biome biome : allBukkitBiomes) {
+            try {
+                Object biomeBase = Objects.requireNonNull(getNMSClass("Biomes")).getField(biome.toString()).get(null);
+                Field precipitation = biomeBase.getClass().getSuperclass().getDeclaredField("p");
+                precipitation.setAccessible(true);
+                if (precipitation.get(biomeBase).toString().equalsIgnoreCase(precipitationType.toString()))
+                    filteredFinalList.add(biome);
+                precipitation.setAccessible(false);
+            } catch (NoSuchFieldException | IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return filteredFinalList;
+
     }
 
 }

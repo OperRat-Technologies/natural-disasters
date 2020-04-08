@@ -140,18 +140,6 @@ public class DisasterMap {
         return playersInArena;
     }
 
-    public void setPlayersInArena(List<Player> playersInArena) {
-        this.playersInArena = playersInArena;
-    }
-
-    public void addPlayerOnArena(Player p) {
-        playersInArena.add(p);
-    }
-
-    public void removePlayerOnArena(Player p) {
-        playersInArena.remove(p);
-    }
-
     public void addAllPlayersToArena() {
         playersInArena = new ArrayList<>();
         playersInArena.addAll(Bukkit.getOnlinePlayers());
@@ -176,8 +164,8 @@ public class DisasterMap {
 
     public void setArenaBiome(Biome biome) {
 
-        for (int x = minX; x <= minX + gapX; x++) {
-            for (int z = minZ; z <= minZ + gapZ; z++) {
+        for (int x = minX - 16; x <= minX + gapX + 16; x++) {
+            for (int z = minZ - 16; z <= minZ + gapZ + 16; z++) {
                 Block b = getWorld().getBlockAt(x, 0, z);
                 b.setBiome(biome);
             }
@@ -190,6 +178,11 @@ public class DisasterMap {
             }
         }
 
+    }
+
+    public void setArenaRandomBiomeBasedOnPrecipitationType(ReflectionUtils.PrecipitationType precipitationType) {
+        List<Biome> biomes = ReflectionUtils.getListOfRequiredPrecipitationBiomes(precipitationType);
+        setArenaBiome(biomes.get(r.nextInt(biomes.size())));
     }
 
     public void makeRain(boolean random) {

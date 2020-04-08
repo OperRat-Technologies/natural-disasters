@@ -1,6 +1,7 @@
 package me.tcklpl.naturaldisaster.disasters;
 
 import me.tcklpl.naturaldisaster.map.DisasterMap;
+import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -201,7 +202,7 @@ public class Earthquake extends Disaster {
     public void startDisaster() {
         super.startDisaster();
 
-        map.setArenaBiome(Biome.PLAINS);
+        map.setArenaRandomBiomeBasedOnPrecipitationType(ReflectionUtils.PrecipitationType.ALL);
         map.makeRain(true);
 
         Random r = random;
