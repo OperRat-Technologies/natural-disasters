@@ -15,14 +15,14 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class DisasterMap {
 
-    private JavaPlugin main;
+    private final JavaPlugin main;
     private Location pos1, pos2;
     private String name;
     private List<Location> spawns;
     private List<Player> playersInArena;
-    private List<Chunk> arenaChunks;
+    private final List<Chunk> arenaChunks;
     public int x1, x2, y1, y2, z1, z2, minX, minZ, gapX, gapZ, top, floor;
-    private Random r;
+    private final Random r;
 
     public DisasterMap(JavaPlugin main, Location pos1, Location pos2, String name, List<Location> spawns) {
         this.main = main;
@@ -145,6 +145,9 @@ public class DisasterMap {
         playersInArena.addAll(Bukkit.getOnlinePlayers());
     }
 
+    /**
+     * Teleports all players currently on the playersInArena list to their respective spawns on the arena.
+     */
     public void teleportPlayersToSpawns() {
         Collections.shuffle(playersInArena);
         for (int i = 0; i < playersInArena.size(); i++) {
@@ -180,11 +183,20 @@ public class DisasterMap {
 
     }
 
+    /**
+     * Sets the arena biome to one random biome of specified precipitation type,
+     * for types refer reflection.ReflectionUtils.PrecipitationType.
+     * @param precipitationType the specified precipitation type.
+     */
     public void setArenaRandomBiomeBasedOnPrecipitationType(ReflectionUtils.PrecipitationType precipitationType) {
         List<Biome> biomes = ReflectionUtils.getListOfRequiredPrecipitationBiomes(precipitationType);
         setArenaBiome(biomes.get(r.nextInt(biomes.size())));
     }
 
+    /**
+     * Makes the arena rain certainly or with a 50% chance if random boolean is specified as true.
+     * @param random make it 50% chance of rain instead of 100%.
+     */
     public void makeRain(boolean random) {
 
         Random r = new Random();
