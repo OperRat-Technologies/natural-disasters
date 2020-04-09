@@ -26,6 +26,8 @@ public class Biohazard extends Disaster {
         super(map, main);
         name = "Biohazard";
         hint = "Procure abrigo.";
+        playable = false;
+        icon = Material.CHORUS_FRUIT;
     }
 
     private void updateEffectCoordinates() {

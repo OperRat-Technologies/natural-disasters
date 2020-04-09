@@ -20,6 +20,8 @@ public class Flooding extends Disaster {
         super(map, main);
         name = "Flooding";
         hint = "Procure locais altos.";
+        playable = true;
+        icon = Material.WATER_BUCKET;
     }
 
     @Override

@@ -19,6 +19,8 @@ public class Blizzard extends Disaster {
         super(map, main);
         name = "Blizzard";
         hint = "Procure abrigo.";
+        playable = true;
+        icon = Material.SNOWBALL;
     }
 
     @Override

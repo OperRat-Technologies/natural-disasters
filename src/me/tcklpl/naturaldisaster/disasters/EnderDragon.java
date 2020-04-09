@@ -23,6 +23,10 @@ public class EnderDragon extends Disaster {
      */
     public EnderDragon(DisasterMap map, JavaPlugin main) {
         super(map, main);
+        name = "Ender Dragon";
+        hint = "Nenhuma";
+        playable = false;
+        icon = Material.DRAGON_EGG;
     }
 
     @Override

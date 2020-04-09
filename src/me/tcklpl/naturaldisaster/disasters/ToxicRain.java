@@ -21,6 +21,8 @@ public class ToxicRain extends Disaster {
         super(map, main);
         name = "Toxic Rain";
         hint = "Procure abrigo.";
+        playable = true;
+        icon = Material.LIME_DYE;
     }
 
     @Override

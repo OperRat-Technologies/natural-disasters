@@ -27,6 +27,8 @@ public class Thunderstorm extends Disaster {
         super(map, main);
         name = "Thunderstorm";
         hint = "Evite locais altos.";
+        playable = true;
+        icon = Material.CREEPER_HEAD;
     }
 
     @Override

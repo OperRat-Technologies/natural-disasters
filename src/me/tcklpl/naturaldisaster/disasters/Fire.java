@@ -4,7 +4,6 @@ import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
@@ -17,9 +16,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Fire extends Disaster {
 
-    private int calcBuffer = 50;
-    private int replacementBuffer = 200;
-    private List<Material> burnedBlocksMaterials;
+    private final int calcBuffer = 50;
+    private final int replacementBuffer = 200;
+    private final List<Material> burnedBlocksMaterials;
 
     public Fire(DisasterMap map, JavaPlugin main) {
         super(map, main);
@@ -27,6 +26,8 @@ public class Fire extends Disaster {
         hint = "Procure abrigo.";
         burnedBlocksMaterials = new ArrayList<>();
         burnedBlocksMaterials.add(Material.COAL_BLOCK);
+        playable = true;
+        icon = Material.FIRE_CHARGE;
     }
 
     private boolean theresBlockInY(int x, int z) {

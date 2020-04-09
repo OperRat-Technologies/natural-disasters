@@ -23,8 +23,9 @@ public class MapManager {
 
     private JavaPlugin mainReference;
 
-    private List<DisasterMap> arenas = new ArrayList<>();
-    private List<Disaster> disasters = new ArrayList<>();
+    private final List<DisasterMap> arenas = new ArrayList<>();
+    private final List<Disaster> disasters = new ArrayList<>();
+    private final Queue<Disaster> lastDisasters = new LinkedList<>();
     private DisasterMap currentMap;
     private Disaster currentDisaster;
     private int counterId;
@@ -108,7 +109,14 @@ public class MapManager {
         currentMap.updateArenaWorld(w);
 
         if (currentDisaster == null) {
-            currentDisaster = disasters.get(random.nextInt(disasters.size()));
+
+            if (lastDisasters.size() > 3)
+                lastDisasters.remove();
+            do {
+                currentDisaster = disasters.get(random.nextInt(disasters.size()));
+            } while (lastDisasters.contains(currentDisaster) || !currentDisaster.isPlayable());
+            lastDisasters.add(currentDisaster);
+
         }
 
         assert currentDisaster != null;

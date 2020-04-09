@@ -59,7 +59,7 @@ public class ArenaAdmin implements CommandExecutor {
                         int size = 9 + 9 * Math.floorDiv(disasters.size() - 1, 9);
                         Inventory i = Bukkit.createInventory(p, size, "Admin Disaster Selection");
                         for (Disaster disaster : disasters) {
-                            ItemStack is = new ItemStack(Material.RED_CONCRETE_POWDER);
+                            ItemStack is = new ItemStack(disaster.getIcon());
                             ItemMeta im = is.getItemMeta();
                             assert im != null;
                             im.setDisplayName(disaster.getName());

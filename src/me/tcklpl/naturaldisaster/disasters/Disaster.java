@@ -4,6 +4,7 @@ import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.map.MapManager;
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -17,6 +18,8 @@ public abstract class Disaster {
     String name, hint;
     int taskId, timeoutTaskId;
     boolean isActive;
+    protected boolean playable;
+    protected Material icon;
 
     long startDelay = 100L;
     long timeout = 3L; // minutes
@@ -69,4 +72,11 @@ public abstract class Disaster {
 
     public String getHint() { return hint; }
 
+    public boolean isPlayable() {
+        return playable;
+    }
+
+    public Material getIcon() {
+        return icon;
+    }
 }

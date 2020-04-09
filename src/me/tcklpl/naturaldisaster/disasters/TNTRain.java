@@ -4,6 +4,7 @@ import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -14,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TNTRain extends Disaster {
 
-    private JavaPlugin main;
+    private final JavaPlugin main;
     private Random r;
 
     public TNTRain(DisasterMap map, JavaPlugin main) {
@@ -22,6 +23,8 @@ public class TNTRain extends Disaster {
         this.main = main;
         name = "TNT Rain";
         hint = "Procure abrigo.";
+        playable = true;
+        icon = Material.TNT;
     }
 
     @Override

@@ -25,6 +25,8 @@ public class Earthquake extends Disaster {
         super(map, main);
         name = "Earthquake";
         hint = "Evite locais altos.";
+        playable = true;
+        icon = Material.COBBLESTONE;
     }
 
     private void destroyYColumn(int x, int z) {
