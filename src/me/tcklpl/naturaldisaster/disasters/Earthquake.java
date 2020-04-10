@@ -19,7 +19,26 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Earthquake extends Disaster {
 
-    private int gravityBuffer = 100;
+    private final int gravityBuffer = 100;
+
+    private static class GravityCandidates {
+
+        private final List<Block> highPriorityBlocks;
+        private final List<Block> lowPriorityBlocks;
+
+        public GravityCandidates(List<Block> highPriorityBlocks, List<Block> lowPriorityBlocks) {
+            this.highPriorityBlocks = highPriorityBlocks;
+            this.lowPriorityBlocks = lowPriorityBlocks;
+        }
+
+        public List<Block> getHighPriorityBlocks() {
+            return highPriorityBlocks;
+        }
+
+        public List<Block> getLowPriorityBlocks() {
+            return lowPriorityBlocks;
+        }
+    }
 
     public Earthquake(DisasterMap map, JavaPlugin main) {
         super(map, main);
@@ -29,7 +48,7 @@ public class Earthquake extends Disaster {
         icon = Material.COBBLESTONE;
     }
 
-    private void destroyYColumn(int x, int z) {
+    private List<Block> getYColumnBlocks(int x, int z) {
 
         List<Block> blocksToBreak = new ArrayList<>();
 
@@ -38,8 +57,7 @@ public class Earthquake extends Disaster {
             blocksToBreak.add(b);
         }
 
-        int verticalBuffer = 300;
-        map.bufferedBreakBlocks(blocksToBreak, Material.AIR, verticalBuffer, true);
+        return blocksToBreak;
     }
 
     private List<Block> generateInitialFloorCrack(int xz) {
@@ -172,9 +190,10 @@ public class Earthquake extends Disaster {
         return expandedCrack;
     }
 
-    private List<Block> generateGravityCandidates() {
+    private GravityCandidates generateGravityCandidates() {
 
         List<Block> gravityCandidates = new ArrayList<>();
+        List<Block> lowPriorityGravityCandidates = new ArrayList<>();
 
         Random r = new Random();
         // Blocos podem ser afetados por gravidade acima de 1/5 da altura do mapa + [0, 1/4 da altura do mapa]
@@ -187,17 +206,22 @@ public class Earthquake extends Disaster {
                         Block b = map.getWorld().getBlockAt(x, y, z);
                         Block downRelative = b.getRelative(BlockFace.DOWN);
                         if (!b.getType().toString().contains("LEAVES"))
-                        if (downRelative.getType() == Material.AIR || downRelative.isPassable() || gravityCandidates.contains(downRelative))
+                        if (downRelative.getType() == Material.AIR || downRelative.isPassable())
                             gravityCandidates.add(b);
+                        else if (gravityCandidates.contains(downRelative))
+                            lowPriorityGravityCandidates.add(b);
                     }
         }
 
-        return gravityCandidates;
+        return new GravityCandidates(gravityCandidates, lowPriorityGravityCandidates);
     }
 
     private void destroyCrackPattern(List<Block> blocks) {
+        List<Block> allBlocks = new ArrayList<>();
         for (Block b : blocks)
-            destroyYColumn(b.getX(), b.getZ());
+            allBlocks.addAll(getYColumnBlocks(b.getX(), b.getZ()));
+
+        map.bufferedBreakBlocks(allBlocks, Material.AIR, 300, true);
     }
 
     @Override
@@ -234,8 +258,9 @@ public class Earthquake extends Disaster {
 
                     if (currentExpansion.get() <= 2)
                     Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> {
-                        List<Block> gravityCandidates = generateGravityCandidates();
-                        map.bufferedBreakBlocks(gravityCandidates, Material.AIR, gravityBuffer, true);
+                        GravityCandidates gravityCandidates = generateGravityCandidates();
+                        map.bufferedBreakBlocks(gravityCandidates.getHighPriorityBlocks(), Material.AIR, gravityBuffer, true);
+                        map.bufferedBreakBlocks(gravityCandidates.getLowPriorityBlocks(), Material.AIR, gravityBuffer, false);
                     }, 20L);
                 }
 
