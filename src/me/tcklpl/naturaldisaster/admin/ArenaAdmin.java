@@ -63,7 +63,7 @@ public class ArenaAdmin implements CommandExecutor {
                             ItemStack is = new ItemStack(disaster.getIcon());
                             ItemMeta im = is.getItemMeta();
                             assert im != null;
-                            im.setDisplayName(disaster.getName());
+                            im.setDisplayName(net.md_5.bungee.api.ChatColor.RESET + disaster.getName());
                             List<String> lore = new ArrayList<>();
                             lore.add("Playable: " + (disaster.isPlayable() ? ChatColor.GREEN + "YES" : ChatColor.RED + "NO"));
                             im.setLore(lore);

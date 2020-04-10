@@ -202,7 +202,7 @@ public class Earthquake extends Disaster {
         List<Block> lowPriorityGravityCandidates = new ArrayList<>();
 
         Random r = new Random();
-        // Blocos podem ser afetados por gravidade acima de 1/5 da altura do mapa + [0, 1/4 da altura do mapa]
+        // Blocos podem ser afetados por gravidade acima de 1/2 da altura do mapa + [0, 1/4 da altura do mapa]
         int yTreshold = Math.floorDiv(map.top - map.floor, 2) + r.nextInt(Math.floorDiv(map.top - map.floor, 4));
 
         for (int y = yTreshold; y <= map.top; y++) {

@@ -2,7 +2,6 @@ package me.tcklpl.naturaldisaster.player.skins;
 
 import me.tcklpl.naturaldisaster.GameStatus;
 import me.tcklpl.naturaldisaster.NaturalDisaster;
-import me.tcklpl.naturaldisaster.map.MapManager;
 import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import me.tcklpl.naturaldisaster.util.SkinUtils;
 import org.bukkit.Bukkit;
@@ -21,8 +20,8 @@ public class SkinManager {
 
     private static class QueuedPlayer {
 
-        private Player player;
-        private String uuidStr;
+        private final Player player;
+        private final String uuidStr;
 
         public QueuedPlayer(Player player, String uuidStr) {
             this.player = player;
@@ -39,13 +38,13 @@ public class SkinManager {
     }
 
     private static SkinManager INSTANCE;
-    private FileConfiguration skinsConfig;
-    private File skinsFile;
-    private JavaPlugin main;
-    private List<CustomSkin> managedSkins;
-    private Queue<QueuedPlayer> skinApplyQueue;
+    private final FileConfiguration skinsConfig;
+    private final File skinsFile;
+    private final JavaPlugin main;
+    private final List<CustomSkin> managedSkins;
+    private final Queue<QueuedPlayer> skinApplyQueue;
     private int queueTaskId;
-    private HashMap<Player, CustomSkin> skinsToApplyAfterGame;
+    private final HashMap<Player, CustomSkin> skinsToApplyAfterGame;
 
     public SkinManager(JavaPlugin main) {
         managedSkins = new ArrayList<>();
