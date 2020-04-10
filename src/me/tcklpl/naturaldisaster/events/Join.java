@@ -18,7 +18,7 @@ import java.util.ArrayList;
 
 public class Join implements Listener {
 
-    private JavaPlugin main;
+    private final JavaPlugin main;
     public Join(JavaPlugin main) {
         this.main = main;
     }

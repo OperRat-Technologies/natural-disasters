@@ -11,20 +11,33 @@ import java.util.List;
 public class Database {
 
     private Connection connection;
+    private boolean ok;
 
     public Database(String ip, int port, String databaseName, String user, String pass) {
         try {
             Class.forName("com.mysql.jdbc.Driver");
             connection = DriverManager.getConnection("jdbc:mysql://" + ip + ":" + port + "/" + databaseName + "?useSSL=false", user, pass);
-            if (connection != null)
+            if (connection != null) {
                 NaturalDisaster.getMainReference().getLogger().info("Conexão aberta com o banco de dados");
-            else NaturalDisaster.getMainReference().getLogger().warning("Falha ao abrir conexão com o banco de dados");
+                ok = true;
+            }
+            else {
+                NaturalDisaster.getMainReference().getLogger().warning("Falha ao abrir conexão com o banco de dados");
+                ok = false;
+            }
         } catch (SQLException | ClassNotFoundException e) {
             NaturalDisaster.getMainReference().getLogger().warning("Falha ao abrir conexão com o banco de dados");
+            ok = false;
         }
     }
 
+    public boolean isOk() {
+        return ok;
+    }
+
     public void insert(String table, String[] fields, Object[] values) throws SQLException {
+
+        if (!ok) return;
 
         StringBuilder sql = new StringBuilder("INSERT INTO ");
         sql.append(table);
@@ -54,6 +67,8 @@ public class Database {
     }
 
     public void update(String table, String[] fields, Object[] values, String[] discriminatorFields, Object[] discriminatorKeys) throws SQLException {
+
+        if (!ok) return;
 
         StringBuilder sql = new StringBuilder("UPDATE ");
         sql.append(table);

@@ -48,16 +48,22 @@ public class Earthquake extends Disaster {
         icon = Material.COBBLESTONE;
     }
 
-    private List<Block> getYColumnBlocks(int x, int z) {
+    private GravityCandidates getYColumnBlocks(int x, int z, int divisor) {
 
         List<Block> blocksToBreak = new ArrayList<>();
+        List<Block> blocksToDisappear = new ArrayList<>();
+        int counter = 0;
 
         for (int y = map.floor; y <= map.top; y++) {
             Block b = map.getWorld().getBlockAt(x, y, z);
-            blocksToBreak.add(b);
+            if (counter++ % divisor == 0) {
+                blocksToBreak.add(b);
+            } else {
+                blocksToDisappear.add(b);
+            }
         }
 
-        return blocksToBreak;
+        return new GravityCandidates(blocksToBreak, blocksToDisappear);
     }
 
     private List<Block> generateInitialFloorCrack(int xz) {
@@ -217,11 +223,16 @@ public class Earthquake extends Disaster {
     }
 
     private void destroyCrackPattern(List<Block> blocks) {
-        List<Block> allBlocks = new ArrayList<>();
-        for (Block b : blocks)
-            allBlocks.addAll(getYColumnBlocks(b.getX(), b.getZ()));
+        List<Block> highBlocks = new ArrayList<>();
+        List<Block> lowBlocks = new ArrayList<>();
+        for (Block b : blocks) {
+            GravityCandidates candidates = getYColumnBlocks(b.getX(), b.getZ(), 2);
+            highBlocks.addAll(candidates.getHighPriorityBlocks());
+            lowBlocks.addAll(candidates.getLowPriorityBlocks());
+        }
 
-        map.bufferedBreakBlocks(allBlocks, Material.AIR, 300, true);
+        map.bufferedBreakBlocks(lowBlocks, Material.AIR, 300, false);
+        map.bufferedBreakBlocks(highBlocks, Material.AIR, 300, true);
     }
 
     @Override
@@ -259,8 +270,8 @@ public class Earthquake extends Disaster {
                     if (currentExpansion.get() <= 2)
                     Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> {
                         GravityCandidates gravityCandidates = generateGravityCandidates();
-                        map.bufferedBreakBlocks(gravityCandidates.getHighPriorityBlocks(), Material.AIR, gravityBuffer, true);
                         map.bufferedBreakBlocks(gravityCandidates.getLowPriorityBlocks(), Material.AIR, gravityBuffer, false);
+                        map.bufferedBreakBlocks(gravityCandidates.getHighPriorityBlocks(), Material.AIR, gravityBuffer, true);
                     }, 20L);
                 }
 

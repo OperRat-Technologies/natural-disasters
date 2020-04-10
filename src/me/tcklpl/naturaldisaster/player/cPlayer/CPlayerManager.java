@@ -36,7 +36,8 @@ public class CPlayerManager {
     }
 
     public boolean registerCPlayer(CPlayer cp) {
-        cp.insertOnDatabase();
+        if (NaturalDisaster.getDatabase().isOk())
+            cp.insertOnDatabase();
         return managedPlayers.add(cp);
     }
 

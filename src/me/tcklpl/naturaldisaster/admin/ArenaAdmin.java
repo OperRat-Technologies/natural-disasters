@@ -16,6 +16,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ArenaAdmin implements CommandExecutor {
@@ -63,6 +64,9 @@ public class ArenaAdmin implements CommandExecutor {
                             ItemMeta im = is.getItemMeta();
                             assert im != null;
                             im.setDisplayName(disaster.getName());
+                            List<String> lore = new ArrayList<>();
+                            lore.add("Playable: " + (disaster.isPlayable() ? ChatColor.GREEN + "YES" : ChatColor.RED + "NO"));
+                            im.setLore(lore);
                             is.setItemMeta(im);
                             i.addItem(is);
                         }
