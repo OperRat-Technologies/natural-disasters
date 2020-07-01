@@ -25,6 +25,7 @@ public class TNTRain extends Disaster {
         hint = "Procure abrigo.";
         playable = true;
         icon = Material.TNT;
+        precipitationType = ReflectionUtils.PrecipitationType.ALL;
     }
 
     @Override
@@ -34,7 +35,6 @@ public class TNTRain extends Disaster {
 
         r = random;
 
-        map.setArenaRandomBiomeBasedOnPrecipitationType(ReflectionUtils.PrecipitationType.ALL);
         map.makeRain(true);
 
         AtomicInteger tntToSpawn = new AtomicInteger(1);

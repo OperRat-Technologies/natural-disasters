@@ -101,6 +101,7 @@ public class MapManager {
         // Load world
         World w = Bukkit.createWorld(new WorldCreator(currentMap.getName()));
         assert w != null;
+
         w.setAutoSave(false);
 
         w.setStorm(false);

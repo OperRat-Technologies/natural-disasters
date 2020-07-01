@@ -28,6 +28,7 @@ public class Fire extends Disaster {
         burnedBlocksMaterials.add(Material.COAL_BLOCK);
         playable = true;
         icon = Material.FIRE_CHARGE;
+        precipitationType = ReflectionUtils.PrecipitationType.NONE;
     }
 
     private boolean theresBlockInY(int x, int z) {
@@ -41,8 +42,6 @@ public class Fire extends Disaster {
     @Override
     public void startDisaster() {
         super.startDisaster();
-
-        map.setArenaRandomBiomeBasedOnPrecipitationType(ReflectionUtils.PrecipitationType.NONE);
 
         Random r = new Random();
         int sourceX, sourceY, sourceZ;

@@ -27,6 +27,7 @@ public class EnderDragon extends Disaster {
         hint = "Nenhuma";
         playable = false;
         icon = Material.DRAGON_EGG;
+        precipitationType = ReflectionUtils.PrecipitationType.ALL;
     }
 
     @Override
@@ -39,7 +40,6 @@ public class EnderDragon extends Disaster {
         Location spawn = new Location(map.getWorld(), epicenterX, map.top, epicenterZ);
         AtomicReference<org.bukkit.entity.EnderDragon> enderDragon = new AtomicReference<>();
 
-        map.setArenaRandomBiomeBasedOnPrecipitationType(ReflectionUtils.PrecipitationType.ALL);
         map.getWorld().setTime(18000);
 
         Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> {

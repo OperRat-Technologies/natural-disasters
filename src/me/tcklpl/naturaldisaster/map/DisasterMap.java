@@ -6,12 +6,15 @@ import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 public class DisasterMap {
 
@@ -107,6 +110,8 @@ public class DisasterMap {
         for (Location l : spawns)
             l.setWorld(w);
 
+        Collections.shuffle(spawns);
+
         x1 = pos1.getBlockX();
         x2 = pos2.getBlockX();
         y1 = pos1.getBlockY();
@@ -121,8 +126,8 @@ public class DisasterMap {
         gapX = Math.max(x1, x2) - minX + 1;
         gapZ = Math.max(z1, z2) - minZ + 1;
 
-        for (int x = minX; x <= minX + gapX; x++) {
-            for (int z = minZ; z <= minZ + gapZ; z++) {
+        for (int x = minX - 16; x <= minX + gapX + 16; x++) {
+            for (int z = minZ - 16; z <= minZ + gapZ + 16; z++) {
                 Block b = getWorld().getBlockAt(x, 0, z);
                 if (!arenaChunks.contains(getWorld().getChunkAt(b)))
                     arenaChunks.add(getWorld().getChunkAt(b));
@@ -220,6 +225,9 @@ public class DisasterMap {
 
         AtomicInteger currentBlockIndex = new AtomicInteger(0);
 
+        BlockData replacementData = Bukkit.createBlockData(replacement);
+
+
         int bufferCycles = 1 + Math.floorDiv(blocks.size(), buffer);
         for (int currentCycle = 0; currentCycle < bufferCycles; currentCycle++) {
 
@@ -234,6 +242,8 @@ public class DisasterMap {
                         fb.setDropItem(false);
                     }
                     b.setType(replacement, false);
+                    if (b.getState() instanceof InventoryHolder)
+                        b.setBlockData(replacementData);
                     if (currentBlockIndex.get() < blocks.size() - 1)
                         currentBlockIndex.incrementAndGet();
                 }
@@ -255,6 +265,9 @@ public class DisasterMap {
         if (blocks.size() == 0) return;
 
         AtomicInteger currentBlockIndex = new AtomicInteger(0);
+        AtomicInteger currentRandomValue = new AtomicInteger(0);
+
+        List<BlockData> replacementData = replacement.stream().map(Bukkit::createBlockData).collect(Collectors.toList());
 
         int bufferCycles = 1 + Math.floorDiv(blocks.size(), buffer);
         for (int currentCycle = 0; currentCycle < bufferCycles; currentCycle++) {
@@ -269,7 +282,11 @@ public class DisasterMap {
                         fb.setHurtEntities(true);
                         fb.setDropItem(false);
                     }
-                    b.setType(replacement.get(r.nextInt(replacement.size())), false);
+                    currentRandomValue.set(r.nextInt(replacement.size()));
+                    b.setType(replacement.get(currentRandomValue.get()), false);
+                    if (b.getState() instanceof InventoryHolder)
+                        b.setBlockData(replacementData.get(currentRandomValue.get()));
+
                     if (currentBlockIndex.get() < blocks.size() - 1)
                         currentBlockIndex.incrementAndGet();
                 }

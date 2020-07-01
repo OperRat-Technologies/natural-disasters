@@ -22,6 +22,9 @@ public class RefreshSkin implements CommandExecutor {
             if (args[0].equalsIgnoreCase("skin")) {
 
                 String uuid = SkinUtils.getOriginalUUIDString(p.getName());
+
+                NaturalDisaster.getMainReference().getLogger().info("UUID: " + uuid);
+
                 if (uuid == null) {
                     p.sendMessage(ChatColor.RED + "Não tem razão para você pedir um refresh de skin se sua conta é pirata caralho");
                     return true;

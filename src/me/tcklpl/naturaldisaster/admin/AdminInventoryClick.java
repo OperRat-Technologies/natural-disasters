@@ -25,7 +25,7 @@ public class AdminInventoryClick implements Listener {
                 if (e.getView().getTitle().equalsIgnoreCase("Admin Map Selection")) {
                     e.setCancelled(true);
                     if (e.getCurrentItem() == null) return;
-                    String mapname = Objects.requireNonNull(Objects.requireNonNull(e.getCurrentItem()).getItemMeta()).getDisplayName();
+                    String mapname = ChatColor.stripColor(Objects.requireNonNull(Objects.requireNonNull(e.getCurrentItem()).getItemMeta()).getDisplayName());
                     DisasterMap map = NaturalDisaster.getMapManager().getMapByName(mapname);
                     if (map != null) {
                         NaturalDisaster.getMapManager().setCurrentMap(map);
@@ -37,7 +37,7 @@ public class AdminInventoryClick implements Listener {
                 if (e.getView().getTitle().equalsIgnoreCase("Admin Disaster Selection")) {
                     e.setCancelled(true);
                     if (e.getCurrentItem() == null) return;
-                    String disname = Objects.requireNonNull(Objects.requireNonNull(e.getCurrentItem()).getItemMeta()).getDisplayName();
+                    String disname = ChatColor.stripColor(Objects.requireNonNull(Objects.requireNonNull(e.getCurrentItem()).getItemMeta()).getDisplayName());
                     Disaster disaster = NaturalDisaster.getMapManager().getDisasterByName(disname);
                     if (disaster != null) {
                         NaturalDisaster.getMapManager().setCurrentDisaster(disaster);

@@ -22,10 +22,12 @@ public class SkinManager {
 
         private final Player player;
         private final String uuidStr;
+        private int attempts;
 
         public QueuedPlayer(Player player, String uuidStr) {
             this.player = player;
             this.uuidStr = uuidStr;
+            this.attempts = 0;
         }
 
         public Player getPlayer() {
@@ -35,9 +37,12 @@ public class SkinManager {
         public String getUuidStr() {
             return uuidStr;
         }
-    }
 
-    private static SkinManager INSTANCE;
+        public boolean canAttemptAgain() {
+            return ++attempts <= 3;
+        }
+    }
+    
     private final FileConfiguration skinsConfig;
     private final File skinsFile;
     private final JavaPlugin main;
@@ -128,8 +133,12 @@ public class SkinManager {
                     managedSkins.remove(skin);
                     managedSkins.add(skin);
                 } else {
-                    qp.getPlayer().sendMessage(ChatColor.RED + "Falha ao adquirir sua skin dos servers da mojang, você foi colocado na lista novamente");
-                    skinApplyQueue.add(qp);
+                    if (qp.canAttemptAgain()) {
+                        qp.getPlayer().sendMessage(ChatColor.RED + "Falha ao adquirir sua skin dos servers da mojang, você foi colocado na lista novamente");
+                        skinApplyQueue.add(qp);
+                    } else {
+                        qp.getPlayer().sendMessage(ChatColor.RED + "Falha ao adquirir sua skin dos servers da mojang, você excedeu o número de tentativas.");
+                    }
                 }
             }, 0L, 3900L);
             // Task will repeat each 65 seconds

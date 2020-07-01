@@ -28,6 +28,7 @@ public class Biohazard extends Disaster {
         hint = "Procure abrigo.";
         playable = false;
         icon = Material.CHORUS_FRUIT;
+        precipitationType = ReflectionUtils.PrecipitationType.ALL;
     }
 
     private void updateEffectCoordinates() {
@@ -65,8 +66,6 @@ public class Biohazard extends Disaster {
     @Override
     public void startDisaster() {
         super.startDisaster();
-
-        map.setArenaRandomBiomeBasedOnPrecipitationType(ReflectionUtils.PrecipitationType.ALL);
 
         Random r = new Random();
 

@@ -29,6 +29,7 @@ public class Thunderstorm extends Disaster {
         hint = "Evite locais altos.";
         playable = true;
         icon = Material.CREEPER_HEAD;
+        precipitationType = ReflectionUtils.PrecipitationType.RAIN;
     }
 
     @Override
@@ -36,7 +37,6 @@ public class Thunderstorm extends Disaster {
         map.getWorld().setMonsterSpawnLimit(100);
         super.startDisaster();
 
-        map.setArenaRandomBiomeBasedOnPrecipitationType(ReflectionUtils.PrecipitationType.RAIN);
         map.makeRain(false);
 
         Random r = random;

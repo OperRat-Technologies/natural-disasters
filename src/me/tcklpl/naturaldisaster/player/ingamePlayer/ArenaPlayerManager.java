@@ -36,7 +36,7 @@ public class ArenaPlayerManager {
      */
     public void setGameProfile(Player p, Object entityLiving, boolean disguising) {
         try {
-            Field gp2 = entityLiving.getClass().getSuperclass().getDeclaredField("bT");
+            Field gp2 = entityLiving.getClass().getSuperclass().getDeclaredField("bQ");
             gp2.setAccessible(true);
             if (disguising)
                 gp2.set(entityLiving, getPlayer(p).getOldProfile());

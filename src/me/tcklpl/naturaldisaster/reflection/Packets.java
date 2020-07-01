@@ -8,6 +8,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Class with packets used in the plugin, used to call all packets using reflection and to keep normal classes cleaner
@@ -95,9 +96,10 @@ public class Packets {
                 Constructor<?> mapChunk = Objects.requireNonNull(ReflectionUtils.getNMSClass("PacketPlayOutMapChunk"))
                         .getConstructor(
                                 ReflectionUtils.getNMSClass("Chunk"),
-                                int.class
+                                int.class,
+                                boolean.class
                         );
-                return mapChunk.newInstance(nmsChunk, 65535);
+                return mapChunk.newInstance(nmsChunk, 65535, true);
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
                 e.printStackTrace();
                 return null;
@@ -115,7 +117,8 @@ public class Packets {
                 Constructor<?> packet = Objects.requireNonNull(ReflectionUtils.getNMSClass("PacketPlayOutChat"))
                         .getConstructor(
                                 ReflectionUtils.getNMSClass("IChatBaseComponent"),
-                                ReflectionUtils.getNMSClass("ChatMessageType")
+                                ReflectionUtils.getNMSClass("ChatMessageType"),
+                                UUID.class
                         );
                 Class<?> chatBaseComponentClass = Objects.requireNonNull(ReflectionUtils.getNMSClass("IChatBaseComponent$ChatSerializer"));
                 Method target = chatBaseComponentClass.getDeclaredMethod("a", String.class);
@@ -123,7 +126,7 @@ public class Packets {
                 Object chatBaseComponent = target.invoke(null, text);
                 Object originalEnum = Objects.requireNonNull(ReflectionUtils.getNMSClass("ChatMessageType")).getField(type.name()).get(null);
 
-                return packet.newInstance(chatBaseComponent, originalEnum);
+                return packet.newInstance(chatBaseComponent, originalEnum, UUID.randomUUID());
 
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException | NoSuchFieldException | InstantiationException e) {
                 e.printStackTrace();

@@ -4,7 +4,6 @@ import me.tcklpl.naturaldisaster.GameStatus;
 import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.disasters.Disaster;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
-import me.tcklpl.naturaldisaster.map.MapManager;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -63,7 +62,7 @@ public class ArenaAdmin implements CommandExecutor {
                             ItemStack is = new ItemStack(disaster.getIcon());
                             ItemMeta im = is.getItemMeta();
                             assert im != null;
-                            im.setDisplayName(net.md_5.bungee.api.ChatColor.RESET + disaster.getName());
+                            im.setDisplayName(ChatColor.WHITE + disaster.getName());
                             List<String> lore = new ArrayList<>();
                             lore.add("Playable: " + (disaster.isPlayable() ? ChatColor.GREEN + "YES" : ChatColor.RED + "NO"));
                             im.setLore(lore);

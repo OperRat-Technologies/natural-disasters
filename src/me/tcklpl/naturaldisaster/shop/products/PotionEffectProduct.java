@@ -9,4 +9,5 @@ public class PotionEffectProduct extends Product {
     public PotionEffectProduct(String name, double price) {
         super(name, price);
     }
+    
 }

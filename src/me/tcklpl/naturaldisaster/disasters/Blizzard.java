@@ -21,6 +21,7 @@ public class Blizzard extends Disaster {
         hint = "Procure abrigo.";
         playable = true;
         icon = Material.SNOWBALL;
+        precipitationType = ReflectionUtils.PrecipitationType.SNOW;
     }
 
     @Override
@@ -45,8 +46,6 @@ public class Blizzard extends Disaster {
             }
             blocksToChangePerLevel.put(y, layerBlocks);
         }
-
-        map.setArenaRandomBiomeBasedOnPrecipitationType(ReflectionUtils.PrecipitationType.SNOW);
 
         map.makeRain(false);
 

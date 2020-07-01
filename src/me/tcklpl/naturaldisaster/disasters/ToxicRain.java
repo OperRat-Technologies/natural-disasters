@@ -23,6 +23,7 @@ public class ToxicRain extends Disaster {
         hint = "Procure abrigo.";
         playable = true;
         icon = Material.LIME_DYE;
+        precipitationType = ReflectionUtils.PrecipitationType.RAIN;
     }
 
     @Override
@@ -30,7 +31,6 @@ public class ToxicRain extends Disaster {
 
         super.startDisaster();
 
-        map.setArenaRandomBiomeBasedOnPrecipitationType(ReflectionUtils.PrecipitationType.RAIN);
         map.makeRain(false);
 
         Random r = random;

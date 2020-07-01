@@ -46,6 +46,7 @@ public class Earthquake extends Disaster {
         hint = "Evite locais altos.";
         playable = true;
         icon = Material.COBBLESTONE;
+        precipitationType = ReflectionUtils.PrecipitationType.ALL;
     }
 
     private GravityCandidates getYColumnBlocks(int x, int z, int divisor) {
@@ -239,7 +240,6 @@ public class Earthquake extends Disaster {
     public void startDisaster() {
         super.startDisaster();
 
-        map.setArenaRandomBiomeBasedOnPrecipitationType(ReflectionUtils.PrecipitationType.ALL);
         map.makeRain(true);
 
         Random r = random;

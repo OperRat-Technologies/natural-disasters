@@ -3,6 +3,7 @@ package me.tcklpl.naturaldisaster.disasters;
 import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.map.MapManager;
+import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -20,6 +21,7 @@ public abstract class Disaster {
     boolean isActive;
     protected boolean playable;
     protected Material icon;
+    protected ReflectionUtils.PrecipitationType precipitationType;
 
     long startDelay = 100L;
     long timeout = 3L; // minutes
@@ -44,6 +46,7 @@ public abstract class Disaster {
     public void startDisaster() {
         isActive = true;
         timeoutTaskId = Bukkit.getScheduler().scheduleSyncDelayedTask(main, this::endByTimeout, timeout * 20 * 60);
+        map.setArenaRandomBiomeBasedOnPrecipitationType(precipitationType);
     }
 
     /**

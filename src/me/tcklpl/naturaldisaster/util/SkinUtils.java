@@ -19,6 +19,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.sql.Timestamp;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class SkinUtils {
 
@@ -28,11 +31,12 @@ public class SkinUtils {
             if (premiumUUID.getResponseCode() == HttpURLConnection.HTTP_OK) {
 
                 // Line readed will be as follows:
-                // {"id":"<PLAYER UUID>","name":"<PLAYER NAME>"}
+                // was: {"id":"<PLAYER UUID>","name":"<PLAYER NAME>"}
+                // now is: {"name":"<PLAYER NAME>", "id":"<PLAYER UUID>"}
                 String rep = new BufferedReader(new InputStreamReader(premiumUUID.getInputStream())).readLine();
 
                 // Gets only the UUID from the server response
-                return rep.split("\",\"")[0].split("\":\"")[1];
+                return rep.split("\"id\":\"")[1].split("\"")[0];
 
             } else return null;
         } catch (IOException e) {
@@ -46,7 +50,9 @@ public class SkinUtils {
 
     public static void setGameProfile(Object entityLiving, GameProfile gameProfile) {
         try {
-            Field gp2 = entityLiving.getClass().getSuperclass().getDeclaredField("bT");
+            // Game profile na 1.15 era "bT"
+            // Game profile na 1.16 é   "bQ"
+            Field gp2 = entityLiving.getClass().getSuperclass().getDeclaredField("bQ");
             gp2.setAccessible(true);
             gp2.set(entityLiving, gameProfile);
             gp2.setAccessible(false);
@@ -61,15 +67,37 @@ public class SkinUtils {
 
             HttpsURLConnection connection = (HttpsURLConnection) new URL(String.format("https://sessionserver.mojang.com/session/minecraft/profile/%s?unsigned=false", uuidString)).openConnection();
 
+            NaturalDisaster.getMainReference().getLogger().info(connection.getURL().toString());
+
             if (connection.getResponseCode() == HttpURLConnection.HTTP_OK) {
 
                 // Reply format as follows:
                 // {"id":"<PLAYER UUID>","name":"<PLAYER NAME>","properties":[{"name":"textures","value":"<TEXTURE VALUE>","signature":"<MOJANG SIGNATURE>"}]}
-                String reply = new BufferedReader(new InputStreamReader(connection.getInputStream())).readLine();
+                String reply = new BufferedReader(new InputStreamReader(connection.getInputStream())).lines().collect(Collectors.joining());
 
-                String playerName = reply.split("\"name\":\"")[1].split("\",\"proper")[0];
-                String textureValue = reply.split("\"name\":\"textures\",\"value\":\"")[1].split("\",\"signature\"")[0];
-                String signature = reply.split(",\"signature\":\"")[1].split("\"}]}")[0];
+                NaturalDisaster.getMainReference().getLogger().info(reply);
+
+                String playerName = reply.split("\"name\" : \"")[1].split("\"")[0];
+                String textureValue = reply.split("\"name\" : \"textures\", {4}\"value\" : \"")[1].split("\"")[0];
+                String signature = reply.split("\"signature\" : \"")[1].split("\"")[0];
+
+                NaturalDisaster.getMainReference().getLogger().info(playerName + "|");
+                NaturalDisaster.getMainReference().getLogger().info(textureValue + "|");
+                NaturalDisaster.getMainReference().getLogger().info(signature + "|");
+
+//                Pattern p = Pattern.compile("\"name\" : \"(\\w+)\",\\n.+\\n.+\\n.+\"value\" : \"(.+)\",\\n.+\"signature\" : \"(.+)\"");
+//                Matcher m = p.matcher(reply);
+//
+//                NaturalDisaster.getMainReference().getLogger().info(p.toString());
+//                NaturalDisaster.getMainReference().getLogger().info(m.toString());
+//
+//                if (m.find()) {
+//
+//                    String playerName = m.group(1);
+//                    String textureValue = m.group(2);
+//                    String signature = m.group(3);
+//
+//                }
 
                 return new CustomSkin(playerName, textureValue, signature, new Timestamp(System.currentTimeMillis()));
 

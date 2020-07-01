@@ -86,7 +86,7 @@ public class ReflectionUtils {
         for (Biome biome : allBukkitBiomes) {
             try {
                 Object biomeBase = Objects.requireNonNull(getNMSClass("Biomes")).getField(biome.toString()).get(null);
-                Field precipitation = biomeBase.getClass().getSuperclass().getDeclaredField("p");
+                Field precipitation = biomeBase.getClass().getSuperclass().getDeclaredField("o");
                 precipitation.setAccessible(true);
                 if (precipitation.get(biomeBase).toString().equalsIgnoreCase(precipitationType.toString()))
                     filteredFinalList.add(biome);
