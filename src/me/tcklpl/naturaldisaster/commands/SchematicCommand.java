@@ -1,5 +1,6 @@
 package me.tcklpl.naturaldisaster.commands;
 
+import me.tcklpl.naturaldisaster.schematics.SchematicLoadPosition;
 import me.tcklpl.naturaldisaster.schematics.SchematicManager;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -46,7 +47,7 @@ public class SchematicCommand implements CommandExecutor {
                                 int locX = p.getLocation().getBlockX();
                                 int locY = p.getLocation().getBlockY();
                                 int locZ = p.getLocation().getBlockZ();
-                                if (SchematicManager.getInstance().loadSchematic(schName, new Location(p.getWorld(), locX, locY, locZ), true))
+                                if (SchematicManager.getInstance().loadSchematic(schName, new Location(p.getWorld(), locX, locY, locZ), true, SchematicLoadPosition.FLOOR_CENTER))
                                     p.sendMessage(ChatColor.GREEN + "Schematic carregado com sucesso!");
                                 else p.sendMessage(ChatColor.RED + "Erro ao carregar schematic.");
                                 break;

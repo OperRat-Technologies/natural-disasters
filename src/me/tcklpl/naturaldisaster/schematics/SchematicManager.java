@@ -80,7 +80,7 @@ public class SchematicManager {
         }
     }
 
-    public boolean loadSchematic(String name, Location origin, boolean keepAir) {
+    public boolean loadSchematic(String name, Location origin, boolean keepAir, SchematicLoadPosition loadPosition) {
 
         int originX = origin.getBlockX();
         int originY = origin.getBlockY();
@@ -110,15 +110,32 @@ public class SchematicManager {
             return false;
         }
 
-        int realignedX = originX - Math.floorDiv(schematic.getWidth(), 2);
-        int realignedZ = originZ - Math.floorDiv(schematic.getLenght(), 2);
+        int realignedX = 0, realignedY = 0, realignedZ = 0;
+
+        switch (loadPosition) {
+            case LOWEST_COORDINATES:
+                realignedX = originX;
+                realignedY = originY;
+                realignedZ = originZ;
+                break;
+            case FLOOR_CENTER:
+                realignedX = originX - Math.floorDiv(schematic.getWidth(), 2);
+                realignedY = originY;
+                realignedZ = originZ - Math.floorDiv(schematic.getLenght(), 2);
+                break;
+            case TRUE_CENTER:
+                realignedX = originX - Math.floorDiv(schematic.getWidth(), 2);
+                realignedY = originY - Math.floorDiv(schematic.getHeight(), 2);
+                realignedZ = originZ - Math.floorDiv(schematic.getLenght(), 2);
+                break;
+        }
 
         List<Material> schematicBlocks = schematic.getBlocks();
         List<BlockData> schematicBlockData = schematic.getBlockData();
 
         int currentBlockIndex = 0;
         for (int x = realignedX; x <= realignedX + schematic.getWidth(); x++) {
-            for (int y = originY; y <= originY + schematic.getHeight(); y++) {
+            for (int y = realignedY; y <= realignedY + schematic.getHeight(); y++) {
                 for (int z = realignedZ; z <= realignedZ + schematic.getLenght(); z++) {
                     if (keepAir || schematicBlocks.get(currentBlockIndex) != Material.AIR) {
                         Block b = Objects.requireNonNull(origin.getWorld()).getBlockAt(x, y, z);
