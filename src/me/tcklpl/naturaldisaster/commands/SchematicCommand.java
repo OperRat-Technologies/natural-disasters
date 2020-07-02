@@ -35,7 +35,7 @@ public class SchematicCommand implements CommandExecutor {
                                 if (args.length != 1) return false;
                                 Location loc2 = p.getLocation().getBlock().getLocation();
                                 SchematicManager.getInstance().setTempPos2(loc2);
-                                p.sendMessage(ChatColor.YELLOW + "Definida posição 1 do schematic em (" + loc2.getX() + " " + loc2.getY() + " " + loc2.getZ() + ")");
+                                p.sendMessage(ChatColor.YELLOW + "Definida posição 2 do schematic em (" + loc2.getX() + " " + loc2.getY() + " " + loc2.getZ() + ")");
                                 break;
                             case "finalize":
                                 if (args.length != 1) return false;

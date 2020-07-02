@@ -1,5 +1,6 @@
 package me.tcklpl.naturaldisaster.disasters;
 
+import me.tcklpl.naturaldisaster.map.ArenaBiomeType;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.Bukkit;
@@ -47,6 +48,7 @@ public class Earthquake extends Disaster {
         playable = true;
         icon = Material.COBBLESTONE;
         precipitationType = ReflectionUtils.PrecipitationType.ALL;
+        arenaBiomeType = ArenaBiomeType.RANDOM_PER_PRECIPITATION;
     }
 
     private GravityCandidates getYColumnBlocks(int x, int z, int divisor) {

@@ -1,5 +1,6 @@
 package me.tcklpl.naturaldisaster.disasters;
 
+import me.tcklpl.naturaldisaster.map.ArenaBiomeType;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.Bukkit;
@@ -28,6 +29,7 @@ public class EnderDragon extends Disaster {
         playable = false;
         icon = Material.DRAGON_EGG;
         precipitationType = ReflectionUtils.PrecipitationType.ALL;
+        arenaBiomeType = ArenaBiomeType.RANDOM_PER_PRECIPITATION;
     }
 
     @Override

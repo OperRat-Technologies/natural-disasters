@@ -133,6 +133,10 @@ public class DisasterMap {
                     arenaChunks.add(getWorld().getChunkAt(b));
             }
         }
+
+        loadMapChunks();
+        setArenaBiome(Biome.CRIMSON_FOREST);
+
         getWorld().setWaterAnimalSpawnLimit(0);
         getWorld().setGameRule(GameRule.DO_TILE_DROPS, false);
         getWorld().setGameRule(GameRule.DO_WEATHER_CYCLE, false);
@@ -174,8 +178,10 @@ public class DisasterMap {
 
         for (int x = minX - 16; x <= minX + gapX + 16; x++) {
             for (int z = minZ - 16; z <= minZ + gapZ + 16; z++) {
-                Block b = getWorld().getBlockAt(x, 0, z);
-                b.setBiome(biome);
+                for (int y = 0; y <= top + 16; y++) {
+                    Block b = getWorld().getBlockAt(x, y, z);
+                    b.setBiome(biome);
+                }
             }
         }
 
@@ -303,6 +309,10 @@ public class DisasterMap {
             l.getZ() < minZ || l.getZ() > (minZ + gapZ))
                 p.damage(dmg);
         }
+    }
+
+    public void loadMapChunks() {
+        arenaChunks.forEach(getWorld()::loadChunk);
     }
 
 }

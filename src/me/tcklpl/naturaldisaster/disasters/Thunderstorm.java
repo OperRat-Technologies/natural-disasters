@@ -1,5 +1,6 @@
 package me.tcklpl.naturaldisaster.disasters;
 
+import me.tcklpl.naturaldisaster.map.ArenaBiomeType;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.Bukkit;
@@ -30,6 +31,7 @@ public class Thunderstorm extends Disaster {
         playable = true;
         icon = Material.CREEPER_HEAD;
         precipitationType = ReflectionUtils.PrecipitationType.RAIN;
+        arenaBiomeType = ArenaBiomeType.RANDOM_PER_PRECIPITATION;
     }
 
     @Override

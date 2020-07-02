@@ -1,5 +1,6 @@
 package me.tcklpl.naturaldisaster.disasters;
 
+import me.tcklpl.naturaldisaster.map.ArenaBiomeType;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.Bukkit;
@@ -24,6 +25,7 @@ public class ToxicRain extends Disaster {
         playable = true;
         icon = Material.LIME_DYE;
         precipitationType = ReflectionUtils.PrecipitationType.RAIN;
+        arenaBiomeType = ArenaBiomeType.RANDOM_PER_PRECIPITATION;
     }
 
     @Override

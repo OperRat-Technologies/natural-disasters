@@ -1,15 +1,18 @@
 package me.tcklpl.naturaldisaster.disasters;
 
 import me.tcklpl.naturaldisaster.NaturalDisaster;
+import me.tcklpl.naturaldisaster.map.ArenaBiomeType;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.map.MapManager;
 import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.block.Biome;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 public abstract class Disaster {
@@ -22,6 +25,8 @@ public abstract class Disaster {
     protected boolean playable;
     protected Material icon;
     protected ReflectionUtils.PrecipitationType precipitationType;
+    protected ArenaBiomeType arenaBiomeType;
+    protected Biome arenaSpecificBiome;
 
     long startDelay = 100L;
     long timeout = 3L; // minutes
@@ -46,7 +51,6 @@ public abstract class Disaster {
     public void startDisaster() {
         isActive = true;
         timeoutTaskId = Bukkit.getScheduler().scheduleSyncDelayedTask(main, this::endByTimeout, timeout * 20 * 60);
-        map.setArenaRandomBiomeBasedOnPrecipitationType(precipitationType);
     }
 
     /**
@@ -71,7 +75,17 @@ public abstract class Disaster {
 
     public String getName() { return name; }
 
-    public void setMap(DisasterMap map) { this.map = map; }
+    public void setMap(DisasterMap map) {
+        this.map = map;
+        switch (arenaBiomeType) {
+            case SPECIFIC:
+                map.setArenaBiome(arenaSpecificBiome);
+                break;
+            case RANDOM_PER_PRECIPITATION:
+                map.setArenaRandomBiomeBasedOnPrecipitationType(precipitationType);
+                break;
+        }
+    }
 
     public String getHint() { return hint; }
 

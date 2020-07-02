@@ -1,5 +1,6 @@
 package me.tcklpl.naturaldisaster.disasters;
 
+import me.tcklpl.naturaldisaster.map.ArenaBiomeType;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.*;
@@ -22,6 +23,7 @@ public class Blizzard extends Disaster {
         playable = true;
         icon = Material.SNOWBALL;
         precipitationType = ReflectionUtils.PrecipitationType.SNOW;
+        arenaBiomeType = ArenaBiomeType.RANDOM_PER_PRECIPITATION;
     }
 
     @Override
