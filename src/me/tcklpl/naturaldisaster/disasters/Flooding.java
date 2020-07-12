@@ -5,7 +5,6 @@ import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Waterlogged;
 import org.bukkit.entity.Player;
@@ -59,7 +58,7 @@ public class Flooding extends Disaster {
             waterlogged.setWaterlogged(true);
             b.setBlockData(waterlogged);
         }
-        map.bufferedBreakBlocks(blocksToChangePerYLevel.get(y), Material.WATER, 500, false);
+        map.bufferedReplaceBlocks(blocksToChangePerYLevel.get(y), Material.WATER, 500, false);
     }
 
     @Override

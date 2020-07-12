@@ -9,25 +9,21 @@ import me.tcklpl.naturaldisaster.database.Database;
 import me.tcklpl.naturaldisaster.events.*;
 import me.tcklpl.naturaldisaster.events.arena.Damage;
 import me.tcklpl.naturaldisaster.events.arena.Death;
+import me.tcklpl.naturaldisaster.events.arena.EntityChangeBlock;
 import me.tcklpl.naturaldisaster.map.MapManager;
 import me.tcklpl.naturaldisaster.player.cPlayer.CPlayerManager;
 import me.tcklpl.naturaldisaster.player.friends.FriendsGUI;
 import me.tcklpl.naturaldisaster.player.skins.RefreshSkin;
 import me.tcklpl.naturaldisaster.player.skins.SkinManager;
-import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import me.tcklpl.naturaldisaster.shop.ShopCommand;
 import me.tcklpl.naturaldisaster.shop.ShopInventoryClick;
 import me.tcklpl.naturaldisaster.worlds.WorldCommands;
 import me.tcklpl.naturaldisaster.worlds.WorldManager;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.logging.Filter;
-import java.util.logging.LogRecord;
-import java.util.logging.Logger;
 
 public class NaturalDisaster extends JavaPlugin {
 
@@ -98,6 +94,7 @@ public class NaturalDisaster extends JavaPlugin {
         pm.registerEvents(new MobSpawn(), this);
         pm.registerEvents(new ShopInventoryClick(), this);
         pm.registerEvents(new FriendsGUI(), this);
+        pm.registerEvents(new EntityChangeBlock(), this);
 
     }
 

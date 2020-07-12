@@ -212,7 +212,7 @@ public class MapManager {
                 currentStatus = GameStatus.IN_GAME;
                 for (Player all : currentMap.getPlayersInArena())
                     all.playSound(all.getLocation(), Sound.EVENT_RAID_HORN, 1f, 1f);
-                Bukkit.broadcastMessage(ChatColor.GRAY + currentDisaster.getHint());
+                //Bukkit.broadcastMessage(ChatColor.GRAY + currentDisaster.getHint());
             }, 130L);
         }
     }
@@ -352,5 +352,9 @@ public class MapManager {
                 arenaPlayerManager.disguisePlayer(p, colors.get(i).toString() + names.get(i));
             }
         }
+    }
+
+    public Disaster getCurrentDisaster() {
+        return currentDisaster;
     }
 }

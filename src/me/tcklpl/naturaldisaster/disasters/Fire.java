@@ -132,9 +132,9 @@ public class Fire extends Disaster {
                         if (!previousBurnedBlocks.contains(b))
                             previousBurnedBlocks.add(b);
                     }
-                    map.bufferedBreakBlocks(bufferedBlocks, Material.MAGMA_BLOCK, replacementBuffer, false);
+                    map.bufferedReplaceBlocks(bufferedBlocks, Material.MAGMA_BLOCK, replacementBuffer, false);
 
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> map.bufferedBreakBlocks(bufferedBlocks, burnedBlocksMaterials, replacementBuffer, false), 20L);
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> map.bufferedReplaceBlocks(bufferedBlocks, burnedBlocksMaterials, replacementBuffer, false), 20L);
 
                     currentFireSources.clear();
                     currentFireSources.addAll(bufferedBlocks);

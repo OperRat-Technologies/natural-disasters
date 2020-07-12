@@ -3,6 +3,7 @@ package me.tcklpl.naturaldisaster.events.arena;
 import me.tcklpl.naturaldisaster.GameStatus;
 import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.map.MapManager;
+import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -18,6 +19,11 @@ public class Damage implements Listener {
             if (p.getGameMode() == GameMode.ADVENTURE)
                 if (NaturalDisaster.getMapManager().getCurrentStatus() == GameStatus.STARTING || NaturalDisaster.getMapManager().getCurrentStatus() == GameStatus.IN_LOBBY)
                     e.setCancelled(true);
+                else
+                    if (p.getLocation().getBlockY() < 0) {
+                        p.damage(20);
+                        p.sendMessage(ChatColor.GRAY + ">> Você morreu por cair da arena.");
+                    }
         }
     }
 }

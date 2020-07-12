@@ -4,9 +4,7 @@ import me.tcklpl.naturaldisaster.map.ArenaBiomeType;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.*;
-import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -65,7 +63,7 @@ public class Blizzard extends Disaster {
             if ((timesRunned.incrementAndGet() % nextIteration.get()) == 0) {
 
                 nextIteration.set(10 + r.nextInt(6));
-                map.bufferedBreakBlocks(blocksToChangePerLevel.get(currentY.getAndDecrement()), blockPallete, 500, false);
+                map.bufferedReplaceBlocks(blocksToChangePerLevel.get(currentY.getAndDecrement()), blockPallete, 500, false);
 
             }
 

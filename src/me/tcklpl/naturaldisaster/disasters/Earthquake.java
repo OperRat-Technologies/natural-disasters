@@ -4,12 +4,9 @@ import me.tcklpl.naturaldisaster.map.ArenaBiomeType;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.entity.FallingBlock;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
@@ -234,8 +231,8 @@ public class Earthquake extends Disaster {
             lowBlocks.addAll(candidates.getLowPriorityBlocks());
         }
 
-        map.bufferedBreakBlocks(lowBlocks, Material.AIR, 300, false);
-        map.bufferedBreakBlocks(highBlocks, Material.AIR, 300, true);
+        map.bufferedReplaceBlocks(lowBlocks, Material.AIR, 300, false);
+        map.bufferedReplaceBlocks(highBlocks, Material.AIR, 300, true);
     }
 
     @Override
@@ -272,8 +269,8 @@ public class Earthquake extends Disaster {
                     if (currentExpansion.get() <= 2)
                     Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> {
                         GravityCandidates gravityCandidates = generateGravityCandidates();
-                        map.bufferedBreakBlocks(gravityCandidates.getLowPriorityBlocks(), Material.AIR, gravityBuffer, false);
-                        map.bufferedBreakBlocks(gravityCandidates.getHighPriorityBlocks(), Material.AIR, gravityBuffer, true);
+                        map.bufferedReplaceBlocks(gravityCandidates.getLowPriorityBlocks(), Material.AIR, gravityBuffer, false);
+                        map.bufferedReplaceBlocks(gravityCandidates.getHighPriorityBlocks(), Material.AIR, gravityBuffer, true);
                     }, 20L);
                 }
 

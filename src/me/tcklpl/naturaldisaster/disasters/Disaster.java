@@ -10,10 +10,7 @@ import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 public abstract class Disaster {
 
@@ -42,6 +39,19 @@ public abstract class Disaster {
         this.main = main;
         isActive = false;
         random = new Random();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Disaster disaster = (Disaster) o;
+        return Objects.equals(name, disaster.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name);
     }
 
     /**

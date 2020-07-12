@@ -10,6 +10,7 @@ import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
+import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -21,7 +22,7 @@ public class Volcano extends Disaster {
         super(map, main);
         name = "Volcano";
         hint = "Te fode lek kkk";
-        playable = true;
+        playable = false;
         icon = Material.LAVA_BUCKET;
         precipitationType = ReflectionUtils.PrecipitationType.ALL;
         arenaBiomeType = ArenaBiomeType.SPECIFIC;
@@ -60,11 +61,19 @@ public class Volcano extends Disaster {
 
         AtomicInteger timesRunned = new AtomicInteger(0);
 
+        BlockData magmaData = Bukkit.createBlockData(Material.MAGMA_BLOCK);
+
         taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
 
             timesRunned.incrementAndGet();
-            if (timesRunned.get() == 1) {
-                //FallingBlock fb = map.getWorld().spawnFallingBlock()
+            if (timesRunned.get() % 3 == 0) {
+
+                for (Location loc : map.getRandomXZPoints(5, false, 25)) {
+                    FallingBlock fb = map.getWorld().spawnFallingBlock(loc, magmaData);
+                    fb.setDropItem(false);
+                    fb.setHurtEntities(true);
+                }
+
             }
 
         }, startDelay, 20L);

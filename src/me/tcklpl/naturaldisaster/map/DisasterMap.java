@@ -6,7 +6,9 @@ import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
+import org.bukkit.block.BlockFace;
 import org.bukkit.block.data.BlockData;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
@@ -26,6 +28,7 @@ public class DisasterMap {
     private final List<Chunk> arenaChunks;
     public int x1, x2, y1, y2, z1, z2, minX, minZ, gapX, gapZ, top, floor;
     private final Random r;
+    private final int fallingBlockKillTimeSeconds = 3;
 
     public DisasterMap(JavaPlugin main, Location pos1, Location pos2, String name, List<Location> spawns) {
         this.main = main;
@@ -225,7 +228,7 @@ public class DisasterMap {
      * @param buffer the size of the buffer to be executed per tick.
      * @param fallingBlock to create or not fallingblock entities of replaced blocks, to be used when destroying them.
      */
-    public void bufferedBreakBlocks(List<Block> blocks, Material replacement, int buffer, boolean fallingBlock) {
+    public void bufferedReplaceBlocks(List<Block> blocks, Material replacement, int buffer, boolean fallingBlock) {
 
         if (blocks.size() == 0) return;
 
@@ -241,17 +244,26 @@ public class DisasterMap {
                 // Previnir checagens desnecessárias
                 int max = Math.min(buffer, blocks.size() - currentBlockIndex.get());
                 for (int i = 0; i < max; i++) {
+
+                    Set<FallingBlock> entities = new HashSet<>();
+
                     Block b = blocks.get(currentBlockIndex.get());
                     if (b.getType() != Material.AIR && fallingBlock) {
                         FallingBlock fb = getWorld().spawnFallingBlock(b.getLocation().add(0.5, 0, 0.5), b.getBlockData());
                         fb.setHurtEntities(true);
                         fb.setDropItem(false);
+                        entities.add(fb);
                     }
                     b.setType(replacement, false);
                     if (b.getState() instanceof InventoryHolder)
                         b.setBlockData(replacementData);
                     if (currentBlockIndex.get() < blocks.size() - 1)
                         currentBlockIndex.incrementAndGet();
+
+                    if (entities.size() > 0)
+                        Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> {
+                            entities.forEach(Entity::remove);
+                        }, fallingBlockKillTimeSeconds * 20L);
                 }
             }, currentCycle + 1);
 
@@ -266,7 +278,7 @@ public class DisasterMap {
      * @param buffer the size of the buffer to be executed per tick.
      * @param fallingBlock to create or not fallingblock entities of replaced blocks, to be used when destroying them.
      */
-    public void bufferedBreakBlocks(List<Block> blocks, List<Material> replacement, int buffer, boolean fallingBlock) {
+    public void bufferedReplaceBlocks(List<Block> blocks, List<Material> replacement, int buffer, boolean fallingBlock) {
 
         if (blocks.size() == 0) return;
 
@@ -282,11 +294,15 @@ public class DisasterMap {
                 // Previnir checagens desnecessárias
                 int max = Math.min(buffer, blocks.size() - currentBlockIndex.get());
                 for (int i = 0; i < max; i++) {
+
+                    Set<FallingBlock> entities = new HashSet<>();
+
                     Block b = blocks.get(currentBlockIndex.get());
                     if (b.getType() != Material.AIR && fallingBlock) {
                         FallingBlock fb = getWorld().spawnFallingBlock(b.getLocation().add(0.5, 0, 0.5), b.getBlockData());
                         fb.setHurtEntities(true);
                         fb.setDropItem(false);
+                        entities.add(fb);
                     }
                     currentRandomValue.set(r.nextInt(replacement.size()));
                     b.setType(replacement.get(currentRandomValue.get()), false);
@@ -295,10 +311,65 @@ public class DisasterMap {
 
                     if (currentBlockIndex.get() < blocks.size() - 1)
                         currentBlockIndex.incrementAndGet();
+
+                    if (entities.size() > 0)
+                        Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> {
+                            entities.forEach(Entity::remove);
+                        }, fallingBlockKillTimeSeconds * 20L);
                 }
             }, currentCycle + 1);
 
         }
+    }
+
+    public List<Block> bufferedExpandBlocks(List<Block> origin, int... customBuffer) {
+        int buffer = customBuffer != null ? customBuffer[0] : 50;
+        List<Block> response = new ArrayList<>();
+
+        int cycles = 1 + Math.floorDiv(origin.size(), buffer);
+        AtomicInteger currentBlockIndex = new AtomicInteger(0);
+
+        for (int currentCycle = 0; currentCycle < cycles; currentCycle++) {
+            Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> {
+
+                int max = Math.min(buffer, origin.size() - currentBlockIndex.get());
+
+                for (int i = 0; i < max; i++) {
+
+                    Block b = origin.get(currentBlockIndex.get());
+                    Block relative;
+
+                    relative = b.getRelative(BlockFace.NORTH);
+                    if (relative.getType() != Material.AIR && !origin.contains(relative) && !response.contains(relative))
+                        response.add(relative);
+
+                    relative = b.getRelative(BlockFace.SOUTH);
+                    if (relative.getType() != Material.AIR && !origin.contains(relative) && !response.contains(relative))
+                        response.add(relative);
+
+                    relative = b.getRelative(BlockFace.EAST);
+                    if (relative.getType() != Material.AIR && !origin.contains(relative) && !response.contains(relative))
+                        response.add(relative);
+
+                    relative = b.getRelative(BlockFace.WEST);
+                    if (relative.getType() != Material.AIR && !origin.contains(relative) && !response.contains(relative))
+                        response.add(relative);
+
+                    relative = b.getRelative(BlockFace.UP);
+                    if (relative.getType() != Material.AIR && !origin.contains(relative) && !response.contains(relative))
+                        response.add(relative);
+
+                    relative = b.getRelative(BlockFace.DOWN);
+                    if (relative.getType() != Material.AIR && !origin.contains(relative) && !response.contains(relative))
+                        response.add(relative);
+
+                    if (currentBlockIndex.get() < (origin.size() - 1))
+                        currentBlockIndex.incrementAndGet();
+                }
+
+            }, 1 + currentCycle);
+        }
+        return response;
     }
 
     public void damagePlayerOutsideBounds(double dmg) {
@@ -313,6 +384,40 @@ public class DisasterMap {
 
     public void loadMapChunks() {
         arenaChunks.forEach(getWorld()::loadChunk);
+    }
+
+    public List<Location> getRandomXZPoints(int quant, boolean needsGround, int y) {
+        List<Location> xzPoints = new ArrayList<>();
+
+        for (int i = 0; i < quant; i++) {
+            int x = minX + r.nextInt(gapX);
+            int z = minZ + r.nextInt(gapZ);
+            Location loc = new Location(getWorld(), x, y, z);
+
+            while (xzPoints.contains(loc)) {
+                x = minX + r.nextInt(gapX);
+                z = minZ + r.nextInt(gapZ);
+
+                if (needsGround)
+                    while (getWorld().getHighestBlockYAt(x, z) == 0) {
+                        x = minX + r.nextInt(gapX);
+                        z = minZ + r.nextInt(gapZ);
+                    }
+            }
+
+            if (needsGround) {
+                while (getWorld().getHighestBlockYAt(x, z) == 0) {
+                    x = minX + r.nextInt(gapX);
+                    z = minZ + r.nextInt(gapZ);
+                }
+            }
+
+            loc.setX(x);
+            loc.setZ(z);
+
+            xzPoints.add(loc);
+        }
+        return xzPoints;
     }
 
 }

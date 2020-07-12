@@ -3,6 +3,7 @@ package me.tcklpl.naturaldisaster.events.arena;
 import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.map.MapManager;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -31,6 +32,8 @@ public class Death implements Listener {
                 p.setFoodLevel(20);
                 p.setFallDistance(0);
                 p.setFireTicks(0);
+
+                p.sendMessage(ChatColor.GRAY + ">> Você morrreu levando " + e.getDamage() / 2 + " corações de dano.");
 
                 if (p.getActivePotionEffects().size() > 0)
                     for (PotionEffect effect : p.getActivePotionEffects())
