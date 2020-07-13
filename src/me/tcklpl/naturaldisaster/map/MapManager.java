@@ -250,6 +250,10 @@ public class MapManager {
         Bukkit.getScheduler().scheduleSyncDelayedTask(mainReference, () -> {
             if (Bukkit.unloadWorld(Objects.requireNonNull(currentMap.getPos1().getWorld()), false)) {
                 NaturalDisaster.getMainReference().getLogger().info("Mundo " + currentMap.getName() + " descarregado.");
+                for (Player p : Bukkit.getOnlinePlayers()) {
+                    if (p.isOp())
+                        p.sendMessage(ChatColor.GRAY + ">>" + ChatColor.DARK_GRAY + " [DEBUG INFO] " + ChatColor.GRAY + ">> Mundo descarregado.");
+                }
             } else NaturalDisaster.getMainReference().getLogger().severe("Falha ao descarregar mundo " + currentMap);
             currentMap = null;
             currentDisaster = null;

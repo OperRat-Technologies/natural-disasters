@@ -28,7 +28,7 @@ public class DisasterMap {
     private final List<Chunk> arenaChunks;
     public int x1, x2, y1, y2, z1, z2, minX, minZ, gapX, gapZ, top, floor;
     private final Random r;
-    private final int fallingBlockKillTimeSeconds = 3;
+    private final int fallingBlockKillTimeSeconds = 2;
 
     public DisasterMap(JavaPlugin main, Location pos1, Location pos2, String name, List<Location> spawns) {
         this.main = main;

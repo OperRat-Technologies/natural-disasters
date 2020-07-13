@@ -1,5 +1,6 @@
 package me.tcklpl.naturaldisaster.disasters;
 
+import com.google.common.collect.Lists;
 import me.tcklpl.naturaldisaster.map.ArenaBiomeType;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
@@ -10,6 +11,7 @@ import org.bukkit.block.BlockFace;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -19,6 +21,11 @@ public class Earthquake extends Disaster {
 
     private final int gravityBuffer = 100;
 
+    /**
+     * Cass GravityCandidates, to be used within Earthquake disaster.
+     * HighPriorityBlocks are those on top of air or passable blocks.
+     * LowPriorityBlocks are those on top of high priority blocks.
+     */
     private static class GravityCandidates {
 
         private final List<Block> highPriorityBlocks;
@@ -222,6 +229,33 @@ public class Earthquake extends Disaster {
         return new GravityCandidates(gravityCandidates, lowPriorityGravityCandidates);
     }
 
+    private void breakGravityCandidates(GravityCandidates gravityCandidates) {
+
+        int secondsBetweenGravityBatches = 1;
+
+        Collections.shuffle(gravityCandidates.getHighPriorityBlocks());
+        Collections.shuffle(gravityCandidates.getLowPriorityBlocks());
+
+        List<List<Block>> highPriorityBatches = Lists.partition(gravityCandidates.getHighPriorityBlocks(), gravityBuffer);
+        List<List<Block>> lowPriorityBatches  = Lists.partition(gravityCandidates.getLowPriorityBlocks() , gravityBuffer);
+
+        for (int i = 0; i < highPriorityBatches.size(); i++) {
+
+            int finalI = i;
+            Bukkit.getScheduler().scheduleSyncDelayedTask(main,
+                    () -> map.bufferedReplaceBlocks(highPriorityBatches.get(finalI), Material.AIR, gravityBuffer, true),
+                    1 + i * secondsBetweenGravityBatches * 20L);
+        }
+
+        for (int i = 0; i < lowPriorityBatches.size(); i++) {
+
+            int finalI = i;
+            Bukkit.getScheduler().scheduleSyncDelayedTask(main,
+                    () -> map.bufferedReplaceBlocks(lowPriorityBatches.get(finalI), Material.AIR, gravityBuffer, true),
+                    1 + ((highPriorityBatches.size() / gravityBuffer) * secondsBetweenGravityBatches * 20) + i * secondsBetweenGravityBatches * 20L);
+        }
+    }
+
     private void destroyCrackPattern(List<Block> blocks) {
         List<Block> highBlocks = new ArrayList<>();
         List<Block> lowBlocks = new ArrayList<>();
@@ -234,6 +268,8 @@ public class Earthquake extends Disaster {
         map.bufferedReplaceBlocks(lowBlocks, Material.AIR, 300, false);
         map.bufferedReplaceBlocks(highBlocks, Material.AIR, 300, true);
     }
+
+
 
     @Override
     public void startDisaster() {
@@ -264,14 +300,10 @@ public class Earthquake extends Disaster {
                     } else {
                         hasCracked.set(true);
                         destroyCrackPattern(initialCrack);
-                    }
 
-                    if (currentExpansion.get() <= 2)
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> {
-                        GravityCandidates gravityCandidates = generateGravityCandidates();
-                        map.bufferedReplaceBlocks(gravityCandidates.getLowPriorityBlocks(), Material.AIR, gravityBuffer, false);
-                        map.bufferedReplaceBlocks(gravityCandidates.getHighPriorityBlocks(), Material.AIR, gravityBuffer, true);
-                    }, 20L);
+                        breakGravityCandidates(generateGravityCandidates());
+
+                    }
                 }
 
             }
