@@ -19,6 +19,8 @@ import me.tcklpl.naturaldisaster.shop.ShopCommand;
 import me.tcklpl.naturaldisaster.shop.ShopInventoryClick;
 import me.tcklpl.naturaldisaster.worlds.WorldCommands;
 import me.tcklpl.naturaldisaster.worlds.WorldManager;
+import org.bukkit.command.Command;
+import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 

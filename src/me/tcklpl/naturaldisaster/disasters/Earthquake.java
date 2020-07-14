@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Earthquake extends Disaster {
 
-    private final int gravityBuffer = 100;
+    private final int gravityBuffer = 200;
 
     /**
      * Cass GravityCandidates, to be used within Earthquake disaster.
@@ -55,19 +55,24 @@ public class Earthquake extends Disaster {
         arenaBiomeType = ArenaBiomeType.RANDOM_PER_PRECIPITATION;
     }
 
-    private GravityCandidates getYColumnBlocks(int x, int z, int divisor) {
+    private GravityCandidates getYColumnBlocks(int x, int z) {
 
         List<Block> blocksToBreak = new ArrayList<>();
         List<Block> blocksToDisappear = new ArrayList<>();
-        int counter = 0;
 
-        for (int y = map.floor; y <= map.top; y++) {
+        for (int y = map.top; y >= map.floor; y--) {
             Block b = map.getWorld().getBlockAt(x, y, z);
-            if (counter++ % divisor == 0) {
-                blocksToBreak.add(b);
-            } else {
+
+            if (b.isLiquid() ||
+                    b.isPassable() ||
+                    b.getType().toString().contains("LEAVES") ||                                              // leaves will disappear
+                    b.getType().toString().contains("DOOR") ||                                                // doors and trapdoors too
+                    (!b.getRelative(BlockFace.UP).isEmpty() && b.getRelative(BlockFace.UP, 2).isEmpty()) || // blocks with another one on top (below floor) too
+                    (blocksToDisappear.contains(b.getRelative(BlockFace.UP)))                                  // stacked blocks
+            )
                 blocksToDisappear.add(b);
-            }
+            else blocksToBreak.add(b);
+
         }
 
         return new GravityCandidates(blocksToBreak, blocksToDisappear);
@@ -231,7 +236,7 @@ public class Earthquake extends Disaster {
 
     private void breakGravityCandidates(GravityCandidates gravityCandidates) {
 
-        int secondsBetweenGravityBatches = 1;
+        double secondsBetweenGravityBatches = 0.8;
 
         Collections.shuffle(gravityCandidates.getHighPriorityBlocks());
         Collections.shuffle(gravityCandidates.getLowPriorityBlocks());
@@ -244,7 +249,7 @@ public class Earthquake extends Disaster {
             int finalI = i;
             Bukkit.getScheduler().scheduleSyncDelayedTask(main,
                     () -> map.bufferedReplaceBlocks(highPriorityBatches.get(finalI), Material.AIR, gravityBuffer, true),
-                    1 + i * secondsBetweenGravityBatches * 20L);
+                    1 + Math.round(i * secondsBetweenGravityBatches * 20L));
         }
 
         for (int i = 0; i < lowPriorityBatches.size(); i++) {
@@ -252,7 +257,8 @@ public class Earthquake extends Disaster {
             int finalI = i;
             Bukkit.getScheduler().scheduleSyncDelayedTask(main,
                     () -> map.bufferedReplaceBlocks(lowPriorityBatches.get(finalI), Material.AIR, gravityBuffer, true),
-                    1 + ((highPriorityBatches.size() / gravityBuffer) * secondsBetweenGravityBatches * 20) + i * secondsBetweenGravityBatches * 20L);
+                    1 + ((highPriorityBatches.size() / gravityBuffer) * Math.round(secondsBetweenGravityBatches * 20)) +
+                            Math.round(i * secondsBetweenGravityBatches * 20L));
         }
     }
 
@@ -260,7 +266,7 @@ public class Earthquake extends Disaster {
         List<Block> highBlocks = new ArrayList<>();
         List<Block> lowBlocks = new ArrayList<>();
         for (Block b : blocks) {
-            GravityCandidates candidates = getYColumnBlocks(b.getX(), b.getZ(), 2);
+            GravityCandidates candidates = getYColumnBlocks(b.getX(), b.getZ());
             highBlocks.addAll(candidates.getHighPriorityBlocks());
             lowBlocks.addAll(candidates.getLowPriorityBlocks());
         }
@@ -268,8 +274,6 @@ public class Earthquake extends Disaster {
         map.bufferedReplaceBlocks(lowBlocks, Material.AIR, 300, false);
         map.bufferedReplaceBlocks(highBlocks, Material.AIR, 300, true);
     }
-
-
 
     @Override
     public void startDisaster() {
@@ -282,6 +286,7 @@ public class Earthquake extends Disaster {
         // XZ = 1 leste - oeste
         int xz = r.nextInt(2);
         List<Block> initialCrack = generateInitialFloorCrack(xz);
+        GravityCandidates gravityCandidates = generateGravityCandidates();
 
         AtomicInteger timesRunned = new AtomicInteger(0);
         AtomicInteger currentExpansion = new AtomicInteger(0);
@@ -301,7 +306,7 @@ public class Earthquake extends Disaster {
                         hasCracked.set(true);
                         destroyCrackPattern(initialCrack);
 
-                        breakGravityCandidates(generateGravityCandidates());
+                        breakGravityCandidates(gravityCandidates);
 
                     }
                 }

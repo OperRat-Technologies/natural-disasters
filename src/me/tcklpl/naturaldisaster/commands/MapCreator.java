@@ -32,6 +32,9 @@ public class MapCreator implements CommandExecutor {
 
         if (cmd.getName().equalsIgnoreCase("arena")) {
 
+            if (args.length == 0)
+                return false;
+
             if (args[0].equalsIgnoreCase("create")) {
                 if (args.length != 2) return false;
                 String name = args[1];
