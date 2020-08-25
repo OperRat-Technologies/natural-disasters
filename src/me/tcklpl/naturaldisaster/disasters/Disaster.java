@@ -3,7 +3,6 @@ package me.tcklpl.naturaldisaster.disasters;
 import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.map.ArenaBiomeType;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
-import me.tcklpl.naturaldisaster.map.MapManager;
 import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -17,7 +16,7 @@ public abstract class Disaster {
     DisasterMap map;
     JavaPlugin main;
     String name, hint;
-    int taskId, timeoutTaskId;
+    private List<Integer> tasks;
     boolean isActive;
     protected boolean playable;
     protected Material icon;
@@ -38,6 +37,7 @@ public abstract class Disaster {
         this.map = map;
         this.main = main;
         isActive = false;
+        tasks = new ArrayList<>();
         random = new Random();
     }
 
@@ -60,26 +60,27 @@ public abstract class Disaster {
      */
     public void startDisaster() {
         isActive = true;
-        timeoutTaskId = Bukkit.getScheduler().scheduleSyncDelayedTask(main, this::endByTimeout, timeout * 20 * 60);
+        int timeoutTaskId = Bukkit.getScheduler().scheduleSyncDelayedTask(main, this::endByTimeout, timeout * 20 * 60);
+        registerTasks(timeoutTaskId);
     }
 
     /**
      * Private method to end by timeout, to be called by the scheduled task declared above.
      */
     private void endByTimeout() {
-        isActive = false;
-        Bukkit.getScheduler().cancelTask(taskId);
+        stopDisaster();
         NaturalDisaster.getMapManager().arenaTimeout();
     }
 
+    public void registerTasks(int... taskNumber) {
+        Arrays.stream(taskNumber).forEach(tasks::add);
+    }
+
     /**
-     * Method to be called when the game ends, it cancells (if active) the disaster main task and the timeout task.
+     * Method to be called when the game ends, it cancells all the disaster tasks.
      */
     public void stopDisaster() {
-        if (isActive) {
-            Bukkit.getScheduler().cancelTask(taskId);
-            Bukkit.getScheduler().cancelTask(timeoutTaskId);
-        }
+        tasks.forEach(Bukkit.getScheduler()::cancelTask);
         isActive = false;
     }
 

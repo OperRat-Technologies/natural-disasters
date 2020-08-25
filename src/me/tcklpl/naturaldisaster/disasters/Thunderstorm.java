@@ -7,7 +7,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.Creeper;
@@ -46,7 +45,7 @@ public class Thunderstorm extends Disaster {
         HashMap<Location, Integer> creeperChargedSpawns = new HashMap<>();
         AtomicInteger timesRunned = new AtomicInteger(0);
 
-        taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
+        int taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
 
             if ((timesRunned.incrementAndGet() % 3) == 0)
             for (Player p : map.getPlayersInArena()) {
@@ -113,6 +112,8 @@ public class Thunderstorm extends Disaster {
 
 
         }, startDelay, 20L);
+
+        registerTasks(taskId);
 
     }
 }

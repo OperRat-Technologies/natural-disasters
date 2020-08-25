@@ -7,7 +7,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -43,7 +42,7 @@ public class ToxicRain extends Disaster {
         AtomicInteger poisonDuration = new AtomicInteger(2);
         AtomicInteger poisonStrenght = new AtomicInteger(1);
 
-        taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
+        int taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
 
             timesExecuted.getAndIncrement();
 
@@ -100,5 +99,7 @@ public class ToxicRain extends Disaster {
             }
 
         }, startDelay, 20L);
+
+        registerTasks(taskId);
     }
 }

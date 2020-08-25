@@ -6,7 +6,6 @@ import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Biome;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -94,7 +93,7 @@ public class Biohazard extends Disaster {
             map.getWorld().createExplosion(new Location(map.getWorld(), sourceX, sourceY, sourceZ), 3);
         }, 30L);
 
-        taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
+        int taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
 
 
             if ((timesRunned.incrementAndGet() % 2) == 0) {
@@ -129,6 +128,8 @@ public class Biohazard extends Disaster {
             }
 
         }, startDelay, 20L);
+
+        registerTasks(taskId);
 
     }
 }

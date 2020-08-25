@@ -57,7 +57,7 @@ public class Blizzard extends Disaster {
         blockPallete.add(Material.PACKED_ICE);
         blockPallete.add(Material.ICE);
 
-        taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
+        int taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
 
             if (currentY.get() >= map.floor)
             if ((timesRunned.incrementAndGet() % nextIteration.get()) == 0) {
@@ -93,6 +93,8 @@ public class Blizzard extends Disaster {
             }
 
         }, startDelay, 20L);
+
+        registerTasks(taskId);
 
     }
 }

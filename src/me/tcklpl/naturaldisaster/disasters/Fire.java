@@ -70,7 +70,7 @@ public class Fire extends Disaster {
 
         AtomicInteger timesCycled = new AtomicInteger(0);
 
-        taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
+        int taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
 
             if (timesCycled.get() == 0)
                 sourceBlock.setType(Material.COAL_BLOCK, false);
@@ -160,6 +160,8 @@ public class Fire extends Disaster {
             }
 
         }, startDelay, 20L);
+
+        registerTasks(taskId);
 
     }
 }

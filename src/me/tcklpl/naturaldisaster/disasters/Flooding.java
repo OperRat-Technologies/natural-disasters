@@ -75,7 +75,7 @@ public class Flooding extends Disaster {
         AtomicInteger currentCycles = new AtomicInteger(0);
         AtomicInteger currentRandomTime = new AtomicInteger(5 + r.nextInt(6));
 
-        taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
+        int taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
 
             currentCycles.addAndGet(1);
 
@@ -107,5 +107,7 @@ public class Flooding extends Disaster {
 
 
         }, startDelay, 20L);
+
+        registerTasks(taskId);
     }
 }

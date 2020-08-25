@@ -7,7 +7,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Biome;
 import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -48,7 +47,7 @@ public class EnderDragon extends Disaster {
             enderDragon.set(map.getWorld().spawn(spawn, org.bukkit.entity.EnderDragon.class));
         }, startDelay);
 
-        taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
+        int taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
 
             for (Player p : map.getPlayersInArena()) {
 
@@ -82,5 +81,7 @@ public class EnderDragon extends Disaster {
             }
 
         }, startDelay, 20L);
+
+        registerTasks(taskId);
     }
 }

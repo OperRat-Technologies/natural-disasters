@@ -420,4 +420,25 @@ public class DisasterMap {
         return xzPoints;
     }
 
+    public void progressivelyAdvanceTime(long target, int... advancementPace) {
+        // with the pace of 50/tick time will advance 1000/second
+        int pace = advancementPace.length == 1 ? advancementPace[0] : 50;
+        // positive diff means that we have to advance the time
+        // negative diff means that we have to go back
+        long diff = target - getWorld().getTime();
+        if (diff != 0) {
+            long steps;
+            if (diff > 0) {
+                steps = Math.floorDiv(diff, pace) + 1;
+                for (int i = 0; i < steps; i++)
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> getWorld().setTime(getWorld().getTime() + pace), 1L);
+            } else {
+                diff = Math.abs(diff);
+                steps = Math.floorDiv(diff, pace) + 1;
+                for (int i = 0; i < steps; i++)
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> getWorld().setTime(getWorld().getTime() - pace), 1L);
+            }
+        }
+    }
+
 }

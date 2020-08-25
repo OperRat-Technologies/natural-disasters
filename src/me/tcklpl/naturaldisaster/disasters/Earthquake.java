@@ -292,7 +292,7 @@ public class Earthquake extends Disaster {
         AtomicInteger currentExpansion = new AtomicInteger(0);
         AtomicBoolean hasCracked = new AtomicBoolean(false);
 
-        taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
+        int taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
 
             timesRunned.addAndGet(1);
             if ((timesRunned.get() % 3) == 0) {
@@ -315,5 +315,7 @@ public class Earthquake extends Disaster {
 
 
         }, startDelay, 20L);
+
+        registerTasks(taskId);
     }
 }

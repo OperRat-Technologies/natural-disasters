@@ -63,7 +63,7 @@ public class Volcano extends Disaster {
 
         BlockData magmaData = Bukkit.createBlockData(Material.MAGMA_BLOCK);
 
-        taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
+        int taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
 
             timesRunned.incrementAndGet();
             if (timesRunned.get() % 3 == 0) {
@@ -77,6 +77,8 @@ public class Volcano extends Disaster {
             }
 
         }, startDelay, 20L);
+
+        registerTasks(taskId);
 
     }
 }

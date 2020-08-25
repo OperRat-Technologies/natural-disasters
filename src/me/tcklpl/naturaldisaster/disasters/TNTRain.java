@@ -6,7 +6,6 @@ import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.block.Biome;
 import org.bukkit.entity.TNTPrimed;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -42,7 +41,7 @@ public class TNTRain extends Disaster {
         AtomicInteger tntToSpawn = new AtomicInteger(1);
         AtomicInteger timesRunned = new AtomicInteger(0);
 
-        taskId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(main, () -> {
+        int taskId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(main, () -> {
 
             for (int i = 0; i < tntToSpawn.get(); i++) {
                 int x = map.minX + r.nextInt(map.gapX);
@@ -60,6 +59,8 @@ public class TNTRain extends Disaster {
                 tntToSpawn.addAndGet(1);
 
         }, startDelay, 20L);
+
+        registerTasks(taskId);
 
     }
 
