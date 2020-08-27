@@ -7,11 +7,11 @@ import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class ReflectionWorldUtils {
 
@@ -46,6 +46,35 @@ public class ReflectionWorldUtils {
                     ReflectionUtils.getNMSClass("BlockPosition"),
                     ReflectionUtils.getNMSClass("IBlockData"),
                     boolean.class).invoke(nmsChunk, blockPos, iBlockData, applyPhysics);
+        }
+    }
+
+    public static HashMap<Chunk, List<Block>> splitBlockListPerChunk(List<Block> blocks) {
+        HashMap<Chunk, List<Block>> result = new HashMap<>();
+        List<Chunk> allChunks = new ArrayList<>();
+        for (Block b : blocks) {
+            if (!allChunks.contains(b.getChunk()))
+                allChunks.add(b.getChunk());
+        }
+        for (Chunk c : allChunks) {
+            List<Block> chunkBlocks = new ArrayList<>();
+            for (Block b : blocks) {
+                if (b.getChunk().equals(c))
+                    chunkBlocks.add(b);
+            }
+            result.put(c, chunkBlocks);
+        }
+        return result;
+    }
+
+    public static void replaceBlocksWithMaterialAndUpdateForPlayers(List<Block> blocks, Material to, boolean applyPhysics, List<Player> players) throws NoSuchMethodException, InstantiationException, IllegalAccessException, NotAllBlocksAreInTheSameChunkException, InvocationTargetException {
+        HashMap<Chunk, List<Block>> blocksPerChunk = splitBlockListPerChunk(blocks);
+        for (List<Block> chunkBlocks : blocksPerChunk.values()) {
+            setBlocksInSameChunk(chunkBlocks, to, applyPhysics);
+        }
+        for (Chunk chunk : blocksPerChunk.keySet()) {
+            for (Player p : players)
+                ReflectionUtils.sendPacket(p, Packets.Play.PlayOutMapChunk(chunk));
         }
     }
 

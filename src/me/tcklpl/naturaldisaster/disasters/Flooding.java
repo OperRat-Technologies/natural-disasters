@@ -3,6 +3,7 @@ package me.tcklpl.naturaldisaster.disasters;
 import me.tcklpl.naturaldisaster.map.ArenaBiomeType;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
+import me.tcklpl.naturaldisaster.reflection.ReflectionWorldUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -57,7 +58,12 @@ public class Flooding extends Disaster {
             waterlogged.setWaterlogged(true);
             b.setBlockData(waterlogged);
         }
-        map.bufferedReplaceBlocks(blocksToChangePerYLevel.get(y), Material.WATER, 500, false);
+        //map.bufferedReplaceBlocks(blocksToChangePerYLevel.get(y), Material.WATER, 500, false);
+        try {
+            ReflectionWorldUtils.replaceBlocksWithMaterialAndUpdateForPlayers(blocksToChangePerYLevel.get(y), Material.WATER, false, map.getPlayersInArena());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
