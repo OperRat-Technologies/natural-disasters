@@ -69,3 +69,6 @@ commands:
   login:
     description: Loga o usuario.
     usage: "Usage: /<command> [senha]"
+  test:
+    description: teste
+    usage: "Usage: /<command>"

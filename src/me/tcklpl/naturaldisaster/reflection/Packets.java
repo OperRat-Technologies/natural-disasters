@@ -96,10 +96,10 @@ public class Packets {
                 Constructor<?> mapChunk = Objects.requireNonNull(ReflectionUtils.getNMSClass("PacketPlayOutMapChunk"))
                         .getConstructor(
                                 ReflectionUtils.getNMSClass("Chunk"),
-                                int.class,
-                                boolean.class
+                                int.class
                         );
-                return mapChunk.newInstance(nmsChunk, 65535, true);
+                //return mapChunk.newInstance(nmsChunk, 65535, true);
+                return mapChunk.newInstance(nmsChunk, 65535);
             } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException | InstantiationException e) {
                 e.printStackTrace();
                 return null;

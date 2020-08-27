@@ -120,6 +120,7 @@ public class NaturalDisaster extends JavaPlugin {
         AuthCommands authCommands = new AuthCommands();
         Objects.requireNonNull(getCommand("register")).setExecutor(authCommands);
         Objects.requireNonNull(getCommand("login")).setExecutor(authCommands);
+        Objects.requireNonNull(getCommand("test")).setExecutor(new Test());
 
     }
 

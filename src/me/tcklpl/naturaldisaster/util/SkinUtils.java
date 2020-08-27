@@ -52,7 +52,8 @@ public class SkinUtils {
         try {
             // Game profile na 1.15 era "bT"
             // Game profile na 1.16 é   "bQ"
-            Field gp2 = entityLiving.getClass().getSuperclass().getDeclaredField("bQ");
+            // Game profile na 1.16.2 é "bJ"
+            Field gp2 = entityLiving.getClass().getSuperclass().getDeclaredField("bJ");
             gp2.setAccessible(true);
             gp2.set(entityLiving, gameProfile);
             gp2.setAccessible(false);

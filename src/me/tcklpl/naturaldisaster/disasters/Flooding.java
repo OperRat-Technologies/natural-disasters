@@ -13,7 +13,6 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Flooding extends Disaster {
@@ -68,46 +67,28 @@ public class Flooding extends Disaster {
         calcBlocksToChange();
         map.makeRain(false);
 
-        Random r = random;
         AtomicInteger currentY = new AtomicInteger(map.floor);
-        AtomicInteger floodRiseChance = new AtomicInteger(50);
-        AtomicInteger currentDamage = new AtomicInteger(1);
-        AtomicInteger currentCycles = new AtomicInteger(0);
-        AtomicInteger currentRandomTime = new AtomicInteger(5 + r.nextInt(6));
 
-        int taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
-
-            currentCycles.addAndGet(1);
-
-            // Only execute each 5-10 seconds
-            if ((currentCycles.get() % currentRandomTime.get()) == 0)
+        // 5s
+        int waterRiseTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
             if (currentY.get() <= map.top) {
-
-                if (r.nextInt(100) <= floodRiseChance.get()) {
-
-                    floodYLevel(currentY.get());
-
-                    currentY.getAndIncrement();
-                    floodRiseChance.addAndGet(5);
-                    currentRandomTime.set(5 + r.nextInt(6));
-
-                }
+                floodYLevel(currentY.get());
+                currentY.getAndIncrement();
             }
+        }, startDelay, 100L);
 
+        // 0.5s
+        int damageTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
             // Damage players that are on water
             if (map.getPlayersInArena().size() > 0)
                 for (Player p : map.getPlayersInArena()) {
                     assert p != null;
-                    if (p.isSwimming() || map.getWorld().getBlockAt(p.getLocation()).getType() == Material.WATER)
-                        p.damage(currentDamage.get());
+                    if (p.getLocation().getY() <= currentY.get())
+                        p.damage(1);
                 }
             map.damagePlayerOutsideBounds(3);
-            if ((currentCycles.get() % 20) == 0)
-                currentDamage.addAndGet(2);
+        }, startDelay, 10L);
 
-
-        }, startDelay, 20L);
-
-        registerTasks(taskId);
+        registerTasks(waterRiseTask, damageTask);
     }
 }
