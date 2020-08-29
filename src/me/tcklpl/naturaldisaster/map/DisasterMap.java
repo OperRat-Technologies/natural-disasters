@@ -3,6 +3,7 @@ package me.tcklpl.naturaldisaster.map;
 import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.reflection.Packets;
 import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
+import me.tcklpl.naturaldisaster.reflection.ReflectionWorldUtils;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -13,6 +14,7 @@ import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -322,6 +324,30 @@ public class DisasterMap {
         }
     }
 
+    /**
+     * Replaces the given list of blocks with given replacement material. This method makes direct calls to the server
+     * (net.minecraft.server) and should be faster than making the substitution like the methods above wich use Bukkit's
+     * implementation of Block.
+     * @param blocks the list of blocks to be replaced.
+     * @param replacement the material wich will be used to replace given list blocks.
+     * @param applyPhysics apply block updates.
+     */
+    public void fastReplaceBlocks(List<Block> blocks, Material replacement, boolean applyPhysics) {
+        HashMap<Chunk, List<Block>> blocksPerChunk = ReflectionWorldUtils.splitBlockListPerChunk(blocks);
+        try {
+            for (List<Block> chunkBlocks : blocksPerChunk.values()) {
+                ReflectionWorldUtils.setBlocksInSameChunk(chunkBlocks, replacement, applyPhysics);
+            }
+            for (Chunk chunk : blocksPerChunk.keySet()) {
+                for (Player p : getPlayersInArena())
+                    ReflectionUtils.sendPacket(p, Packets.Play.PlayOutMapChunk(chunk));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
     public List<Block> bufferedExpandBlocks(List<Block> origin, int... customBuffer) {
         int buffer = customBuffer != null ? customBuffer[0] : 50;
         List<Block> response = new ArrayList<>();
@@ -370,6 +396,28 @@ public class DisasterMap {
             }, 1 + currentCycle);
         }
         return response;
+    }
+
+    public List<Block> expandAndGetAllBlocksFromType(@NotNull Block origin, int buffer) {
+        Material m = origin.getBlockData().getMaterial();
+        List<Block> result = new ArrayList<>();
+        List<Block> expandCandidates = new ArrayList<>();
+        List<Block> currentExpansion;
+        result.add(origin);
+        expandCandidates.add(origin);
+
+        do {
+            currentExpansion = bufferedExpandBlocks(expandCandidates, buffer);
+            expandCandidates.clear();
+
+            for (Block b : currentExpansion) {
+                if (b.getType().equals(m) && !result.contains(b) && !expandCandidates.contains(b)) {
+                    expandCandidates.add(b);
+                    result.add(b);
+                }
+            }
+        } while (!expandCandidates.isEmpty());
+        return result;
     }
 
     public void damagePlayerOutsideBounds(double dmg) {
@@ -431,12 +479,12 @@ public class DisasterMap {
             if (diff > 0) {
                 steps = Math.floorDiv(diff, pace) + 1;
                 for (int i = 0; i < steps; i++)
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> getWorld().setTime(getWorld().getTime() + pace), 1L);
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> getWorld().setTime(getWorld().getTime() + pace), i + 1L);
             } else {
                 diff = Math.abs(diff);
                 steps = Math.floorDiv(diff, pace) + 1;
                 for (int i = 0; i < steps; i++)
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> getWorld().setTime(getWorld().getTime() - pace), 1L);
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> getWorld().setTime(getWorld().getTime() - pace), i + 1L);
             }
         }
     }

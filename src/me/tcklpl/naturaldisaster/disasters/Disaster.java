@@ -16,7 +16,7 @@ public abstract class Disaster {
     DisasterMap map;
     JavaPlugin main;
     String name, hint;
-    private List<Integer> tasks;
+    private final List<Integer> tasks;
     boolean isActive;
     protected boolean playable;
     protected Material icon;

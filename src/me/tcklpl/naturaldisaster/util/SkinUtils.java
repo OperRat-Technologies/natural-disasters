@@ -86,20 +86,6 @@ public class SkinUtils {
                 NaturalDisaster.getMainReference().getLogger().info(textureValue + "|");
                 NaturalDisaster.getMainReference().getLogger().info(signature + "|");
 
-//                Pattern p = Pattern.compile("\"name\" : \"(\\w+)\",\\n.+\\n.+\\n.+\"value\" : \"(.+)\",\\n.+\"signature\" : \"(.+)\"");
-//                Matcher m = p.matcher(reply);
-//
-//                NaturalDisaster.getMainReference().getLogger().info(p.toString());
-//                NaturalDisaster.getMainReference().getLogger().info(m.toString());
-//
-//                if (m.find()) {
-//
-//                    String playerName = m.group(1);
-//                    String textureValue = m.group(2);
-//                    String signature = m.group(3);
-//
-//                }
-
                 return new CustomSkin(playerName, textureValue, signature, new Timestamp(System.currentTimeMillis()));
 
             } else {

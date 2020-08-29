@@ -53,16 +53,11 @@ public class Flooding extends Disaster {
 
     private void floodYLevel(int y) {
 
+        map.bufferedReplaceBlocks(blocksToChangePerYLevel.get(y), Material.WATER, 500, false);
         for (Block b : blocksToWaterlogPerYLevel.get(y)) {
             Waterlogged waterlogged = (Waterlogged) b.getBlockData();
             waterlogged.setWaterlogged(true);
             b.setBlockData(waterlogged);
-        }
-        //map.bufferedReplaceBlocks(blocksToChangePerYLevel.get(y), Material.WATER, 500, false);
-        try {
-            ReflectionWorldUtils.replaceBlocksWithMaterialAndUpdateForPlayers(blocksToChangePerYLevel.get(y), Material.WATER, false, map.getPlayersInArena());
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 

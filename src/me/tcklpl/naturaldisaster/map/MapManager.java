@@ -8,6 +8,7 @@ import me.tcklpl.naturaldisaster.player.ingamePlayer.ArenaPlayerManager;
 import me.tcklpl.naturaldisaster.player.skins.SkinManager;
 import me.tcklpl.naturaldisaster.util.ActionBar;
 import me.tcklpl.naturaldisaster.util.NamesAndColors;
+import me.tcklpl.naturaldisaster.util.PlayerUtils;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -205,14 +206,19 @@ public class MapManager {
 
             currentMap.teleportPlayersToSpawns();
 
+            for (Player p : currentMap.getPlayersInArena())
+                p.setInvulnerable(true);
+
             Bukkit.getScheduler().scheduleSyncDelayedTask(mainReference, () -> {
                 currentDisaster.startDisaster();
                 ActionBar ab = new ActionBar(ChatColor.RED + "Boa sorte!");
                 ab.sendToAll();
                 currentStatus = GameStatus.IN_GAME;
-                for (Player all : currentMap.getPlayersInArena())
+                for (Player all : currentMap.getPlayersInArena()) {
                     all.playSound(all.getLocation(), Sound.EVENT_RAID_HORN, 1f, 1f);
-                //Bukkit.broadcastMessage(ChatColor.GRAY + currentDisaster.getHint());
+                    all.setInvulnerable(false);
+                    PlayerUtils.healPlayer(all);
+                }
             }, 130L);
         }
     }
@@ -236,13 +242,8 @@ public class MapManager {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 p.setGameMode(GameMode.ADVENTURE);
                 p.teleport(new Location(Bukkit.getWorld("void"), 8, 8, 8));
-                p.setHealth(20);
-                p.setFoodLevel(20);
-                p.setFireTicks(0);
-                p.setFallDistance(0);
                 p.getInventory().clear();
-                for (PotionEffect pe : p.getActivePotionEffects())
-                    p.removePotionEffect(pe.getType());
+                PlayerUtils.healPlayer(p);
             }
         }, 20L);
 

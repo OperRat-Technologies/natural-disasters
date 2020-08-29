@@ -3,14 +3,20 @@ package me.tcklpl.naturaldisaster.disasters;
 import me.tcklpl.naturaldisaster.map.ArenaBiomeType;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
+import me.tcklpl.naturaldisaster.util.CollectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class Darkness extends Disaster {
 
@@ -31,7 +37,13 @@ public class Darkness extends Disaster {
                 for (int y = map.floor; y <= map.top; y++) {
                     Block b = map.getWorld().getBlockAt(x, y, z);
                     if (b.getLightFromBlocks() >= 14 && !b.isEmpty()) {
-                        lightSources.add(b);
+                        String name = b.getBlockData().getMaterial().toString().toLowerCase();
+                        if (name.contains("torch") || name.contains("beacon") || name.contains("lantern")
+                                || name.contains("fire") || name.contains("glow") || name.contains("lamp")
+                                || name.contains("portal") || name.contains("magma"))
+                            lightSources.add(b);
+                        if (name.contains("lava") && !lightSources.contains(b))
+                            lightSources.addAll(map.expandAndGetAllBlocksFromType(b, 30));
                     }
                 }
             }
@@ -46,11 +58,40 @@ public class Darkness extends Disaster {
         List<Block> lightSources = getAllLightSourceBlocks();
         Collections.shuffle(lightSources);
 
-        int taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
+        int numberOfBlocksPerCycle = lightSources.size() / 8 + random.nextInt(6);
 
-        }, startDelay, 20L);
+        List<List<Block>> sublistsOfLightSources = CollectionUtils.chopped(lightSources, numberOfBlocksPerCycle);
 
-        registerTasks(taskId);
+        map.progressivelyAdvanceTime(18000);
+        PotionEffect blindness = new PotionEffect(PotionEffectType.BLINDNESS, 20, 2);
+
+        int removeLightsTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
+
+            if (!sublistsOfLightSources.isEmpty()) {
+                List<Block> lightSourcesToDelete = sublistsOfLightSources.get(0);
+                map.fastReplaceBlocks(lightSourcesToDelete, Material.AIR, false);
+                lightSourcesToDelete.forEach( b -> {
+                        for (Player p : map.getPlayersInArena())
+                            if (b.getLocation().distanceSquared(p.getLocation()) <= 16) {
+                                p.addPotionEffect(blindness);
+                            }
+                        Objects.requireNonNull(b.getLocation().getWorld())
+                                .playSound(b.getLocation(), Sound.BLOCK_BONE_BLOCK_BREAK, 10, 1);
+                    }
+                );
+                sublistsOfLightSources.remove(0);
+            }
+        }, startDelay, 80L);
+
+        int damageTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
+            if (map != null)
+            for (Player p : map.getPlayersInArena()) {
+                if (p.getLocation().getBlock().getLightFromBlocks() <= 6)
+                    p.damage(2);
+            }
+        }, startDelay, 5L);
+
+        registerTasks(removeLightsTask, damageTask);
 
     }
 }

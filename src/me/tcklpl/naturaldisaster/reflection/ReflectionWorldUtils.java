@@ -1,13 +1,11 @@
 package me.tcklpl.naturaldisaster.reflection;
 
-import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.reflection.exceptions.NotAllBlocksAreInTheSameChunkException;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -15,12 +13,40 @@ import java.util.*;
 
 public class ReflectionWorldUtils {
 
+    /**
+     * Gets NMS block data from Bukkit's Material, used on the functions below.
+     * @param m the material wich you want to convert to NMS block data.
+     * @return the NMS block data.
+     * @throws NoSuchMethodException if it fails making the NMS Reflection calls. (Mojang changing the fucking code).
+     * @throws InvocationTargetException if it fails making the NMS Reflection calls. (Mojang changing the fucking code).
+     * @throws IllegalAccessException if it fails making the NMS Reflection calls. (Mojang changing the fucking code).
+     */
     public static Object getBlockDataFromMaterial(Material m) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
         Object craftBlock = Objects.requireNonNull(ReflectionUtils.getBukkitClass("util.CraftMagicNumbers"))
                 .getMethod("getBlock", Material.class).invoke(null, m);
         return craftBlock.getClass().getMethod("getBlockData").invoke(craftBlock);
     }
 
+    /**
+     * Uses Reflection to make NMS calls in order to update a list of blocks in the same chunk. NOT TO BE USED WHEN SETTING
+     * A LOW AMOUNT OF BLOCKS. Due to the reflection calls, everything is resolved and called at runtime, thus blocking the
+     * JVM from making any optimizations. Only use this when setting a fuckton of blocks, in every other case it's prefered
+     * and faster to use DisasterMap#bufferedReplaceBlocks.
+     *
+     * When setting a normal amount of blocks, this function tends to indeed make the result time more stable. However it's
+     * stable ~20ms higher than literally making a for and setting blocks. (Benchmark made running Earthquake on House).
+     *
+     * THIS METHOD DOESN'T PRODUCE ANY LIGHT UPDATES AND DOESN'T SEND ANY CHUNK UPDATES TO THE PLAYER.
+     *
+     * @param blocks the list of blocks to be changed (ALL NEED TO BE IN THE SAME CHUNK).
+     * @param to the material to wich the previous list of blocks will be transformed.
+     * @param applyPhysics to apply block physics when changing the material.
+     * @throws NoSuchMethodException if it fails making the NMS Reflection calls. (Mojang changing the fucking code).
+     * @throws InvocationTargetException if it fails making the NMS Reflection calls. (Mojang changing the fucking code).
+     * @throws IllegalAccessException if it fails making the NMS Reflection calls. (Mojang changing the fucking code).
+     * @throws InstantiationException if it fails making the NMS Reflection calls. (Mojang changing the fucking code).
+     * @throws NotAllBlocksAreInTheSameChunkException when not all blocks provided in the list are in the same chunk.
+     */
     public static void setBlocksInSameChunk(List<Block> blocks, Material to, boolean applyPhysics) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException, NotAllBlocksAreInTheSameChunkException {
         if (blocks.isEmpty())
             return;
@@ -49,6 +75,11 @@ public class ReflectionWorldUtils {
         }
     }
 
+    /**
+     * Splits given list of blocks into a hashmap of Chunk and List of blocks.
+     * @param blocks the list of blocks to be split.
+     * @return the blocks split into each chunk in a hashmap.
+     */
     public static HashMap<Chunk, List<Block>> splitBlockListPerChunk(List<Block> blocks) {
         HashMap<Chunk, List<Block>> result = new HashMap<>();
         List<Chunk> allChunks = new ArrayList<>();
@@ -65,17 +96,6 @@ public class ReflectionWorldUtils {
             result.put(c, chunkBlocks);
         }
         return result;
-    }
-
-    public static void replaceBlocksWithMaterialAndUpdateForPlayers(List<Block> blocks, Material to, boolean applyPhysics, List<Player> players) throws NoSuchMethodException, InstantiationException, IllegalAccessException, NotAllBlocksAreInTheSameChunkException, InvocationTargetException {
-        HashMap<Chunk, List<Block>> blocksPerChunk = splitBlockListPerChunk(blocks);
-        for (List<Block> chunkBlocks : blocksPerChunk.values()) {
-            setBlocksInSameChunk(chunkBlocks, to, applyPhysics);
-        }
-        for (Chunk chunk : blocksPerChunk.keySet()) {
-            for (Player p : players)
-                ReflectionUtils.sendPacket(p, Packets.Play.PlayOutMapChunk(chunk));
-        }
     }
 
 }
