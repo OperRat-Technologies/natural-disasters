@@ -6,7 +6,6 @@ import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import me.tcklpl.naturaldisaster.schematics.SchematicLoadPosition;
 import me.tcklpl.naturaldisaster.schematics.SchematicManager;
 import org.bukkit.Bukkit;
-import org.bukkit.GameRule;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
@@ -57,8 +56,6 @@ public class Volcano extends Disaster {
         Location volcanoPos = calcVolcanoSpawnPosition();
         SchematicManager.getInstance().loadSchematic("volcano", volcanoPos, true, SchematicLoadPosition.FLOOR_CENTER);
 
-        map.getWorld().setGameRule(GameRule.DO_FIRE_TICK, true);
-
         AtomicInteger timesRunned = new AtomicInteger(0);
 
         BlockData magmaData = Bukkit.createBlockData(Material.MAGMA_BLOCK);
@@ -68,7 +65,7 @@ public class Volcano extends Disaster {
             timesRunned.incrementAndGet();
             if (timesRunned.get() % 3 == 0) {
 
-                for (Location loc : map.getRandomXZPoints(5, false, 25)) {
+                for (Location loc : map.getRandomXZPoints(5, false, map.getMaxYLevel() + 10)) {
                     FallingBlock fb = map.getWorld().spawnFallingBlock(loc, magmaData);
                     fb.setDropItem(false);
                     fb.setHurtEntities(true);

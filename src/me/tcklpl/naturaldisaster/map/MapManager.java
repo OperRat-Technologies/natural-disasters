@@ -77,6 +77,7 @@ public class MapManager {
 
     public void setupDisasters() {
         Reflections reflections = new Reflections("me.tcklpl.naturaldisaster.disasters");
+        
         Set<Class<? extends Disaster>> disasterClasses = reflections.getSubTypesOf(Disaster.class);
         try {
             for (Class<? extends Disaster> disasterClass : disasterClasses) {

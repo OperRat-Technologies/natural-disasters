@@ -8,6 +8,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Enderman;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffect;
@@ -85,13 +86,27 @@ public class Darkness extends Disaster {
 
         int damageTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
             if (map != null)
-            for (Player p : map.getPlayersInArena()) {
-                if (p.getLocation().getBlock().getLightFromBlocks() <= 6)
-                    p.damage(2);
-            }
+                for (Player p : map.getPlayersInArena()) {
+                    if (p.getLocation().getBlock().getLightFromBlocks() <= 6)
+                        p.damage(2);
+                }
         }, startDelay, 5L);
 
-        registerTasks(removeLightsTask, damageTask);
+        int spawnMobsTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
+            if (random.nextInt(3) == 1) {
+                if (map != null)
+                    for (Player p : map.getPlayersInArena()) {
+                        if (p.getLocation().getBlock().getLightFromBlocks() <= 6) {
+                            Enderman e = map.getWorld().spawn(p.getLocation().add(-3 + random.nextInt(6),
+                                    0, -3 + random.nextInt(6)), Enderman.class);
+                            e.setHealth(1);
+                            e.setTarget(p);
+                        }
+                    }
+            }
+        }, startDelay, 60L);
+
+        registerTasks(removeLightsTask, damageTask, spawnMobsTask);
 
     }
 }
