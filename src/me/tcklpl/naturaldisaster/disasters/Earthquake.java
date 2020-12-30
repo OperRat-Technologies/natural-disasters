@@ -46,13 +46,7 @@ public class Earthquake extends Disaster {
     }
 
     public Earthquake(DisasterMap map, JavaPlugin main) {
-        super(map, main);
-        name = "Earthquake";
-        hint = "Evite locais altos.";
-        playable = true;
-        icon = Material.COBBLESTONE;
-        precipitationType = ReflectionUtils.PrecipitationType.ALL;
-        arenaBiomeType = ArenaBiomeType.RANDOM_PER_PRECIPITATION;
+        super("Earthquake", true, Material.COBBLESTONE, ReflectionUtils.PrecipitationType.ALL, ArenaBiomeType.RANDOM_PER_PRECIPITATION);
     }
 
     private GravityCandidates getYColumnBlocks(int x, int z) {

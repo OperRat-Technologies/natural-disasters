@@ -22,13 +22,7 @@ import java.util.Objects;
 public class Darkness extends Disaster {
 
     public Darkness(DisasterMap map, JavaPlugin main) {
-        super(map, main);
-        name = "Darkness";
-        hint = "Te fode ae kkk";
-        playable = true;
-        icon = Material.BLACK_CONCRETE;
-        precipitationType = ReflectionUtils.PrecipitationType.ALL;
-        arenaBiomeType = ArenaBiomeType.RANDOM_PER_PRECIPITATION;
+        super("Darkness", true, Material.BLACK_CONCRETE, ReflectionUtils.PrecipitationType.ALL, ArenaBiomeType.RANDOM_PER_PRECIPITATION);
     }
 
     private List<Block> getAllLightSourceBlocks() {

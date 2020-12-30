@@ -15,7 +15,7 @@ public abstract class Disaster {
 
     DisasterMap map;
     JavaPlugin main;
-    String name, hint;
+    String name;
     private final List<Integer> tasks;
     boolean isActive;
     protected boolean playable;
@@ -29,16 +29,24 @@ public abstract class Disaster {
     Random random;
 
     /**
-     * Constructor to abstract disaster class, to be used inside children.
-     * @param map initially null, to be setted later.
-     * @param main main reference needed to schedule tasks.
+     * Distaster contructor, to be used inside children.
+     * @param name the name of the disaster.
+     * @param playable if it's currently playable or is still in development.
+     * @param icon the org.bukkit.Material that represents the disaster.
+     * @param precipitationType the precipitation that can occur on the arena.
+     * @param arenaBiomeType the type of biome, this will probably be removed later.
      */
-    public Disaster(DisasterMap map, JavaPlugin main) {
-        this.map = map;
-        this.main = main;
-        isActive = false;
-        tasks = new ArrayList<>();
-        random = new Random();
+    public Disaster(String name, boolean playable, Material icon, ReflectionUtils.PrecipitationType precipitationType, ArenaBiomeType arenaBiomeType) {
+        this.name = name;
+        this.playable = playable;
+        this.icon = icon;
+        this.precipitationType = precipitationType;
+        this.arenaBiomeType = arenaBiomeType;
+
+        this.main = NaturalDisaster.getMainReference();
+        this.map = null;
+        this.tasks = new ArrayList<>();
+        this.random = new Random();
     }
 
     @Override
@@ -97,8 +105,6 @@ public abstract class Disaster {
                 break;
         }
     }
-
-    public String getHint() { return hint; }
 
     public boolean isPlayable() {
         return playable;

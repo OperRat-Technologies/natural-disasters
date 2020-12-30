@@ -15,18 +15,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class TNTRain extends Disaster {
 
-    private final JavaPlugin main;
     private Random r;
 
     public TNTRain(DisasterMap map, JavaPlugin main) {
-        super(map, main);
-        this.main = main;
-        name = "TNT Rain";
-        hint = "Procure abrigo.";
-        playable = true;
-        icon = Material.TNT;
-        precipitationType = ReflectionUtils.PrecipitationType.ALL;
-        arenaBiomeType = ArenaBiomeType.RANDOM_PER_PRECIPITATION;
+        super("TNT Rain", true, Material.TNT, ReflectionUtils.PrecipitationType.ALL, ArenaBiomeType.RANDOM_PER_PRECIPITATION);
     }
 
     @Override

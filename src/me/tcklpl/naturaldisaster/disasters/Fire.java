@@ -22,15 +22,9 @@ public class Fire extends Disaster {
     private final List<Material> burnedBlocksMaterials;
 
     public Fire(DisasterMap map, JavaPlugin main) {
-        super(map, main);
-        name = "Fire";
-        hint = "Procure abrigo.";
+        super("Fire", true, Material.FIRE_CHARGE, ReflectionUtils.PrecipitationType.ALL, ArenaBiomeType.RANDOM_PER_PRECIPITATION);
         burnedBlocksMaterials = new ArrayList<>();
         burnedBlocksMaterials.add(Material.COAL_BLOCK);
-        playable = true;
-        icon = Material.FIRE_CHARGE;
-        precipitationType = ReflectionUtils.PrecipitationType.ALL;
-        arenaBiomeType = ArenaBiomeType.RANDOM_PER_PRECIPITATION;
     }
 
     private boolean theresBlockInY(int x, int z) {

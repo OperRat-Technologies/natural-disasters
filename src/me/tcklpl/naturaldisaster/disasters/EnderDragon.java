@@ -15,20 +15,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class EnderDragon extends Disaster {
 
-    /**
-     * Constructor to abstract disaster class, to be used inside children.
-     *
-     * @param map  initially null, to be setted later.
-     * @param main main reference needed to schedule tasks.
-     */
     public EnderDragon(DisasterMap map, JavaPlugin main) {
-        super(map, main);
-        name = "Ender Dragon";
-        hint = "Nenhuma";
-        playable = false;
-        icon = Material.DRAGON_EGG;
-        precipitationType = ReflectionUtils.PrecipitationType.ALL;
-        arenaBiomeType = ArenaBiomeType.RANDOM_PER_PRECIPITATION;
+        super("Ender Dragon", false, Material.DRAGON_EGG, ReflectionUtils.PrecipitationType.ALL, ArenaBiomeType.RANDOM_PER_PRECIPITATION);
     }
 
     @Override

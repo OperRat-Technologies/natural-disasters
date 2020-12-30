@@ -24,13 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Thunderstorm extends Disaster {
 
     public Thunderstorm(DisasterMap map, JavaPlugin main) {
-        super(map, main);
-        name = "Thunderstorm";
-        hint = "Evite locais altos.";
-        playable = true;
-        icon = Material.CREEPER_HEAD;
-        precipitationType = ReflectionUtils.PrecipitationType.RAIN;
-        arenaBiomeType = ArenaBiomeType.RANDOM_PER_PRECIPITATION;
+        super("Thunderstorm", true, Material.CREEPER_HEAD, ReflectionUtils.PrecipitationType.RAIN, ArenaBiomeType.RANDOM_PER_PRECIPITATION);
     }
 
     @Override

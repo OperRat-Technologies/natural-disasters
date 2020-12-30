@@ -52,10 +52,6 @@ public class MapManager {
         }
     }
 
-    public void setMainReference(JavaPlugin mainReference) {
-        this.mainReference = mainReference;
-    }
-
     public List<DisasterMap> getAllArenas() {
         return arenas;
     }

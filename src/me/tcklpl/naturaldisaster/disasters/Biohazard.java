@@ -22,14 +22,8 @@ public class Biohazard extends Disaster {
             currentNauseaOffset = 2, currentVenomOffset = 0, currentDecompOffset = 0;
     private int sourceX, sourceY, sourceZ;
 
-    public Biohazard(DisasterMap map, JavaPlugin main) {
-        super(map, main);
-        name = "Biohazard";
-        hint = "Procure abrigo.";
-        playable = false;
-        icon = Material.CHORUS_FRUIT;
-        precipitationType = ReflectionUtils.PrecipitationType.ALL;
-        arenaBiomeType = ArenaBiomeType.RANDOM_PER_PRECIPITATION;
+    public Biohazard() {
+        super("Biohazard", false, Material.CHORUS_FRUIT, ReflectionUtils.PrecipitationType.ALL, ArenaBiomeType.RANDOM_PER_PRECIPITATION);
     }
 
     private void updateEffectCoordinates() {
