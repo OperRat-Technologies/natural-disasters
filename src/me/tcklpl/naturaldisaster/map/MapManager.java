@@ -77,7 +77,7 @@ public class MapManager {
         Set<Class<? extends Disaster>> disasterClasses = reflections.getSubTypesOf(Disaster.class);
         try {
             for (Class<? extends Disaster> disasterClass : disasterClasses) {
-                disasters.add(disasterClass.getConstructor(DisasterMap.class, JavaPlugin.class).newInstance(null, mainReference));
+                disasters.add(disasterClass.getConstructor().newInstance());
             }
         } catch (InstantiationException | InvocationTargetException | NoSuchMethodException | IllegalAccessException e) {
             e.printStackTrace();

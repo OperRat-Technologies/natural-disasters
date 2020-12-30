@@ -140,7 +140,6 @@ public class DisasterMap {
         }
 
         loadMapChunks();
-        setArenaBiome(Biome.CRIMSON_FOREST);
 
         getWorld().setWaterAnimalSpawnLimit(0);
         getWorld().setGameRule(GameRule.DO_TILE_DROPS, false);
@@ -214,7 +213,6 @@ public class DisasterMap {
      * @param random make it 50% chance of rain instead of 100%.
      */
     public void makeRain(boolean random) {
-
         Random r = new Random();
         if (!random || r.nextInt(2) == 0) {
             getWorld().setStorm(true);
@@ -237,7 +235,6 @@ public class DisasterMap {
         AtomicInteger currentBlockIndex = new AtomicInteger(0);
 
         BlockData replacementData = Bukkit.createBlockData(replacement);
-
 
         int bufferCycles = 1 + Math.floorDiv(blocks.size(), buffer);
         for (int currentCycle = 0; currentCycle < bufferCycles; currentCycle++) {
