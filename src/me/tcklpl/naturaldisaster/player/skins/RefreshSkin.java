@@ -21,7 +21,7 @@ public class RefreshSkin implements CommandExecutor {
             Player p = (Player) sender;
             if (args[0].equalsIgnoreCase("skin")) {
 
-                String uuid = SkinUtils.getOriginalUUIDString(p.getName());
+                String uuid = SkinUtils.getOriginalUUIDString(p);
 
                 NaturalDisaster.getMainReference().getLogger().info("UUID: " + uuid);
 

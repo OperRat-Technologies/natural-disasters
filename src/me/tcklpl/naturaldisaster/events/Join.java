@@ -41,7 +41,7 @@ public class Join implements Listener {
             p.sendMessage(ChatColor.GRAY + "O jogo já está em andamento, você jogará na próxima partida.");
         }
         if (!NaturalDisaster.getSkinManager().isRegistered(p.getName())) {
-            String uuidStr = SkinUtils.getOriginalUUIDString(p.getName());
+            String uuidStr = SkinUtils.getOriginalUUIDString(p);
             if (uuidStr != null) {
                 NaturalDisaster.getSkinManager().addPlayerToSkinQueue(p, uuidStr);
             }
