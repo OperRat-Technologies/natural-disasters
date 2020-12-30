@@ -45,7 +45,7 @@ public class Earthquake extends Disaster {
         }
     }
 
-    public Earthquake(DisasterMap map, JavaPlugin main) {
+    public Earthquake() {
         super("Earthquake", true, Material.COBBLESTONE, ReflectionUtils.PrecipitationType.ALL, ArenaBiomeType.RANDOM_PER_PRECIPITATION);
     }
 

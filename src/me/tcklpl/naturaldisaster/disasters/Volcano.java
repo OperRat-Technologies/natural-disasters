@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Volcano extends Disaster {
 
-    public Volcano(DisasterMap map, JavaPlugin main) {
+    public Volcano() {
         super("Volcano", false, Material.LAVA_BUCKET, ReflectionUtils.PrecipitationType.ALL, ArenaBiomeType.SPECIFIC);
         arenaSpecificBiome = Biome.BASALT_DELTAS;
     }

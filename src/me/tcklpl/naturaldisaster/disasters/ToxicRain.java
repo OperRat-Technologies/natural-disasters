@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class ToxicRain extends Disaster {
 
-    public ToxicRain(DisasterMap map, JavaPlugin main) {
+    public ToxicRain() {
         super("Toxic Rain", true, Material.LIME_DYE, ReflectionUtils.PrecipitationType.RAIN, ArenaBiomeType.RANDOM_PER_PRECIPITATION);
     }
 

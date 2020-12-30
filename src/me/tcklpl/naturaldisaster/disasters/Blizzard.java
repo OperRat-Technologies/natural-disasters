@@ -14,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Blizzard extends Disaster {
 
-    public Blizzard(DisasterMap map, JavaPlugin main) {
+    public Blizzard() {
         super("Blizzard", true, Material.SNOWBALL, ReflectionUtils.PrecipitationType.SNOW, ArenaBiomeType.RANDOM_PER_PRECIPITATION);
     }
 

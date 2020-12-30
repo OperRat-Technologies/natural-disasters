@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class Thunderstorm extends Disaster {
 
-    public Thunderstorm(DisasterMap map, JavaPlugin main) {
+    public Thunderstorm() {
         super("Thunderstorm", true, Material.CREEPER_HEAD, ReflectionUtils.PrecipitationType.RAIN, ArenaBiomeType.RANDOM_PER_PRECIPITATION);
     }
 

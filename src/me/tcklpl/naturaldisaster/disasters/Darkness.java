@@ -21,7 +21,7 @@ import java.util.Objects;
 
 public class Darkness extends Disaster {
 
-    public Darkness(DisasterMap map, JavaPlugin main) {
+    public Darkness() {
         super("Darkness", true, Material.BLACK_CONCRETE, ReflectionUtils.PrecipitationType.ALL, ArenaBiomeType.RANDOM_PER_PRECIPITATION);
     }
 

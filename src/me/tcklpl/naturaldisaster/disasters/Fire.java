@@ -21,7 +21,7 @@ public class Fire extends Disaster {
     private final int replacementBuffer = 200;
     private final List<Material> burnedBlocksMaterials;
 
-    public Fire(DisasterMap map, JavaPlugin main) {
+    public Fire() {
         super("Fire", true, Material.FIRE_CHARGE, ReflectionUtils.PrecipitationType.ALL, ArenaBiomeType.RANDOM_PER_PRECIPITATION);
         burnedBlocksMaterials = new ArrayList<>();
         burnedBlocksMaterials.add(Material.COAL_BLOCK);

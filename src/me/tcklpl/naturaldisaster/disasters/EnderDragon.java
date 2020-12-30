@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class EnderDragon extends Disaster {
 
-    public EnderDragon(DisasterMap map, JavaPlugin main) {
+    public EnderDragon() {
         super("Ender Dragon", false, Material.DRAGON_EGG, ReflectionUtils.PrecipitationType.ALL, ArenaBiomeType.RANDOM_PER_PRECIPITATION);
     }
 

@@ -21,7 +21,7 @@ public class Flooding extends Disaster {
     private final HashMap<Integer, List<Block>> blocksToChangePerYLevel;
     private final HashMap<Integer, List<Block>> blocksToWaterlogPerYLevel;
 
-    public Flooding(DisasterMap map, JavaPlugin main) {
+    public Flooding() {
         super("Flooding", true, Material.WATER_BUCKET, ReflectionUtils.PrecipitationType.RAIN, ArenaBiomeType.RANDOM_PER_PRECIPITATION);
         blocksToChangePerYLevel = new HashMap<>();
         blocksToWaterlogPerYLevel = new HashMap<>();

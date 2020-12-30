@@ -17,7 +17,7 @@ public class TNTRain extends Disaster {
 
     private Random r;
 
-    public TNTRain(DisasterMap map, JavaPlugin main) {
+    public TNTRain() {
         super("TNT Rain", true, Material.TNT, ReflectionUtils.PrecipitationType.ALL, ArenaBiomeType.RANDOM_PER_PRECIPITATION);
     }
 
