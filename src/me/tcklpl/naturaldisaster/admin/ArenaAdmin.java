@@ -41,7 +41,7 @@ public class ArenaAdmin implements CommandExecutor {
                         int size = 9 + 9 * Math.floorDiv(maps.size() - 1, 9);
                         Inventory i = Bukkit.createInventory(p, size, "Admin Map Selection");
                         for (DisasterMap map : maps) {
-                            ItemStack is = new ItemStack(Material.GRASS_BLOCK);
+                            ItemStack is = new ItemStack(map.getIcon());
                             ItemMeta im = is.getItemMeta();
                             assert im != null;
                             im.setDisplayName(map.getName());

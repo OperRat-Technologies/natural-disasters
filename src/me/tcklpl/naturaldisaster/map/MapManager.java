@@ -5,24 +5,29 @@ import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.disasters.*;
 import me.tcklpl.naturaldisaster.player.cPlayer.CPlayer;
 import me.tcklpl.naturaldisaster.player.ingamePlayer.ArenaPlayerManager;
-import me.tcklpl.naturaldisaster.player.skins.SkinManager;
 import me.tcklpl.naturaldisaster.util.ActionBar;
 import me.tcklpl.naturaldisaster.util.NamesAndColors;
 import me.tcklpl.naturaldisaster.util.PlayerUtils;
 import org.bukkit.*;
+import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.potion.PotionEffect;
 import org.reflections.Reflections;
 
+import java.io.File;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
+import java.util.stream.Stream;
 
 public class MapManager {
 
-    private JavaPlugin mainReference;
+    private final JavaPlugin mainReference;
 
     private final List<DisasterMap> arenas = new ArrayList<>();
     private final List<Disaster> disasters = new ArrayList<>();
@@ -97,7 +102,7 @@ public class MapManager {
         ab.sendToAll();
 
         // Load world
-        World w = Bukkit.createWorld(new WorldCreator(currentMap.getName()));
+        World w = Bukkit.createWorld(new WorldCreator(currentMap.getWorldName()));
         assert w != null;
 
         w.setAutoSave(false);
@@ -125,56 +130,77 @@ public class MapManager {
     }
 
     public void setupArenas() {
-        int arenas = 0;
-        if (mainReference.getConfig().getConfigurationSection("arenas") != null)
-            for (String arena : Objects.requireNonNull(mainReference.getConfig().getConfigurationSection("arenas")).getKeys(false)) {
-                arenas++;
-                String path = "arenas." + arena;
-                int pos1X = mainReference.getConfig().getInt(path + ".pos1.x");
-                int pos1Y = mainReference.getConfig().getInt(path + ".pos1.y");
-                int pos1Z = mainReference.getConfig().getInt(path + ".pos1.z");
-                int pos2X = mainReference.getConfig().getInt(path + ".pos2.x");
-                int pos2Y = mainReference.getConfig().getInt(path + ".pos2.y");
-                int pos2Z = mainReference.getConfig().getInt(path + ".pos2.z");
+        try (Stream<Path> arenaFiles = Files.walk(Path.of(new File(mainReference.getDataFolder(), "arenas").getPath()))) {
+            AtomicInteger count = new AtomicInteger(0);
+            arenaFiles.filter(Files::isRegularFile).forEach(config -> {
 
-                Location pos1 = new Location(null, pos1X, pos1Y, pos1Z);
-                Location pos2 = new Location(null, pos2X, pos2Y, pos2Z);
+                FileConfiguration arenaConfig = YamlConfiguration.loadConfiguration(config.toFile());
+
+                String name = arenaConfig.getString("name");
+                String worldName = arenaConfig.getString("world");
+                Material icon = Material.valueOf(arenaConfig.getString("icon"));
+
+                int pos1x = arenaConfig.getInt("pos1.x");
+                int pos1y = arenaConfig.getInt("pos1.y");
+                int pos1z = arenaConfig.getInt("pos1.z");
+
+                int pos2x = arenaConfig.getInt("pos2.x");
+                int pos2y = arenaConfig.getInt("pos2.y");
+                int pos2z = arenaConfig.getInt("pos2.z");
+
+                Location pos1 = new Location(null, pos1x, pos1y, pos1z);
+                Location pos2 = new Location(null, pos2x, pos2y, pos2z);
+
                 List<Location> spawns = new ArrayList<>();
-
-                for (String spawnCode : Objects.requireNonNull(mainReference.getConfig().getConfigurationSection(path + ".spawns")).getKeys(false)) {
-                    String spawnName = path + ".spawns." + spawnCode;
-                    int spawnX = mainReference.getConfig().getInt(spawnName + ".x");
-                    int spawnY = mainReference.getConfig().getInt(spawnName + ".y");
-                    int spawnZ = mainReference.getConfig().getInt(spawnName + ".z");
-                    Location spawnLoc = new Location(null, spawnX, spawnY, spawnZ);
-                    spawns.add(spawnLoc);
+                for (String spawnCode : Objects.requireNonNull(arenaConfig.getConfigurationSection("spawns")).getKeys(false)) {
+                    int spawnx = arenaConfig.getInt("spawns." + spawnCode + ".x");
+                    int spawny = arenaConfig.getInt("spawns." + spawnCode + ".y");
+                    int spawnz = arenaConfig.getInt("spawns." + spawnCode + ".z");
+                    spawns.add(new Location(null, spawnx, spawny, spawnz));
                 }
 
-                DisasterMap map = new DisasterMap(mainReference, pos1, pos2, arena, spawns);
+                DisasterMap map = new DisasterMap(name, worldName, pos1, pos2, spawns, icon);
                 registerArena(map);
-            }
-        NaturalDisaster.getMainReference().getLogger().info("Carregadas " + arenas + " arenas");
+                count.getAndIncrement();
+            });
+            NaturalDisaster.getMainReference().getLogger().info("Carregadas " + count.get() + " arenas");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public void saveArenas() {
+        File arenaFolder = new File(mainReference.getDataFolder(), "arenas");
         for (DisasterMap map : getAllArenas()) {
             try {
-                mainReference.getConfig().set("arenas." + map.getName() + ".pos1.x", map.getPos1().getBlockX());
-                mainReference.getConfig().set("arenas." + map.getName() + ".pos1.y", map.getPos1().getBlockY());
-                mainReference.getConfig().set("arenas." + map.getName() + ".pos1.z", map.getPos1().getBlockZ());
-                mainReference.getConfig().set("arenas." + map.getName() + ".pos2.x", map.getPos2().getBlockX());
-                mainReference.getConfig().set("arenas." + map.getName() + ".pos2.y", map.getPos2().getBlockY());
-                mainReference.getConfig().set("arenas." + map.getName() + ".pos2.z", map.getPos2().getBlockZ());
 
-                int count = 0;
-                for (Location loc : map.getSpawns()) {
-                    mainReference.getConfig().set("arenas." + map.getName() + ".spawns.spawn" + count + ".x", loc.getBlockX());
-                    mainReference.getConfig().set("arenas." + map.getName() + ".spawns.spawn" + count + ".y", loc.getBlockY());
-                    mainReference.getConfig().set("arenas." + map.getName() + ".spawns.spawn" + count + ".z", loc.getBlockZ());
-                    count++;
+                File arenaFile = new File(arenaFolder, map.getName() + ".yml");
+                if (!arenaFile.exists()) {
+                    FileConfiguration arenaConfig = new YamlConfiguration();
+                    arenaConfig.set("name", map.getName());
+                    arenaConfig.set("world", map.getWorldName());
+                    arenaConfig.set("icon", map.getIcon().toString());
+
+                    arenaConfig.set("pos1.x", map.getPos1().getBlockX());
+                    arenaConfig.set("pos1.y", map.getPos1().getBlockY());
+                    arenaConfig.set("pos1.z", map.getPos1().getBlockZ());
+
+                    arenaConfig.set("pos2.x", map.getPos2().getBlockX());
+                    arenaConfig.set("pos2.y", map.getPos2().getBlockY());
+                    arenaConfig.set("pos2.z", map.getPos2().getBlockZ());
+
+                    int count = 0;
+                    for (Location loc : map.getSpawns()) {
+                        arenaConfig.set("spawns.spawn" + count + ".x", loc.getBlockX());
+                        arenaConfig.set("spawns.spawn" + count + ".y", loc.getBlockY());
+                        arenaConfig.set("spawns.spawn" + count + ".z", loc.getBlockZ());
+                        count++;
+                    }
+                    arenaConfig.save(arenaFile);
                 }
-            } catch (NullPointerException e) {
-                NaturalDisaster.getMainReference().getLogger().log(Level.WARNING, "Erro ao salvar arena " + map.getName() + ", mapa provavelmente não carregado");
+            } catch (NullPointerException | IOException e) {
+                NaturalDisaster.getMainReference().getLogger().log(Level.WARNING, "Erro ao salvar arena " + map.getName());
+                e.printStackTrace();
             }
         }
     }

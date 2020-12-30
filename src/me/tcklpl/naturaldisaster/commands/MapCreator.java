@@ -3,25 +3,25 @@ package me.tcklpl.naturaldisaster.commands;
 import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.map.MapManager;
+import me.tcklpl.naturaldisaster.map.TempDisasterMap;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class MapCreator implements CommandExecutor {
 
-    private static DisasterMap map;
+    private static HashMap<Player, TempDisasterMap> tempMaps = new HashMap<>();
 
-    private JavaPlugin main;
-    public MapCreator(JavaPlugin main) {
-        this.main = main;
+    public MapCreator() {
+
     }
 
     @Override
@@ -35,86 +35,129 @@ public class MapCreator implements CommandExecutor {
             if (args.length == 0)
                 return false;
 
-            if (args[0].equalsIgnoreCase("create")) {
-                if (args.length != 2) return false;
-                String name = args[1];
-                map = new DisasterMap(main, null, null, name, null);
-                p.sendMessage(ChatColor.GREEN + "Iniciada a criação do mapa " + name);
-                return true;
-            } else if (args[0].equalsIgnoreCase("pos1")) {
-                if (args.length != 1) return false;
-                Location pos = p.getLocation();
-                map.setPos1(pos);
-                p.sendMessage(ChatColor.GREEN + "Definida posição 1 do mapa '" + map.getName() + "' em (" + pos.getBlockX() + " " + pos.getBlockY() + " " + pos.getBlockZ() + ")");
-                return true;
-            } else if (args[0].equalsIgnoreCase("pos2")) {
-                if (args.length != 1) return false;
-                Location pos = p.getLocation();
-                map.setPos2(pos);
-                p.sendMessage(ChatColor.GREEN + "Definida posição 2 do mapa '" + map.getName() + "' em (" + pos.getBlockX() + " " + pos.getBlockY() + " " + pos.getBlockZ() + ")");
-                return true;
-            } else if (args[0].equalsIgnoreCase("spawn")) {
-                if (args.length != 1) return false;
-                Location pos = p.getLocation();
-                if (map.getSpawns() == null)
-                    map.setSpawns(new ArrayList<>());
-                List<Location> locs = map.getSpawns();
-                locs.add(p.getLocation());
-                map.setSpawns(locs);
-                p.sendMessage(ChatColor.GREEN + "Adicionado spawn do mapa '" + map.getName() + "' em (" + pos.getBlockX() + " " + pos.getBlockY() + " " + pos.getBlockZ() + ")");
-                return true;
-            } else if (args[0].equalsIgnoreCase("finalize")) {
-                if (args.length != 1) return false;
-                NaturalDisaster.getMapManager().registerArena(map);
-                p.sendMessage(ChatColor.GREEN + "Finalizado e registrado o mapa '" + map.getName() + "'");
-                map = null;
-                return true;
-            }
-
-            if (args[0].equalsIgnoreCase("tp")) {
-                if (args.length != 2) return false;
-                String mapname = args[1];
-                if (NaturalDisaster.getMapManager().getMapByName(mapname) != null) {
-                    p.teleport(Objects.requireNonNull(NaturalDisaster.getMapManager().getMapByName(mapname)).getSpawns().get(0));
-                    p.sendMessage(ChatColor.GREEN + "Teleportado para o primeiro spawn");
-                    return true;
-                } else {
-                    p.sendMessage(ChatColor.RED + "Não encontrada a arena '" + args[1] + "'");
+            switch (args[0].toLowerCase()) {
+                case "create": {
+                    if (args.length < 2) return false;
+                    String name = Arrays.stream(args).skip(1).collect(Collectors.joining(" "));
+                    String worldName = Objects.requireNonNull(p.getLocation().getWorld()).getName();
+                    if (tempMaps.containsKey(p)) {
+                        p.sendMessage(ChatColor.YELLOW + "Você já está criando o mapa " + tempMaps.get(p).getName() + ", você pode cancelar a operação com /arena cancel");
+                        return true;
+                    }
+                    tempMaps.put(p, new TempDisasterMap(name, worldName));
+                    p.sendMessage(ChatColor.GREEN + "Iniciada a criação do mapa " + name);
                     return true;
                 }
-            }
-
-            if (args[0].equalsIgnoreCase("list")) {
-                if (args.length != 1) return false;
-                StringBuilder message = new StringBuilder();
-                p.sendMessage(ChatColor.GREEN + "Arenas:");
-                for (DisasterMap map : NaturalDisaster.getMapManager().getAllArenas()) {
-                    message.append(ChatColor.GRAY);
-                    message.append(" - ");
-                    message.append(map.getName());
-                }
-                p.sendMessage(message.toString());
-                return true;
-            }
-
-            if (args[0].equalsIgnoreCase("info")) {
-                if (args.length != 2) return false;
-                String name = args[1];
-                if (NaturalDisaster.getMapManager().getMapByName(name) != null) {
-                    DisasterMap map = NaturalDisaster.getMapManager().getMapByName(name);
-                    p.sendMessage(ChatColor.YELLOW + "Nome: " + map.getName());
-                    p.sendMessage(ChatColor.YELLOW + "Pos1: " + map.getPos1().getBlockX() + " " + map.getPos1().getBlockY() + " " + map.getPos1().getBlockZ());
-                    p.sendMessage(ChatColor.YELLOW + "Pos2: " + map.getPos2().getBlockX() + " " + map.getPos2().getBlockY() + " " + map.getPos2().getBlockZ());
-                    p.sendMessage(ChatColor.YELLOW + "Número de spawns: " + map.getSpawns().size());
-                    return true;
-                } else {
-                    p.sendMessage(ChatColor.RED + "Mapa não encontrado");
+                case "pos1": {
+                    if (args.length != 1) return false;
+                    if (!tempMaps.containsKey(p)) {
+                        p.sendMessage(ChatColor.RED + "Você não está criando nenhuma arena no momento.");
+                        return true;
+                    }
+                    Location pos = p.getLocation();
+                    tempMaps.get(p).setPos1(pos);
+                    p.sendMessage(ChatColor.GREEN + "Definida posição 1 do mapa '" + tempMaps.get(p).getName() + "' em (" + pos.getBlockX() + " " + pos.getBlockY() + " " + pos.getBlockZ() + ")");
                     return true;
                 }
+                case "pos2": {
+                    if (args.length != 1) return false;
+                    if (!tempMaps.containsKey(p)) {
+                        p.sendMessage(ChatColor.RED + "Você não está criando nenhuma arena no momento.");
+                        return true;
+                    }
+                    Location pos = p.getLocation();
+                    tempMaps.get(p).setPos2(pos);
+                    p.sendMessage(ChatColor.GREEN + "Definida posição 2 do mapa '" + tempMaps.get(p).getName() + "' em (" + pos.getBlockX() + " " + pos.getBlockY() + " " + pos.getBlockZ() + ")");
+                    return true;
+                }
+                case "spawn": {
+                    if (args.length != 1) return false;
+                    if (!tempMaps.containsKey(p)) {
+                        p.sendMessage(ChatColor.RED + "Você não está criando nenhuma arena no momento.");
+                        return true;
+                    }
+                    Location pos = p.getLocation();
+                    tempMaps.get(p).addSpawn(pos);
+                    p.sendMessage(ChatColor.GREEN + "Adicionado o " + tempMaps.get(p).getSpawns().size() + "º spawn do mapa '" + tempMaps.get(p).getName() + "' em (" + pos.getBlockX() + " " + pos.getBlockY() + " " + pos.getBlockZ() + ")");
+                    return true;
+                }
+                case "finalize": {
+                    if (args.length != 1) return false;
+                    if (!tempMaps.containsKey(p)) {
+                        p.sendMessage(ChatColor.RED + "Você não está criando nenhuma arena no momento.");
+                        return true;
+                    }
+                    TempDisasterMap temp = tempMaps.get(p);
+                    if (!temp.isComplete()) {
+                        p.sendMessage(ChatColor.RED + "Você ainda não terminou todos os passos da criação do mapa. Você pode ver seu progresso em /arena info");
+                        return true;
+                    }
+                    DisasterMap map = new DisasterMap(temp.getName(), temp.getWorldName(), temp.getPos1(), temp.getPos2(), temp.getSpawns(), temp.getIcon());
+                    NaturalDisaster.getMapManager().registerArena(map);
+                    p.sendMessage(ChatColor.GREEN + "Finalizado e registrado o mapa '" + map.getName() + "'");
+                    tempMaps.remove(p);
+                    return true;
+                }
+                case "cancel": {
+                    if (args.length != 1) return false;
+                    if (!tempMaps.containsKey(p)) {
+                        p.sendMessage(ChatColor.RED + "Você não está criando nenhuma arena no momento.");
+                        return true;
+                    }
+                    p.sendMessage(ChatColor.GREEN + "Foi cancelada a criação do mapa '" + tempMaps.get(p).getName() + "'");
+                    tempMaps.remove(p);
+                    return true;
+                }
+                case "info": {
+                    if (args.length != 1) return false;
+                    if (!tempMaps.containsKey(p)) {
+                        p.sendMessage(ChatColor.YELLOW + "[" + ChatColor.GREEN + "✓" + ChatColor.YELLOW + "] Você não está criando nenhuma arena no momento.");
+                        return true;
+                    }
+                    TempDisasterMap temp = tempMaps.get(p);
+                    p.sendMessage(ChatColor.YELLOW + "Criação da arena '" + temp.getName() + "': " +
+                            (temp.isComplete() ? ChatColor.GREEN + "COMPLETA" : ChatColor.RED + "INCOMPLETA"));
+                    p.sendMessage(ChatColor.YELLOW + "[" + (temp.getPos1() != null ? ChatColor.GREEN + "✓" : ChatColor.RED + "✕") + ChatColor.YELLOW + "] Pos 1");
+                    p.sendMessage(ChatColor.YELLOW + "[" + (temp.getPos2() != null ? ChatColor.GREEN + "✓" : ChatColor.RED + "✕") + ChatColor.YELLOW + "] Pos 2");
+                    p.sendMessage(ChatColor.YELLOW + "[" + (temp.getSpawns().size() >= 24 ? ChatColor.GREEN + "✓" : ChatColor.RED + "✕") +
+                            ChatColor.YELLOW + "] Spawns (" + temp.getSpawns().size() + ")");
+                    p.sendMessage(ChatColor.YELLOW + "[" + (temp.getIcon() != null ? ChatColor.GREEN + "✓" : ChatColor.RED + "✕") + ChatColor.YELLOW + "] Icone");
+                    if (temp.isComplete()) {
+                        p.sendMessage(ChatColor.GREEN + "A criação da arena está completa, você pode finalizá-la com /arena finalize");
+                    }
+                    return true;
+                }
+                case "list": {
+                    if (args.length != 1) return false;
+                    StringBuilder message = new StringBuilder();
+                    p.sendMessage(ChatColor.GREEN + "Arenas:");
+                    for (DisasterMap map : NaturalDisaster.getMapManager().getAllArenas()) {
+                        message.append(ChatColor.GRAY);
+                        message.append(" - ");
+                        message.append(map.getName());
+                    }
+                    p.sendMessage(message.toString());
+                    return true;
+                }
+                case "icon": {
+                    if (args.length != 1) return false;
+                    if (!tempMaps.containsKey(p)) {
+                        p.sendMessage(ChatColor.RED + "Você não está criando nenhuma arena no momento.");
+                        return true;
+                    }
+                    if (p.getInventory().getItemInMainHand().getType() == Material.AIR) {
+                        p.sendMessage(ChatColor.RED + "Você não está segurando nenhum item no momento.");
+                        return true;
+                    }
+                    tempMaps.get(p).setIcon(p.getInventory().getItemInMainHand().getType());
+                    p.sendMessage(ChatColor.GREEN + "Ícone da arena '" + tempMaps.get(p).getName() +
+                            "' definido como '" + p.getInventory().getItemInMainHand().getType().toString() + "'");
+                    return true;
+                }
+                default:
+                    return false;
             }
-
         }
-
         return false;
     }
 }

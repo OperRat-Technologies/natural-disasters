@@ -22,22 +22,24 @@ import java.util.stream.Collectors;
 
 public class DisasterMap {
 
-    private final JavaPlugin main;
+    private final JavaPlugin main = NaturalDisaster.getMainReference();
     private Location pos1, pos2;
-    private String name;
+    private final String name, worldName;
     private List<Location> spawns;
     private List<Player> playersInArena;
     private final List<Chunk> arenaChunks;
     public int x1, x2, y1, y2, z1, z2, minX, minZ, gapX, gapZ, top, floor;
     private final Random r;
     private final int fallingBlockKillTimeSeconds = 2;
+    private final Material icon;
 
-    public DisasterMap(JavaPlugin main, Location pos1, Location pos2, String name, List<Location> spawns) {
-        this.main = main;
+    public DisasterMap(String name, String worldName, Location pos1, Location pos2, List<Location> spawns, Material icon) {
         this.pos1 = pos1;
         this.pos2 = pos2;
         this.name = name;
+        this.worldName = worldName;
         this.spawns = spawns;
+        this.icon = icon;
         playersInArena = new ArrayList<>();
         arenaChunks = new ArrayList<>();
         r = new Random();
@@ -47,10 +49,6 @@ public class DisasterMap {
 
     public String getName() {
         return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public boolean equals(Object o) {
@@ -88,6 +86,14 @@ public class DisasterMap {
 
     public World getWorld() {
         return pos1.getWorld();
+    }
+
+    public String getWorldName() {
+        return worldName;
+    }
+
+    public Material getIcon() {
+        return icon;
     }
 
     /**

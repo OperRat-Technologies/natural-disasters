@@ -19,8 +19,6 @@ import me.tcklpl.naturaldisaster.shop.ShopCommand;
 import me.tcklpl.naturaldisaster.shop.ShopInventoryClick;
 import me.tcklpl.naturaldisaster.worlds.WorldCommands;
 import me.tcklpl.naturaldisaster.worlds.WorldManager;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandSender;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -108,7 +106,7 @@ public class NaturalDisaster extends JavaPlugin {
         Objects.requireNonNull(getCommand("survival")).setExecutor(gmc);
         Objects.requireNonNull(getCommand("adventure")).setExecutor(gmc);
         Objects.requireNonNull(getCommand("spectator")).setExecutor(gmc);
-        Objects.requireNonNull(getCommand("arena")).setExecutor(new MapCreator(this));
+        Objects.requireNonNull(getCommand("arena")).setExecutor(new MapCreator());
         Objects.requireNonNull(getCommand("start")).setExecutor(new Start(this));
         Objects.requireNonNull(getCommand("balance")).setExecutor(new Balance());
         Objects.requireNonNull(getCommand("admin")).setExecutor(new ArenaAdmin());
@@ -120,7 +118,6 @@ public class NaturalDisaster extends JavaPlugin {
         AuthCommands authCommands = new AuthCommands();
         Objects.requireNonNull(getCommand("register")).setExecutor(authCommands);
         Objects.requireNonNull(getCommand("login")).setExecutor(authCommands);
-        Objects.requireNonNull(getCommand("test")).setExecutor(new Test());
 
     }
 

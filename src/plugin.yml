@@ -1,6 +1,6 @@
 name: NaturalDisasters
 main: me.tcklpl.naturaldisaster.NaturalDisaster
-version: "1.8.5"
+version: "1.8.6"
 api-version: "1.15"
 prefix: Natural Disasters
 commands:
@@ -32,7 +32,7 @@ commands:
   arena:
     description: Criação de arenas.
     permission: op
-    usage: "Usage: /<command> [create/tp/list/info]"
+    usage: "Usage: /<command> [create/pos1/pos2/spawn/list/info/cancel/finalize]"
   start:
     description: Começa o jogo.
     permission: op
@@ -69,6 +69,3 @@ commands:
   login:
     description: Loga o usuario.
     usage: "Usage: /<command> [senha]"
-  test:
-    description: teste
-    usage: "Usage: /<command>"
