@@ -1,14 +1,11 @@
 package me.tcklpl.naturaldisaster.disasters;
 
-import me.tcklpl.naturaldisaster.map.ArenaBiomeType;
-import me.tcklpl.naturaldisaster.map.DisasterMap;
-import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
+import me.tcklpl.naturaldisaster.reflection.ReflectionWorldUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.FallingBlock;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.Random;
@@ -23,7 +20,7 @@ public class Biohazard extends Disaster {
     private int sourceX, sourceY, sourceZ;
 
     public Biohazard() {
-        super("Biohazard", false, Material.CHORUS_FRUIT, ReflectionUtils.PrecipitationType.ALL, ArenaBiomeType.RANDOM_PER_PRECIPITATION);
+        super("Biohazard", false, Material.CHORUS_FRUIT, ReflectionWorldUtils.Precipitation.ALL);
     }
 
     private void updateEffectCoordinates() {

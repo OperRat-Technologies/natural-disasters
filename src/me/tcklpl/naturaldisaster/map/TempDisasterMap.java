@@ -82,6 +82,6 @@ public class TempDisasterMap {
     }
 
     public boolean isComplete() {
-        return name != null && worldName != null && pos1 != null && pos2 != null && !spawns.isEmpty() && icon != null;
+        return name != null && worldName != null && pos1 != null && pos2 != null && spawns.size() >= 24 && icon != null;
     }
 }

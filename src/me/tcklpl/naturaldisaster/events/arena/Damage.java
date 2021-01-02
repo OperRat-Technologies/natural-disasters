@@ -2,7 +2,6 @@ package me.tcklpl.naturaldisaster.events.arena;
 
 import me.tcklpl.naturaldisaster.GameStatus;
 import me.tcklpl.naturaldisaster.NaturalDisaster;
-import me.tcklpl.naturaldisaster.map.MapManager;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -17,7 +16,7 @@ public class Damage implements Listener {
         if (e.getEntity() instanceof Player) {
             Player p = (Player) e.getEntity();
             if (p.getGameMode() == GameMode.ADVENTURE)
-                if (NaturalDisaster.getMapManager().getCurrentStatus() == GameStatus.STARTING || NaturalDisaster.getMapManager().getCurrentStatus() == GameStatus.IN_LOBBY)
+                if (NaturalDisaster.getGameManager().getCurrentStatus() == GameStatus.STARTING || NaturalDisaster.getGameManager().getCurrentStatus() == GameStatus.IN_LOBBY)
                     e.setCancelled(true);
                 else
                     if (p.getLocation().getBlockY() < 0) {

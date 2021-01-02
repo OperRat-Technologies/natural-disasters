@@ -1,13 +1,10 @@
 package me.tcklpl.naturaldisaster.disasters;
 
-import me.tcklpl.naturaldisaster.map.ArenaBiomeType;
-import me.tcklpl.naturaldisaster.map.DisasterMap;
-import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
+import me.tcklpl.naturaldisaster.reflection.ReflectionWorldUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.TNTPrimed;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.Objects;
 import java.util.Random;
@@ -18,7 +15,7 @@ public class TNTRain extends Disaster {
     private Random r;
 
     public TNTRain() {
-        super("TNT Rain", true, Material.TNT, ReflectionUtils.PrecipitationType.ALL, ArenaBiomeType.RANDOM_PER_PRECIPITATION);
+        super("TNT Rain", true, Material.TNT, ReflectionWorldUtils.Precipitation.ALL);
     }
 
     @Override

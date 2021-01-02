@@ -20,6 +20,39 @@ import java.util.List;
 
 public class ArenaAdmin implements CommandExecutor {
 
+    public void openMapSelectionMenu(Player p) {
+        List<DisasterMap> maps = NaturalDisaster.getGameManager().getArenaManager().getArenas();
+        int size = 9 + 9 * Math.floorDiv(maps.size() - 1, 9);
+        Inventory i = Bukkit.createInventory(p, size, "Admin Map Selection");
+        for (DisasterMap map : maps) {
+            ItemStack is = new ItemStack(map.getIcon());
+            ItemMeta im = is.getItemMeta();
+            assert im != null;
+            im.setDisplayName(map.getName());
+            is.setItemMeta(im);
+            i.addItem(is);
+        }
+        p.openInventory(i);
+    }
+
+    public void openDisasterSelectionMenu(Player p) {
+        List<Disaster> disasters = NaturalDisaster.getGameManager().getDisasterManager().getDisasters();
+        int size = 9 + 9 * Math.floorDiv(disasters.size() - 1, 9);
+        Inventory i = Bukkit.createInventory(p, size, "Admin Disaster Selection");
+        for (Disaster disaster : disasters) {
+            ItemStack is = new ItemStack(disaster.getIcon());
+            ItemMeta im = is.getItemMeta();
+            assert im != null;
+            im.setDisplayName(ChatColor.WHITE + disaster.getName());
+            List<String> lore = new ArrayList<>();
+            lore.add("Playable: " + (disaster.isPlayable() ? ChatColor.GREEN + "YES" : ChatColor.RED + "NO"));
+            im.setLore(lore);
+            is.setItemMeta(im);
+            i.addItem(is);
+        }
+        p.openInventory(i);
+    }
+
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String alias, String[] args) {
         if (sender.isOp()) {
@@ -29,49 +62,17 @@ public class ArenaAdmin implements CommandExecutor {
                 if (args.length != 2) return false;
 
                 if (args[0].equalsIgnoreCase("set")) {
-
-                    if (NaturalDisaster.getMapManager().getCurrentStatus() != GameStatus.IN_LOBBY) {
+                    if (NaturalDisaster.getGameManager().getCurrentStatus() != GameStatus.IN_LOBBY) {
                         sender.sendMessage(ChatColor.RED + "Só é possível definir mapa e desastre quando estiver em lobby, se o jogo já acabou aguarde alguns segundos.");
                         return true;
                     }
-
                     if (args[1].equalsIgnoreCase("map")) {
-
-                        List<DisasterMap> maps = NaturalDisaster.getMapManager().getAllMaps();
-                        int size = 9 + 9 * Math.floorDiv(maps.size() - 1, 9);
-                        Inventory i = Bukkit.createInventory(p, size, "Admin Map Selection");
-                        for (DisasterMap map : maps) {
-                            ItemStack is = new ItemStack(map.getIcon());
-                            ItemMeta im = is.getItemMeta();
-                            assert im != null;
-                            im.setDisplayName(map.getName());
-                            is.setItemMeta(im);
-                            i.addItem(is);
-                        }
-                        p.openInventory(i);
+                        openMapSelectionMenu(p);
                         return true;
-
                     }
-
                     if (args[1].equalsIgnoreCase("disaster")) {
-
-                        List<Disaster> disasters = NaturalDisaster.getMapManager().getAllDisasters();
-                        int size = 9 + 9 * Math.floorDiv(disasters.size() - 1, 9);
-                        Inventory i = Bukkit.createInventory(p, size, "Admin Disaster Selection");
-                        for (Disaster disaster : disasters) {
-                            ItemStack is = new ItemStack(disaster.getIcon());
-                            ItemMeta im = is.getItemMeta();
-                            assert im != null;
-                            im.setDisplayName(ChatColor.WHITE + disaster.getName());
-                            List<String> lore = new ArrayList<>();
-                            lore.add("Playable: " + (disaster.isPlayable() ? ChatColor.GREEN + "YES" : ChatColor.RED + "NO"));
-                            im.setLore(lore);
-                            is.setItemMeta(im);
-                            i.addItem(is);
-                        }
-                        p.openInventory(i);
+                        openDisasterSelectionMenu(p);
                         return true;
-
                     }
 
                 }

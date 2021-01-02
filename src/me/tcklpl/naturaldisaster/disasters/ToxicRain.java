@@ -1,15 +1,12 @@
 package me.tcklpl.naturaldisaster.disasters;
 
-import me.tcklpl.naturaldisaster.map.ArenaBiomeType;
-import me.tcklpl.naturaldisaster.map.DisasterMap;
-import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
+import me.tcklpl.naturaldisaster.reflection.ReflectionWorldUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.potion.PotionEffectType;
 
 import java.util.Random;
@@ -18,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ToxicRain extends Disaster {
 
     public ToxicRain() {
-        super("Toxic Rain", true, Material.LIME_DYE, ReflectionUtils.PrecipitationType.RAIN, ArenaBiomeType.RANDOM_PER_PRECIPITATION);
+        super("Toxic Rain", true, Material.LIME_DYE, ReflectionWorldUtils.Precipitation.RAIN);
     }
 
     @Override

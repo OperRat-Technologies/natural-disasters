@@ -2,7 +2,6 @@ package me.tcklpl.naturaldisaster.shop;
 
 import me.tcklpl.naturaldisaster.GameStatus;
 import me.tcklpl.naturaldisaster.NaturalDisaster;
-import me.tcklpl.naturaldisaster.map.MapManager;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -16,7 +15,7 @@ public class ShopCommand implements CommandExecutor {
             if (args.length != 0) return false;
             if (sender instanceof Player) {
                 Player p = (Player) sender;
-                if (NaturalDisaster.getMapManager().getCurrentStatus() == GameStatus.IN_LOBBY) {
+                if (NaturalDisaster.getGameManager().getCurrentStatus() == GameStatus.IN_LOBBY) {
                     Shop s = new Shop(p);
                     s.show();
                 } else {

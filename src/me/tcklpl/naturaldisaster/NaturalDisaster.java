@@ -10,7 +10,6 @@ import me.tcklpl.naturaldisaster.events.*;
 import me.tcklpl.naturaldisaster.events.arena.Damage;
 import me.tcklpl.naturaldisaster.events.arena.Death;
 import me.tcklpl.naturaldisaster.events.arena.EntityChangeBlock;
-import me.tcklpl.naturaldisaster.map.MapManager;
 import me.tcklpl.naturaldisaster.player.cPlayer.CPlayerManager;
 import me.tcklpl.naturaldisaster.player.friends.FriendsGUI;
 import me.tcklpl.naturaldisaster.player.skins.RefreshSkin;
@@ -32,7 +31,7 @@ public class NaturalDisaster extends JavaPlugin {
     private static JavaPlugin mainReference;
     private static AuthManager authManager;
     private static CPlayerManager cPlayerManager;
-    private static MapManager mapManager;
+    private static GameManager gameManager;
     private static SkinManager skinManager;
 
     @Override
@@ -44,10 +43,8 @@ public class NaturalDisaster extends JavaPlugin {
         List<String> managedWorlds = getConfig().getStringList("worlds");
         worldManager = new WorldManager(managedWorlds);
 
-        mapManager = new MapManager(this);
-        mapManager.setupDisasters();
-        mapManager.setupArenas();
-        mapManager.setCurrentStatus(GameStatus.IN_LOBBY);
+        gameManager = new GameManager(this);
+        gameManager.setCurrentStatus(GameStatus.IN_LOBBY);
 
         skinManager = new SkinManager(this);
         skinManager.setupSkins();
@@ -65,7 +62,7 @@ public class NaturalDisaster extends JavaPlugin {
     public void onDisable() {
 
         getConfig().set("worlds", worldManager.getManagedWorlds());
-        mapManager.saveArenas();
+        gameManager.getArenaManager().saveArenas();
         cPlayerManager.savePlayers();
         try {
             NaturalDisaster.getSkinManager().saveSkins();
@@ -137,7 +134,9 @@ public class NaturalDisaster extends JavaPlugin {
         return authManager;
     }
 
-    public static MapManager getMapManager() { return mapManager; }
+    public static GameManager getGameManager() {
+        return gameManager;
+    }
 
     public static SkinManager getSkinManager() { return skinManager; }
 

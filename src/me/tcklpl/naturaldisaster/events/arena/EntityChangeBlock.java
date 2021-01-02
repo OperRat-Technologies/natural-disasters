@@ -12,13 +12,6 @@ public class EntityChangeBlock implements Listener {
 
     @EventHandler
     public void onChangeBlock(EntityChangeBlockEvent e) {
-        if (NaturalDisaster.getMapManager().getCurrentStatus() == GameStatus.IN_GAME) {
-            if (NaturalDisaster.getMapManager().getCurrentDisaster() instanceof Volcano) {
-                if (e.getTo() == Material.MAGMA_BLOCK) {
-                    
-                }
-            }
-        }
     }
 
 }

@@ -1,14 +1,11 @@
 package me.tcklpl.naturaldisaster.disasters;
 
 import com.google.common.collect.Lists;
-import me.tcklpl.naturaldisaster.map.ArenaBiomeType;
-import me.tcklpl.naturaldisaster.map.DisasterMap;
-import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
+import me.tcklpl.naturaldisaster.reflection.ReflectionWorldUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -46,7 +43,7 @@ public class Earthquake extends Disaster {
     }
 
     public Earthquake() {
-        super("Earthquake", true, Material.COBBLESTONE, ReflectionUtils.PrecipitationType.ALL, ArenaBiomeType.RANDOM_PER_PRECIPITATION);
+        super("Earthquake", true, Material.COBBLESTONE, ReflectionWorldUtils.Precipitation.ALL);
     }
 
     private GravityCandidates getYColumnBlocks(int x, int z) {

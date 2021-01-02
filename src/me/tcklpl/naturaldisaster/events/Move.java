@@ -2,7 +2,6 @@ package me.tcklpl.naturaldisaster.events;
 
 import me.tcklpl.naturaldisaster.GameStatus;
 import me.tcklpl.naturaldisaster.NaturalDisaster;
-import me.tcklpl.naturaldisaster.map.MapManager;
 import me.tcklpl.naturaldisaster.player.cPlayer.CPlayer;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -29,7 +28,7 @@ public class Move implements Listener {
             }
         }
         else
-        if (NaturalDisaster.getMapManager().getCurrentStatus() == GameStatus.STARTING) {
+        if (NaturalDisaster.getGameManager().getCurrentStatus() == GameStatus.STARTING) {
             Location l = e.getFrom();
             Objects.requireNonNull(e.getTo()).setX(e.getFrom().getX());
             Objects.requireNonNull(e.getTo()).setZ(e.getFrom().getZ());

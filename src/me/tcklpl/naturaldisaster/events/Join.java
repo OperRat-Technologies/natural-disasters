@@ -2,10 +2,8 @@ package me.tcklpl.naturaldisaster.events;
 
 import me.tcklpl.naturaldisaster.GameStatus;
 import me.tcklpl.naturaldisaster.NaturalDisaster;
-import me.tcklpl.naturaldisaster.map.MapManager;
 import me.tcklpl.naturaldisaster.player.cPlayer.CPlayer;
 import me.tcklpl.naturaldisaster.player.cPlayer.PlayerData;
-import me.tcklpl.naturaldisaster.player.skins.SkinManager;
 import me.tcklpl.naturaldisaster.util.SkinUtils;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
@@ -36,8 +34,8 @@ public class Join implements Listener {
         } else {
             p.sendMessage(ChatColor.GREEN + "Bem-vindo de volta!");
         }
-        if (NaturalDisaster.getMapManager().getCurrentStatus() != GameStatus.IN_LOBBY) {
-            NaturalDisaster.getMapManager().teleportSpectatorToArena(p);
+        if (NaturalDisaster.getGameManager().getCurrentStatus() != GameStatus.IN_LOBBY) {
+            NaturalDisaster.getGameManager().teleportSpectatorToArena(p);
             p.sendMessage(ChatColor.GRAY + "O jogo já está em andamento, você jogará na próxima partida.");
         }
         if (!NaturalDisaster.getSkinManager().isRegistered(p.getName())) {

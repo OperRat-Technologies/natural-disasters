@@ -1,9 +1,10 @@
 package me.tcklpl.naturaldisaster.events.arena;
 
 import me.tcklpl.naturaldisaster.NaturalDisaster;
-import me.tcklpl.naturaldisaster.map.MapManager;
+import me.tcklpl.naturaldisaster.util.PlayerUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.EntityEffect;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -21,17 +22,15 @@ public class Death implements Listener {
             Player p = (Player) e.getEntity();
             if (p.getHealth() - e.getDamage() <= 0) {
                 e.setCancelled(true);
+                p.playEffect(EntityEffect.HURT);
 
-                if (NaturalDisaster.getMapManager().getPlayerMap(p) != null)
-                    NaturalDisaster.getMapManager().updateArenaForDeadPlayer(p);
+                if (NaturalDisaster.getGameManager().isIngame())
+                    NaturalDisaster.getGameManager().registerPlayerDeath(p);
                 else {
                     p.teleport(Objects.requireNonNull(Bukkit.getWorld("void")).getSpawnLocation());
                 }
 
-                p.setHealth(20);
-                p.setFoodLevel(20);
-                p.setFallDistance(0);
-                p.setFireTicks(0);
+                PlayerUtils.healPlayer(p);
 
                 p.sendMessage(ChatColor.GRAY + ">> Você morrreu levando " + e.getDamage() / 2 + " corações de dano.");
 

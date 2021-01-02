@@ -1,8 +1,6 @@
 package me.tcklpl.naturaldisaster.disasters;
 
-import me.tcklpl.naturaldisaster.map.ArenaBiomeType;
-import me.tcklpl.naturaldisaster.map.DisasterMap;
-import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
+import me.tcklpl.naturaldisaster.reflection.ReflectionWorldUtils;
 import me.tcklpl.naturaldisaster.schematics.SchematicLoadPosition;
 import me.tcklpl.naturaldisaster.schematics.SchematicManager;
 import org.bukkit.Bukkit;
@@ -11,14 +9,13 @@ import org.bukkit.Material;
 import org.bukkit.block.Biome;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.entity.FallingBlock;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Volcano extends Disaster {
 
     public Volcano() {
-        super("Volcano", false, Material.LAVA_BUCKET, ReflectionUtils.PrecipitationType.ALL, ArenaBiomeType.SPECIFIC);
+        super("Volcano", false, Material.LAVA_BUCKET, ReflectionWorldUtils.Precipitation.SPECIFIC);
         arenaSpecificBiome = Biome.BASALT_DELTAS;
     }
 

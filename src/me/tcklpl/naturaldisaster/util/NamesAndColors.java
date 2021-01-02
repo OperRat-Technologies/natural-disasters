@@ -9,11 +9,11 @@ import java.util.Random;
 
 public class NamesAndColors {
 
-    private static Random r = new Random();
-    private static List<String> phoneticAlphabet = new ArrayList<>(List.of("Alfa", "Bravo", "Charlie", "Delta", "Echo",
+    private final static Random r = new Random();
+    private final static List<String> phoneticAlphabet = new ArrayList<>(List.of("Alfa", "Bravo", "Charlie", "Delta", "Echo",
             "Foxtrot", "Golf", "Hotel", "India", "Juliett", "Kilo", "Lima", "Mike", "November", "Oscar", "Papa",
             "Quebec", "Romeo", "Sierra", "Tango", "Uniform", "Victor", "Whiskey", "X-Ray", "Yankee", "Zulu"));
-    private static List<ChatColor> usedColors = new ArrayList<>(List.of(ChatColor.BLUE, ChatColor.GREEN, ChatColor.YELLOW,
+    private final static List<ChatColor> usedColors = new ArrayList<>(List.of(ChatColor.BLUE, ChatColor.GREEN, ChatColor.YELLOW,
             ChatColor.LIGHT_PURPLE, ChatColor.GRAY, ChatColor.RED));
 
     /**
@@ -23,12 +23,9 @@ public class NamesAndColors {
      */
     public static List<String> pickRandomNames(int count) {
         List<String> res = new ArrayList<>();
+        Collections.shuffle(phoneticAlphabet);
         for (int i = 0; i < count; i++) {
-            String test;
-            do {
-                test = phoneticAlphabet.get(r.nextInt(phoneticAlphabet.size()));
-            } while (res.contains(test));
-            res.add(test);
+            res.add(phoneticAlphabet.get(i));
         }
         return res;
     }

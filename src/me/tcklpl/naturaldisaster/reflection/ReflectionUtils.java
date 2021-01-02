@@ -14,10 +14,6 @@ import java.util.stream.Collectors;
 
 public class ReflectionUtils {
 
-    public static enum PrecipitationType {
-        NONE, RAIN, SNOW, ALL;
-    }
-
     /**
      * Reflection way to send a packet for one player without importing nms classes.
      * @param player the player to send the packet.
@@ -82,51 +78,6 @@ public class ReflectionUtils {
             e.printStackTrace();
             return null;
         }
-    }
-
-    /**
-     * Gets a list of all biomes in wich the precipitation type equals the one given.
-     * @param precipitationType the requested precicipation type.
-     * @return the list of matching biomes.
-     */
-    public static List<Biome> getListOfRequiredPrecipitationBiomes(PrecipitationType precipitationType) {
-
-        List<Biome> allBukkitBiomes = new LinkedList<>(Arrays.asList(Biome.values()));
-        allBukkitBiomes.remove(Biome.THE_VOID);
-
-        if (precipitationType == PrecipitationType.ALL)
-            return allBukkitBiomes;
-
-        List<Biome> snowBiomes = allBukkitBiomes.stream().filter(biome ->
-                biome.toString().contains("snowy") || biome.toString().contains("ice") || biome.toString().contains("frozen")
-        ).collect(Collectors.toList());
-
-        List<Biome> noPrecipitationBiomes = allBukkitBiomes.stream().filter(biome ->
-                biome.toString().contains("desert")
-                        || biome.toString().contains("savanna")
-                        || biome.toString().contains("badlands")
-                        || biome.toString().contains("plateau")).collect(Collectors.toList());
-
-        List<Biome> filteredFinalList = new ArrayList<>();
-
-        for (Biome biome : allBukkitBiomes) {
-            switch (precipitationType) {
-                case SNOW:
-                    filteredFinalList = snowBiomes;
-                    break;
-                case NONE:
-                    filteredFinalList = noPrecipitationBiomes;
-                    break;
-                case RAIN:
-                    filteredFinalList = allBukkitBiomes;
-                    filteredFinalList.removeAll(snowBiomes);
-                    filteredFinalList.removeAll(noPrecipitationBiomes);
-                    break;
-            }
-        }
-
-        return filteredFinalList;
-
     }
 
 }

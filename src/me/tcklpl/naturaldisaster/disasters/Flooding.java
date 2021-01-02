@@ -1,15 +1,11 @@
 package me.tcklpl.naturaldisaster.disasters;
 
-import me.tcklpl.naturaldisaster.map.ArenaBiomeType;
-import me.tcklpl.naturaldisaster.map.DisasterMap;
-import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import me.tcklpl.naturaldisaster.reflection.ReflectionWorldUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.data.Waterlogged;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,7 +18,7 @@ public class Flooding extends Disaster {
     private final HashMap<Integer, List<Block>> blocksToWaterlogPerYLevel;
 
     public Flooding() {
-        super("Flooding", true, Material.WATER_BUCKET, ReflectionUtils.PrecipitationType.RAIN, ArenaBiomeType.RANDOM_PER_PRECIPITATION);
+        super("Flooding", true, Material.WATER_BUCKET, ReflectionWorldUtils.Precipitation.RAIN);
         blocksToChangePerYLevel = new HashMap<>();
         blocksToWaterlogPerYLevel = new HashMap<>();
     }

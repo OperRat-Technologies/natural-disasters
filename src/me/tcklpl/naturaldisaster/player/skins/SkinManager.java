@@ -121,7 +121,7 @@ public class SkinManager {
                     if (online) {
                         Player target = Bukkit.getPlayer(qp.getPlayer().getUniqueId());
                         assert target != null;
-                        if (NaturalDisaster.getMapManager().getCurrentStatus() != GameStatus.IN_LOBBY) {
+                        if (NaturalDisaster.getGameManager().getCurrentStatus() != GameStatus.IN_LOBBY) {
                             skinsToApplyAfterGame.put(target, skin);
                             target.sendMessage(ChatColor.GRAY + "Sua skin foi obtida, ela será aplicada assim que a partida acabar e você voltar ao lobby");
                         } else {

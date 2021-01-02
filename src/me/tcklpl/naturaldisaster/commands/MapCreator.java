@@ -2,7 +2,6 @@ package me.tcklpl.naturaldisaster.commands;
 
 import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
-import me.tcklpl.naturaldisaster.map.MapManager;
 import me.tcklpl.naturaldisaster.map.TempDisasterMap;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -11,14 +10,13 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
 public class MapCreator implements CommandExecutor {
 
-    private static HashMap<Player, TempDisasterMap> tempMaps = new HashMap<>();
+    private static final HashMap<Player, TempDisasterMap> tempMaps = new HashMap<>();
 
     public MapCreator() {
 
@@ -93,7 +91,7 @@ public class MapCreator implements CommandExecutor {
                         return true;
                     }
                     DisasterMap map = new DisasterMap(temp.getName(), temp.getWorldName(), temp.getPos1(), temp.getPos2(), temp.getSpawns(), temp.getIcon());
-                    NaturalDisaster.getMapManager().registerArena(map);
+                    NaturalDisaster.getGameManager().getArenaManager().registerArena(map);
                     p.sendMessage(ChatColor.GREEN + "Finalizado e registrado o mapa '" + map.getName() + "'");
                     tempMaps.remove(p);
                     return true;
@@ -131,7 +129,7 @@ public class MapCreator implements CommandExecutor {
                     if (args.length != 1) return false;
                     StringBuilder message = new StringBuilder();
                     p.sendMessage(ChatColor.GREEN + "Arenas:");
-                    for (DisasterMap map : NaturalDisaster.getMapManager().getAllArenas()) {
+                    for (DisasterMap map : NaturalDisaster.getGameManager().getArenaManager().getArenas()) {
                         message.append(ChatColor.GRAY);
                         message.append(" - ");
                         message.append(map.getName());

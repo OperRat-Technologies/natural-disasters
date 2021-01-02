@@ -5,13 +5,19 @@ import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
 public class ReflectionWorldUtils {
+
+    public enum Precipitation {
+        NONE, RAIN, SNOW, ALL, SPECIFIC
+    }
 
     /**
      * Gets NMS block data from Bukkit's Material, used on the functions below.
@@ -96,6 +102,35 @@ public class ReflectionWorldUtils {
             result.put(c, chunkBlocks);
         }
         return result;
+    }
+
+    public static List<Biome> getBiomeListPerPrecipitation(Precipitation type) {
+        if (type == Precipitation.ALL)
+            return Arrays.asList(Biome.values());
+        List<Biome> response = new ArrayList<>();
+
+        try {
+            for (Object biomeBase : (Iterable<?>) Objects.requireNonNull(ReflectionUtils.getNMSClass("RegistryGeneration"))
+                    .getField("WORLDGEN_BIOME").get(null)) {
+
+                Field precipitationInnerClassField = biomeBase.getClass().getDeclaredField("j");
+                precipitationInnerClassField.setAccessible(true);
+
+                Object precipitationInnerClass = precipitationInnerClassField.get(biomeBase);
+                Field precipitationType = precipitationInnerClass.getClass().getDeclaredField("b");
+                precipitationType.setAccessible(true);
+
+                if (precipitationType.get(precipitationInnerClass).toString().equalsIgnoreCase(type.toString())) {
+                    response.add(Biome.valueOf(biomeBase.toString().replace("minecraft:", "").toUpperCase()));
+                }
+
+                precipitationType.setAccessible(false);
+                precipitationInnerClassField.setAccessible(false);
+            }
+        } catch (IllegalAccessException | NoSuchFieldException e) {
+            e.printStackTrace();
+        }
+        return response;
     }
 
 }

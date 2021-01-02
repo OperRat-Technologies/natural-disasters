@@ -4,6 +4,8 @@ import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.reflection.Packets;
 import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
 import me.tcklpl.naturaldisaster.reflection.ReflectionWorldUtils;
+import me.tcklpl.naturaldisaster.util.ActionBar;
+import me.tcklpl.naturaldisaster.util.TickUtils;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -23,11 +25,11 @@ import java.util.stream.Collectors;
 public class DisasterMap {
 
     private final JavaPlugin main = NaturalDisaster.getMainReference();
-    private Location pos1, pos2;
+    private final Location pos1, pos2;
     private final String name, worldName;
-    private List<Location> spawns;
+    private final List<Location> spawns;
     private List<Player> playersInArena;
-    private final List<Chunk> arenaChunks;
+    private Set<Chunk> arenaChunks;
     public int x1, x2, y1, y2, z1, z2, minX, minZ, gapX, gapZ, top, floor;
     private final Random r;
     private final int fallingBlockKillTimeSeconds = 2;
@@ -41,7 +43,7 @@ public class DisasterMap {
         this.spawns = spawns;
         this.icon = icon;
         playersInArena = new ArrayList<>();
-        arenaChunks = new ArrayList<>();
+        arenaChunks = new HashSet<>();
         r = new Random();
     }
 
@@ -64,24 +66,12 @@ public class DisasterMap {
         return pos1;
     }
 
-    public void setPos1(Location pos1) {
-        this.pos1 = pos1;
-    }
-
     public Location getPos2() {
         return pos2;
     }
 
-    public void setPos2(Location pos2) {
-        this.pos2 = pos2;
-    }
-
     public List<Location> getSpawns() {
         return spawns;
-    }
-
-    public void setSpawns(List<Location> spawns) {
-        this.spawns = spawns;
     }
 
     public World getWorld() {
@@ -94,6 +84,10 @@ public class DisasterMap {
 
     public Material getIcon() {
         return icon;
+    }
+
+    public void setArenaChunks(Set<Chunk> arenaChunks) {
+        this.arenaChunks = arenaChunks;
     }
 
     /**
@@ -137,16 +131,6 @@ public class DisasterMap {
         gapX = Math.max(x1, x2) - minX + 1;
         gapZ = Math.max(z1, z2) - minZ + 1;
 
-        for (int x = minX - 16; x <= minX + gapX + 16; x++) {
-            for (int z = minZ - 16; z <= minZ + gapZ + 16; z++) {
-                Block b = getWorld().getBlockAt(x, 0, z);
-                if (!arenaChunks.contains(getWorld().getChunkAt(b)))
-                    arenaChunks.add(getWorld().getChunkAt(b));
-            }
-        }
-
-        loadMapChunks();
-
         getWorld().setWaterAnimalSpawnLimit(0);
         getWorld().setGameRule(GameRule.DO_TILE_DROPS, false);
         getWorld().setGameRule(GameRule.DO_WEATHER_CYCLE, false);
@@ -186,8 +170,8 @@ public class DisasterMap {
 
     public void setArenaBiome(Biome biome) {
 
-        for (int x = minX - 16; x <= minX + gapX + 16; x++) {
-            for (int z = minZ - 16; z <= minZ + gapZ + 16; z++) {
+        for (int x = minX - 8; x <= minX + gapX + 8; x++) {
+            for (int z = minZ - 8; z <= minZ + gapZ + 8; z++) {
                 for (int y = 0; y <= top + 16; y++) {
                     Block b = getWorld().getBlockAt(x, y, z);
                     b.setBiome(biome);
@@ -209,8 +193,8 @@ public class DisasterMap {
      * for types refer reflection.ReflectionUtils.PrecipitationType.
      * @param precipitationType the specified precipitation type.
      */
-    public void setArenaRandomBiomeBasedOnPrecipitationType(ReflectionUtils.PrecipitationType precipitationType) {
-        List<Biome> biomes = ReflectionUtils.getListOfRequiredPrecipitationBiomes(precipitationType);
+    public void setArenaRandomBiomeBasedOnPrecipitationType(ReflectionWorldUtils.Precipitation precipitationType) {
+        List<Biome> biomes = ReflectionWorldUtils.getBiomeListPerPrecipitation(precipitationType);
         setArenaBiome(biomes.get(r.nextInt(biomes.size())));
     }
 
@@ -431,10 +415,6 @@ public class DisasterMap {
             l.getZ() < minZ || l.getZ() > (minZ + gapZ))
                 p.damage(dmg);
         }
-    }
-
-    public void loadMapChunks() {
-        arenaChunks.forEach(getWorld()::loadChunk);
     }
 
     public List<Location> getRandomXZPoints(int quant, boolean needsGround, int y) {

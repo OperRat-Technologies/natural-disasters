@@ -1,9 +1,8 @@
 package me.tcklpl.naturaldisaster.disasters;
 
 import me.tcklpl.naturaldisaster.NaturalDisaster;
-import me.tcklpl.naturaldisaster.map.ArenaBiomeType;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
-import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
+import me.tcklpl.naturaldisaster.reflection.ReflectionWorldUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
@@ -20,8 +19,7 @@ public abstract class Disaster {
     boolean isActive;
     protected boolean playable;
     protected Material icon;
-    protected ReflectionUtils.PrecipitationType precipitationType;
-    protected ArenaBiomeType arenaBiomeType;
+    protected ReflectionWorldUtils.Precipitation precipitationType;
     protected Biome arenaSpecificBiome;
 
     long startDelay = 100L;
@@ -34,14 +32,12 @@ public abstract class Disaster {
      * @param playable if it's currently playable or is still in development.
      * @param icon the org.bukkit.Material that represents the disaster.
      * @param precipitationType the precipitation that can occur on the arena.
-     * @param arenaBiomeType the type of biome, this will probably be removed later.
      */
-    public Disaster(String name, boolean playable, Material icon, ReflectionUtils.PrecipitationType precipitationType, ArenaBiomeType arenaBiomeType) {
+    public Disaster(String name, boolean playable, Material icon, ReflectionWorldUtils.Precipitation precipitationType) {
         this.name = name;
         this.playable = playable;
         this.icon = icon;
         this.precipitationType = precipitationType;
-        this.arenaBiomeType = arenaBiomeType;
 
         this.main = NaturalDisaster.getMainReference();
         this.map = null;
@@ -77,7 +73,7 @@ public abstract class Disaster {
      */
     private void endByTimeout() {
         stopDisaster();
-        NaturalDisaster.getMapManager().arenaTimeout();
+        NaturalDisaster.getGameManager().endByTimeout();
     }
 
     public void registerTasks(int... taskNumber) {
@@ -96,14 +92,6 @@ public abstract class Disaster {
 
     public void setMap(DisasterMap map) {
         this.map = map;
-        switch (arenaBiomeType) {
-            case SPECIFIC:
-                map.setArenaBiome(arenaSpecificBiome);
-                break;
-            case RANDOM_PER_PRECIPITATION:
-                map.setArenaRandomBiomeBasedOnPrecipitationType(precipitationType);
-                break;
-        }
     }
 
     public boolean isPlayable() {
@@ -112,5 +100,13 @@ public abstract class Disaster {
 
     public Material getIcon() {
         return icon;
+    }
+
+    public ReflectionWorldUtils.Precipitation getPrecipitationType() {
+        return precipitationType;
+    }
+
+    public Biome getArenaSpecificBiome() {
+        return arenaSpecificBiome;
     }
 }

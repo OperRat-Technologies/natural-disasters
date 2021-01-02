@@ -1,8 +1,7 @@
 package me.tcklpl.naturaldisaster.commands;
 
 import me.tcklpl.naturaldisaster.NaturalDisaster;
-import me.tcklpl.naturaldisaster.map.MapManager;
-import org.bukkit.Bukkit;
+import me.tcklpl.naturaldisaster.exceptions.InvalidGameStartException;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -19,11 +18,15 @@ public class Start implements CommandExecutor {
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String alias, String[] args) {
         if (cmd.getName().equalsIgnoreCase("start") && sender.isOp()) {
-            if (!NaturalDisaster.getMapManager().isIsInGame()) {
+            if (!NaturalDisaster.getGameManager().isIngame()) {
                 sender.sendMessage(ChatColor.GREEN + "Começando o jogo...");
-                NaturalDisaster.getMapManager().randomNextMap();
+                try {
+                    NaturalDisaster.getGameManager().pickNextGame();
+                } catch (InvalidGameStartException e) {
+                    e.printStackTrace();
+                }
 
-                Bukkit.getScheduler().scheduleSyncDelayedTask(main, NaturalDisaster.getMapManager()::startNextGame, 60L);
+                //Bukkit.getScheduler().scheduleSyncDelayedTask(main, NaturalDisaster.getMapManager()::startNextGame, 60L);
 
             } else {
                 sender.sendMessage(ChatColor.RED + "O jogo já está rolando");

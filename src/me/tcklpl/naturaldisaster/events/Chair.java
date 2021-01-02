@@ -2,7 +2,6 @@ package me.tcklpl.naturaldisaster.events;
 
 import me.tcklpl.naturaldisaster.GameStatus;
 import me.tcklpl.naturaldisaster.NaturalDisaster;
-import me.tcklpl.naturaldisaster.map.MapManager;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -25,7 +24,7 @@ public class Chair implements Listener {
         Player p = e.getPlayer();
         if (p.getGameMode() == GameMode.ADVENTURE)
             if (e.getAction() == Action.RIGHT_CLICK_BLOCK) {
-                if (NaturalDisaster.getMapManager().getCurrentStatus() == GameStatus.IN_LOBBY) {
+                if (NaturalDisaster.getGameManager().getCurrentStatus() == GameStatus.IN_LOBBY) {
                     Block b = e.getClickedBlock();
                     assert b != null;
                     if (b.getType().toString().contains("STAIRS")) {
