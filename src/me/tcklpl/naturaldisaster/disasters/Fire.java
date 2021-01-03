@@ -83,37 +83,13 @@ public class Fire extends Disaster {
                         for (int i = 0; i < max; i++) {
 
                             Block b = currentFireSources.get(currentBlockIndex.get());
-                            Block relative;
 
-                            relative = b.getRelative(BlockFace.NORTH);
-                            if (relative.getType() != Material.WATER)
-                            if (relative.getType() != Material.AIR && !previousBurnedBlocks.contains(relative) && !bufferedBlocks.contains(relative))
-                                bufferedBlocks.add(relative);
-
-                            relative = b.getRelative(BlockFace.SOUTH);
-                            if (relative.getType() != Material.WATER)
-                            if (relative.getType() != Material.AIR && !previousBurnedBlocks.contains(relative) && !bufferedBlocks.contains(relative))
-                                bufferedBlocks.add(relative);
-
-                            relative = b.getRelative(BlockFace.EAST);
-                            if (relative.getType() != Material.WATER)
-                            if (relative.getType() != Material.AIR && !previousBurnedBlocks.contains(relative) && !bufferedBlocks.contains(relative))
-                                bufferedBlocks.add(relative);
-
-                            relative = b.getRelative(BlockFace.WEST);
-                            if (relative.getType() != Material.WATER)
-                            if (relative.getType() != Material.AIR && !previousBurnedBlocks.contains(relative) && !bufferedBlocks.contains(relative))
-                                bufferedBlocks.add(relative);
-
-                            relative = b.getRelative(BlockFace.UP);
-                            if (relative.getType() != Material.WATER)
-                            if (relative.getType() != Material.AIR && !previousBurnedBlocks.contains(relative) && !bufferedBlocks.contains(relative))
-                                bufferedBlocks.add(relative);
-
-                            relative = b.getRelative(BlockFace.DOWN);
-                            if (relative.getType() != Material.WATER)
-                            if (relative.getType() != Material.AIR && !previousBurnedBlocks.contains(relative) && !bufferedBlocks.contains(relative))
-                                bufferedBlocks.add(relative);
+                            for (BlockFace face : BlockFace.values()) {
+                                Block relative = b.getRelative(face);
+                                if (relative.getType() != Material.WATER && relative .getType() != Material.AIR &&
+                                        !previousBurnedBlocks.contains(relative) && !bufferedBlocks.contains(relative))
+                                    bufferedBlocks.add(relative);
+                            }
 
                             if (currentBlockIndex.get() < (currentFireSources.size() - 1))
                                 currentBlockIndex.incrementAndGet();
