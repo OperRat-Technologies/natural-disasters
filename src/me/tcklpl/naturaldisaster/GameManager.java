@@ -12,7 +12,6 @@ import me.tcklpl.naturaldisaster.util.ActionBar;
 import me.tcklpl.naturaldisaster.util.NamesAndColors;
 import me.tcklpl.naturaldisaster.util.PlayerUtils;
 import org.bukkit.*;
-import org.bukkit.block.Biome;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
