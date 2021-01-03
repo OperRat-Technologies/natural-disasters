@@ -74,7 +74,7 @@ public class Flooding extends Disaster {
             if (map.getPlayersInArena().size() > 0)
                 for (Player p : map.getPlayersInArena()) {
                     assert p != null;
-                    if (p.getLocation().getY() <= currentY.get())
+                    if (p.getLocation().getY() < currentY.get())
                         p.damage(1);
                 }
             map.damagePlayerOutsideBounds(3);
