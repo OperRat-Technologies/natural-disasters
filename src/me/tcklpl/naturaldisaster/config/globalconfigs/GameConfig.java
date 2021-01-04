@@ -7,19 +7,19 @@ import org.bukkit.Material;
 public class GameConfig implements NDConfig {
 
     @ConfigField(name = "auto_start")
-    private boolean autoStart;
+    private boolean autoStart = true;
 
     @ConfigField(name = "min_players_to_start", min = 1, max = 20)
-    private int minPlayersToStart;
+    private int minPlayersToStart = 5;
 
     @ConfigField(name = "players_to_start", min = 2, max = 24)
-    private int playersToStart;
+    private int playersToStart = 10;
 
     @ConfigField(name = "long_start_timer_secs", min = 10, max = 300)
-    private int longStartTimerSeconds;
+    private int longStartTimerSeconds = 120;
 
     @ConfigField(name = "short_start_timer_secs", min = 5, max = 60)
-    private int shortStartTimerSeconds;
+    private int shortStartTimerSeconds = 30;
 
     public GameConfig() {
     }
@@ -33,15 +33,6 @@ public class GameConfig implements NDConfig {
                 ", longStartTimerSeconds=" + longStartTimerSeconds +
                 ", shortStartTimerSeconds=" + shortStartTimerSeconds +
                 '}';
-    }
-
-    @Override
-    public void fillDefaults() {
-        autoStart = true;
-        minPlayersToStart = 5;
-        playersToStart = 10;
-        longStartTimerSeconds = 120;
-        shortStartTimerSeconds = 30;
     }
 
     public boolean isAutoStart() {
@@ -62,5 +53,25 @@ public class GameConfig implements NDConfig {
 
     public int getShortStartTimerSeconds() {
         return shortStartTimerSeconds;
+    }
+
+    public void setAutoStart(boolean autoStart) {
+        this.autoStart = autoStart;
+    }
+
+    public void setMinPlayersToStart(int minPlayersToStart) {
+        this.minPlayersToStart = minPlayersToStart;
+    }
+
+    public void setPlayersToStart(int playersToStart) {
+        this.playersToStart = playersToStart;
+    }
+
+    public void setLongStartTimerSeconds(int longStartTimerSeconds) {
+        this.longStartTimerSeconds = longStartTimerSeconds;
+    }
+
+    public void setShortStartTimerSeconds(int shortStartTimerSeconds) {
+        this.shortStartTimerSeconds = shortStartTimerSeconds;
     }
 }

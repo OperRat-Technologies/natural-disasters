@@ -51,9 +51,6 @@ public class ConfigManager {
             assert ndConfig != null;
 
             if (!configFile.exists()) {
-
-                ndConfig.fillDefaults();
-
                 config = new YamlConfiguration();
                 FileConfiguration finalConfig = config;
                 NDConfig finalNdConfig = ndConfig;
@@ -119,10 +116,10 @@ public class ConfigManager {
         }
     }
 
-    public <T extends NDConfig> T getConfig(Class<T> config) {
+    public <T extends NDConfig> T requestConfig(Class<T> config) {
         for (ConfigContainer<?> container: allConfigContainers) {
             if (config.isInstance(container.getConfig()))
-                return (T) container.getConfig();
+                return config.cast(container.getConfig());
         }
         return null;
     }

@@ -1,5 +1,6 @@
 package me.tcklpl.naturaldisaster;
 
+import me.tcklpl.naturaldisaster.config.globalconfigs.GameConfig;
 import me.tcklpl.naturaldisaster.disasters.Disaster;
 import me.tcklpl.naturaldisaster.disasters.DisasterManager;
 import me.tcklpl.naturaldisaster.exceptions.InvalidGameStartException;
@@ -34,6 +35,8 @@ public class GameManager {
     private final Queue<DisasterMap> lastMaps = new LinkedList<>();
 
     private final Random r = new Random();
+
+    private final GameConfig gameConfig = NaturalDisaster.getConfigManager().requestConfig(GameConfig.class);
 
     private int startupCounterId;
 
