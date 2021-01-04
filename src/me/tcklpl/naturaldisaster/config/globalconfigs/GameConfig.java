@@ -25,6 +25,17 @@ public class GameConfig implements NDConfig {
     }
 
     @Override
+    public String toString() {
+        return "GameConfig{" +
+                "autoStart=" + autoStart +
+                ", minPlayersToStart=" + minPlayersToStart +
+                ", playersToStart=" + playersToStart +
+                ", longStartTimerSeconds=" + longStartTimerSeconds +
+                ", shortStartTimerSeconds=" + shortStartTimerSeconds +
+                '}';
+    }
+
+    @Override
     public void fillDefaults() {
         autoStart = true;
         minPlayersToStart = 5;

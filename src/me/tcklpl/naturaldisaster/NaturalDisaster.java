@@ -5,6 +5,8 @@ import me.tcklpl.naturaldisaster.admin.ArenaAdmin;
 import me.tcklpl.naturaldisaster.auth.AuthCommands;
 import me.tcklpl.naturaldisaster.auth.AuthManager;
 import me.tcklpl.naturaldisaster.commands.*;
+import me.tcklpl.naturaldisaster.config.ConfigManager;
+import me.tcklpl.naturaldisaster.config.globalconfigs.GameConfig;
 import me.tcklpl.naturaldisaster.database.Database;
 import me.tcklpl.naturaldisaster.events.*;
 import me.tcklpl.naturaldisaster.events.arena.Damage;
@@ -18,6 +20,7 @@ import me.tcklpl.naturaldisaster.shop.ShopCommand;
 import me.tcklpl.naturaldisaster.shop.ShopInventoryClick;
 import me.tcklpl.naturaldisaster.worlds.WorldCommands;
 import me.tcklpl.naturaldisaster.worlds.WorldManager;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -33,12 +36,15 @@ public class NaturalDisaster extends JavaPlugin {
     private static CPlayerManager cPlayerManager;
     private static GameManager gameManager;
     private static SkinManager skinManager;
+    private static ConfigManager configManager;
 
     @Override
     public void onEnable() {
 
         mainReference = this;
         authManager = new AuthManager();
+
+        configManager = new ConfigManager(this);
 
         List<String> managedWorlds = getConfig().getStringList("worlds");
         worldManager = new WorldManager(managedWorlds);
@@ -69,7 +75,7 @@ public class NaturalDisaster extends JavaPlugin {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        configManager.saveAllConfigs();
         saveConfig();
     }
 
@@ -140,4 +146,7 @@ public class NaturalDisaster extends JavaPlugin {
 
     public static SkinManager getSkinManager() { return skinManager; }
 
+    public static ConfigManager getConfigManager() {
+        return configManager;
+    }
 }
