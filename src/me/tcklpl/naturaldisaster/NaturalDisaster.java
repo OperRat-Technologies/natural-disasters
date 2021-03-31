@@ -6,7 +6,6 @@ import me.tcklpl.naturaldisaster.auth.AuthCommands;
 import me.tcklpl.naturaldisaster.auth.AuthManager;
 import me.tcklpl.naturaldisaster.commands.*;
 import me.tcklpl.naturaldisaster.config.ConfigManager;
-import me.tcklpl.naturaldisaster.config.globalconfigs.GameConfig;
 import me.tcklpl.naturaldisaster.database.Database;
 import me.tcklpl.naturaldisaster.events.*;
 import me.tcklpl.naturaldisaster.events.arena.Damage;
@@ -16,11 +15,11 @@ import me.tcklpl.naturaldisaster.player.cPlayer.CPlayerManager;
 import me.tcklpl.naturaldisaster.player.friends.FriendsGUI;
 import me.tcklpl.naturaldisaster.player.skins.RefreshSkin;
 import me.tcklpl.naturaldisaster.player.skins.SkinManager;
+import me.tcklpl.naturaldisaster.schematics.SchematicManager;
 import me.tcklpl.naturaldisaster.shop.ShopCommand;
 import me.tcklpl.naturaldisaster.shop.ShopInventoryClick;
 import me.tcklpl.naturaldisaster.worlds.WorldCommands;
 import me.tcklpl.naturaldisaster.worlds.WorldManager;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -37,6 +36,7 @@ public class NaturalDisaster extends JavaPlugin {
     private static GameManager gameManager;
     private static SkinManager skinManager;
     private static ConfigManager configManager;
+    private static SchematicManager schematicManager;
 
     @Override
     public void onEnable() {
@@ -59,6 +59,8 @@ public class NaturalDisaster extends JavaPlugin {
         database = new Database("localhost", 3306, "natural_disaster", "nds", "Bsr7lbh2zv91oWDp");
         cPlayerManager.loadPlayers();
 
+        schematicManager = new SchematicManager();
+
         registerEvents();
         registerCommands();
 
@@ -77,6 +79,8 @@ public class NaturalDisaster extends JavaPlugin {
         }
         configManager.saveAllConfigs();
         saveConfig();
+
+        schematicManager.saveSchematics();
     }
 
     private void registerEvents() {
@@ -113,7 +117,7 @@ public class NaturalDisaster extends JavaPlugin {
         Objects.requireNonNull(getCommand("start")).setExecutor(new Start(this));
         Objects.requireNonNull(getCommand("balance")).setExecutor(new Balance());
         Objects.requireNonNull(getCommand("admin")).setExecutor(new ArenaAdmin());
-        Objects.requireNonNull(getCommand("sch")).setExecutor(new SchematicCommand());
+        Objects.requireNonNull(getCommand("sch")).setExecutor(new SchematicCreator());
         Objects.requireNonNull(getCommand("heal")).setExecutor(new Heal());
         Objects.requireNonNull(getCommand("shop")).setExecutor(new ShopCommand());
         Objects.requireNonNull(getCommand("friends")).setExecutor(new FriendsGUI());
@@ -148,5 +152,9 @@ public class NaturalDisaster extends JavaPlugin {
 
     public static ConfigManager getConfigManager() {
         return configManager;
+    }
+
+    public static SchematicManager getSchematicManager() {
+        return schematicManager;
     }
 }

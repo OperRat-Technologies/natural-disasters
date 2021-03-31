@@ -1,8 +1,6 @@
 package me.tcklpl.naturaldisaster.disasters;
 
 import me.tcklpl.naturaldisaster.reflection.ReflectionWorldUtils;
-import me.tcklpl.naturaldisaster.schematics.SchematicLoadPosition;
-import me.tcklpl.naturaldisaster.schematics.SchematicManager;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -45,7 +43,7 @@ public class Volcano extends Disaster {
         super.startDisaster();
 
         Location volcanoPos = calcVolcanoSpawnPosition();
-        SchematicManager.getInstance().loadSchematic("volcano", volcanoPos, true, SchematicLoadPosition.FLOOR_CENTER);
+        //SchematicManager.getInstance().loadSchematic("volcano", volcanoPos, true, SchematicLoadPosition.FLOOR_CENTER);
 
         AtomicInteger timesRunned = new AtomicInteger(0);
 
