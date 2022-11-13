@@ -1,0 +1,74 @@
+name: NaturalDisasters
+main: me.tcklpl.naturaldisaster.NaturalDisaster
+version: "1.9.5"
+api-version: "1.15"
+prefix: Natural Disasters
+commands:
+  world:
+    description: World creation and management.
+    aliases: w
+    permission: op
+    usage: "Usage: /<command> [create/tp/list/unload] [void] [name]"
+  creative:
+    description: Changes gamemode to CREATIVE.
+    aliases: c
+    permission: op
+    usage: "Usage: /<command>"
+  survival:
+    description: Changes gamemode to SURVIVAL.
+    aliases: s
+    permission: op
+    usage: "Usage: /<command>"
+  adventure:
+    description: Changes gamemode to ADVENTURE.
+    aliases: a
+    permission: op
+    usage: "Usage: /<command>"
+  spectator:
+    description: Changes gamemode to SPECTATOR.
+    aliases: sp
+    permission: op
+    usage: "Usage: /<command>"
+  arena:
+    description: Criação de arenas.
+    permission: op
+    usage: "Usage: /<command> [create/pos1/pos2/spawn/list/info/cancel/finalize]"
+  start:
+    description: Começa o jogo.
+    permission: op
+    usage: "Usage: /<command>"
+  balance:
+    description: Mostra a situação financeira
+    usage: "Usage: /<command>"
+  admin:
+    description: Ferramenta de damin.
+    permission: op
+    usage: "Usage: /<command> [set] [map/disaster]"
+  sch:
+    description: Criação de schematics.
+    permission: op
+    usage: "Usage: /<command> [create/pos1/pos2/finalize/load] (name)"
+  heal:
+    description: Da heal.
+    permission: op
+    usage: "Usage: /<command>"
+  shop:
+    description: Abre a loja.
+    aliases: loja
+    usage: "Usage: /<command>"
+  friends:
+    description: Amigos.
+    aliases: amigos
+    usage: "Usage: /<command> [add]"
+  refresh:
+    description: Atualiza dados da conta.
+    usage: "Usage: /<command> [skin] (--force)"
+  register:
+    description: Registra o usuario.
+    usage: "Usage: /<command> [senha] [senha denovo]"
+  login:
+    description: Loga o usuario.
+    usage: "Usage: /<command> [senha]"
+libraries:
+  - de.mkammerer:argon2-jvm:2.11
+  - org.json:json:20220924
