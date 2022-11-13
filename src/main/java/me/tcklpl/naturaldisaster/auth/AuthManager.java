@@ -1,6 +1,5 @@
 package me.tcklpl.naturaldisaster.auth;
 
-import me.tcklpl.naturaldisaster.NaturalDisaster;
 import org.bukkit.entity.Player;
 
 import java.util.ArrayList;
@@ -21,7 +20,6 @@ public class AuthManager {
     }
 
     public boolean authPlayer(Player p) {
-        NaturalDisaster.getPlayerManager().getCPlayer(p.getUniqueId()).updateOnDatabase();
         return authenticatedPlayers.add(p);
     }
 

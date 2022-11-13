@@ -1,10 +1,6 @@
 package me.tcklpl.naturaldisaster.player.cPlayer;
 
-import me.tcklpl.naturaldisaster.NaturalDisaster;
-import me.tcklpl.naturaldisaster.database.Database;
-
 import java.io.Serializable;
-import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.UUID;
 
@@ -26,10 +22,6 @@ public class CPlayer implements Serializable {
         return password;
     }
 
-    public Timestamp getLastPasswordChange() {
-        return lastPasswordChange;
-    }
-
     public PlayerData getPlayerData() {
         return playerData;
     }
@@ -43,27 +35,4 @@ public class CPlayer implements Serializable {
         return uuid;
     }
 
-    public void updateOnDatabase() {
-        try {
-            Database db = NaturalDisaster.getDatabase();
-            db.update("players",
-                    new String[] {"uuid", "name", "password", "last_pwd_change", "wins", "hints", "respawns", "money"},
-                    new Object[] {uuid.toString(), playerData.getName(), password, lastPasswordChange, playerData.getWins(), playerData.getHints(), playerData.getRespawns(), playerData.getMoney()},
-                    new String[] {"uuid"},
-                    new Object[] {uuid.toString()});
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void insertOnDatabase() {
-        try {
-            Database db = NaturalDisaster.getDatabase();
-            db.insert("players",
-                    new String[] {"uuid", "name", "password", "last_pwd_change", "wins", "hints", "respawns", "money"},
-                    new Object[] {uuid.toString(), playerData.getName(), password, lastPasswordChange, playerData.getWins(), playerData.getHints(), playerData.getRespawns(), playerData.getMoney()});
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
 }

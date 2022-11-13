@@ -5,7 +5,6 @@ import me.tcklpl.naturaldisaster.admin.ArenaAdmin;
 import me.tcklpl.naturaldisaster.auth.AuthCommands;
 import me.tcklpl.naturaldisaster.auth.AuthManager;
 import me.tcklpl.naturaldisaster.commands.*;
-import me.tcklpl.naturaldisaster.database.Database;
 import me.tcklpl.naturaldisaster.events.*;
 import me.tcklpl.naturaldisaster.events.arena.Damage;
 import me.tcklpl.naturaldisaster.events.arena.Death;
@@ -29,7 +28,6 @@ import java.util.Objects;
 public class NaturalDisaster extends JavaPlugin {
 
     WorldManager worldManager;
-    private static Database database;
     private static JavaPlugin mainReference;
     private static AuthManager authManager;
     private static CPlayerManager cPlayerManager;
@@ -53,7 +51,6 @@ public class NaturalDisaster extends JavaPlugin {
         skinManager.setupSkins();
 
         cPlayerManager = new CPlayerManager();
-        database = new Database("localhost", 3306, "natural_disaster", "nds", "Bsr7lbh2zv91oWDp");
         cPlayerManager.loadPlayers();
 
         schematicManager = new SchematicManager();
@@ -128,10 +125,6 @@ public class NaturalDisaster extends JavaPlugin {
 
     public static JavaPlugin getMainReference() {
         return mainReference;
-    }
-
-    public static Database getDatabase() {
-        return database;
     }
 
     public static CPlayerManager getPlayerManager() { return  cPlayerManager; }

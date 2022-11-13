@@ -9,7 +9,6 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class CPlayerManager {
@@ -24,7 +23,7 @@ public class CPlayerManager {
         for (CPlayer cp : managedPlayers)
             if (cp.getUuid().equals(uuid))
                 return cp;
-            return null;
+        return null;
     }
 
     public CPlayer getCPlayer(String name) {
@@ -35,8 +34,6 @@ public class CPlayerManager {
     }
 
     public boolean registerCPlayer(CPlayer cp) {
-        if (NaturalDisaster.getDatabase().isOk())
-            cp.insertOnDatabase();
         return managedPlayers.add(cp);
     }
 
@@ -46,7 +43,7 @@ public class CPlayerManager {
 
             try (Stream<Path> walk = Files.walk(Paths.get(NaturalDisaster.getMainReference().getDataFolder() + "/players"))) {
 
-                List<String> result = walk.map(Path::toString).filter(f -> f.endsWith(".player")).collect(Collectors.toList());
+                List<String> result = walk.map(Path::toString).filter(f -> f.endsWith(".player")).toList();
                 for (String playerFileName : result) {
                     File playerFile = new File(playerFileName);
 
@@ -57,7 +54,6 @@ public class CPlayerManager {
                     objectInputStream.close();
 
                     managedPlayers.add(cp);
-                    cp.updateOnDatabase();
                 }
 
                 NaturalDisaster.getMainReference().getLogger().info("Carregados " + result.size() + " jogadores");
@@ -80,7 +76,6 @@ public class CPlayerManager {
             int count = 0;
             for (CPlayer cp : managedPlayers) {
                 if (cp.getPlayerData().isModified()) {
-                    cp.updateOnDatabase();
                     File saveFile = new File(NaturalDisaster.getMainReference().getDataFolder() + "/players", cp.getPlayerData().getName() + ".player");
                     if (saveFile.exists())
                         if (!saveFile.delete()) {
