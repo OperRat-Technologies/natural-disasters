@@ -1,12 +1,14 @@
 package me.tcklpl.naturaldisaster.worlds;
 
+import me.tcklpl.naturaldisaster.NaturalDisaster;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.bukkit.generator.WorldInfo;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.Objects;
 
@@ -19,10 +21,10 @@ public class WorldCommands implements CommandExecutor {
     }
 
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String alias, String[] args) {
+    public boolean onCommand(CommandSender sender, @NotNull Command cmd, @NotNull String alias, String[] args) {
         if (!sender.isOp()) return false;
         if (cmd.getName().equalsIgnoreCase("world") || alias.equalsIgnoreCase("w")) {
-            if (args.length == 0) return false;
+            if (args.length == 0) return false; 
 
             // World creation
             if (args[0].equalsIgnoreCase("create")) {
@@ -52,12 +54,13 @@ public class WorldCommands implements CommandExecutor {
 
             if (args[0].equalsIgnoreCase("list")) {
                 if (args.length != 1) return false;
-                sender.sendMessage(ChatColor.GRAY + "Mundos carregados atualmente:");
+                sender.sendMessage();
                 StringBuilder msg = new StringBuilder(ChatColor.GRAY + "");
-                for (World w : Bukkit.getWorlds()) {
-                    msg.append(w.getName());
+                NaturalDisaster.getMainReference().getWorldManager().managedWorlds.forEach(w -> {
+                    msg.append(Bukkit.getWorlds().stream().map(WorldInfo::getName).anyMatch(x -> x.equalsIgnoreCase(w)) ? ChatColor.GREEN : ChatColor.GRAY);
+                    msg.append(w);
                     msg.append(" ");
-                }
+                });
                 sender.sendMessage(msg.toString());
                 return true;
             }

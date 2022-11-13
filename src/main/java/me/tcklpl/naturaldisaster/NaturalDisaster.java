@@ -28,7 +28,7 @@ import java.util.Objects;
 public class NaturalDisaster extends JavaPlugin {
 
     WorldManager worldManager;
-    private static JavaPlugin mainReference;
+    private static NaturalDisaster mainReference;
     private static AuthManager authManager;
     private static CPlayerManager cPlayerManager;
     private static GameManager gameManager;
@@ -121,9 +121,13 @@ public class NaturalDisaster extends JavaPlugin {
 
     }
 
+    public WorldManager getWorldManager() {
+        return worldManager;
+    }
+
     public static AuthManager getAuthManager() { return authManager; }
 
-    public static JavaPlugin getMainReference() {
+    public static NaturalDisaster getMainReference() {
         return mainReference;
     }
 
