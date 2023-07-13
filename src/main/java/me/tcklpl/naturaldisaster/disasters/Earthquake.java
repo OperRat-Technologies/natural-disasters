@@ -1,7 +1,9 @@
 package me.tcklpl.naturaldisaster.disasters;
 
 import com.google.common.collect.Lists;
-import me.tcklpl.naturaldisaster.reflection.ReflectionWorldUtils;
+import me.tcklpl.naturaldisaster.NaturalDisaster;
+import me.tcklpl.naturaldisaster.util.BiomeUtils;
+import me.tcklpl.naturaldisaster.util.EarthquakeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -23,27 +25,12 @@ public class Earthquake extends Disaster {
      * HighPriorityBlocks are those on top of air or passable blocks.
      * LowPriorityBlocks are those on top of high priority blocks.
      */
-    private static class GravityCandidates {
+    private record GravityCandidates(List<Block> highPriorityBlocks, List<Block> lowPriorityBlocks) {
 
-        private final List<Block> highPriorityBlocks;
-        private final List<Block> lowPriorityBlocks;
-
-        public GravityCandidates(List<Block> highPriorityBlocks, List<Block> lowPriorityBlocks) {
-            this.highPriorityBlocks = highPriorityBlocks;
-            this.lowPriorityBlocks = lowPriorityBlocks;
-        }
-
-        public List<Block> getHighPriorityBlocks() {
-            return highPriorityBlocks;
-        }
-
-        public List<Block> getLowPriorityBlocks() {
-            return lowPriorityBlocks;
-        }
     }
 
     public Earthquake() {
-        super("Earthquake", true, Material.COBBLESTONE, ReflectionWorldUtils.Precipitation.ALL);
+        super("Earthquake", true, Material.COBBLESTONE, BiomeUtils.PrecipitationRequirements.ANYTHING);
     }
 
     private GravityCandidates getYColumnBlocks(int x, int z) {
@@ -51,8 +38,9 @@ public class Earthquake extends Disaster {
         List<Block> blocksToBreak = new ArrayList<>();
         List<Block> blocksToDisappear = new ArrayList<>();
 
-        for (int y = map.top; y >= map.floor; y--) {
+        for (int y = map.getHighestCoordsLocation().getBlockY(); y >= map.getLowestCoordsLocation().getBlockY(); y--) {
             Block b = map.getWorld().getBlockAt(x, y, z);
+            if (b.getType() == Material.AIR) continue;
 
             if (b.isLiquid() ||
                     b.isPassable() ||
@@ -69,136 +57,6 @@ public class Earthquake extends Disaster {
         return new GravityCandidates(blocksToBreak, blocksToDisappear);
     }
 
-    private List<Block> generateInitialFloorCrack(int xz) {
-        List<Block> initialCrack = new ArrayList<>();
-
-        // Get floor level
-        Random r = new Random();
-        int floorYlevel = map.floor - 1;
-        boolean foundFloor = false;
-
-        for (; floorYlevel < map.top && !foundFloor; floorYlevel++) {
-            for (int x = map.minX; x <= map.minX + map.gapX && !foundFloor; x++)
-                for (int z = map.minZ; z <= map.minZ + map.gapZ && !foundFloor; z++)
-                    if (map.getWorld().getBlockAt(x, floorYlevel, z).getType() != Material.AIR)
-                        foundFloor = true;
-        }
-        floorYlevel--;
-
-        int epicenterX = map.minX + Math.floorDiv(map.gapX, 3) + r.nextInt(Math.floorDiv(map.gapX, 3));
-        int epicenterZ = map.minZ + Math.floorDiv(map.gapZ, 3) + r.nextInt(Math.floorDiv(map.gapZ, 3));
-
-        int direcaoExata;
-
-        Block epicenter = map.getWorld().getBlockAt(epicenterX, floorYlevel, epicenterZ);
-        initialCrack.add(epicenter);
-        Block nextBlockToBreak = epicenter;
-
-        // NORTE - SUL
-        if (xz == 0) {
-
-            // Primeiro expandir pro norte
-            while (nextBlockToBreak.getType() != Material.AIR) {
-
-                direcaoExata = r.nextInt(3);
-                switch (direcaoExata) {
-                    case 0:
-                        nextBlockToBreak = nextBlockToBreak.getRelative(BlockFace.NORTH_WEST);
-                        break;
-                    case 1:
-                        nextBlockToBreak = nextBlockToBreak.getRelative(BlockFace.NORTH);
-                        break;
-                    case 2:
-                        nextBlockToBreak = nextBlockToBreak.getRelative(BlockFace.NORTH_EAST);
-                        break;
-                }
-                initialCrack.add(nextBlockToBreak);
-            }
-
-            nextBlockToBreak = epicenter;
-
-            // Agora expandir pro sul
-            while (nextBlockToBreak.getType() != Material.AIR) {
-
-                direcaoExata = r.nextInt(3);
-                switch (direcaoExata) {
-                    case 0:
-                        nextBlockToBreak = nextBlockToBreak.getRelative(BlockFace.SOUTH_WEST);
-                        break;
-                    case 1:
-                        nextBlockToBreak = nextBlockToBreak.getRelative(BlockFace.SOUTH);
-                        break;
-                    case 2:
-                        nextBlockToBreak = nextBlockToBreak.getRelative(BlockFace.SOUTH_EAST);
-                        break;
-                }
-                initialCrack.add(nextBlockToBreak);
-            }
-            // LESTE - OESTE
-        } else {
-
-            // Primeiro expandir pro leste
-            while (nextBlockToBreak.getType() != Material.AIR) {
-
-                direcaoExata = r.nextInt(3);
-                switch (direcaoExata) {
-                    case 0:
-                        nextBlockToBreak = nextBlockToBreak.getRelative(BlockFace.NORTH_EAST);
-                        break;
-                    case 1:
-                        nextBlockToBreak = nextBlockToBreak.getRelative(BlockFace.EAST);
-                        break;
-                    case 2:
-                        nextBlockToBreak = nextBlockToBreak.getRelative(BlockFace.SOUTH_EAST);
-                        break;
-                }
-                initialCrack.add(nextBlockToBreak);
-            }
-
-            nextBlockToBreak = epicenter;
-
-            // Agora expandir pro oeste
-            while (nextBlockToBreak.getType() != Material.AIR) {
-
-                direcaoExata = r.nextInt(3);
-                switch (direcaoExata) {
-                    case 0:
-                        nextBlockToBreak = nextBlockToBreak.getRelative(BlockFace.NORTH_WEST);
-                        break;
-                    case 1:
-                        nextBlockToBreak = nextBlockToBreak.getRelative(BlockFace.WEST);
-                        break;
-                    case 2:
-                        nextBlockToBreak = nextBlockToBreak.getRelative(BlockFace.SOUTH_WEST);
-                        break;
-                }
-                initialCrack.add(nextBlockToBreak);
-            }
-        }
-
-        return initialCrack;
-    }
-
-    private List<Block> expandFloorCrack(int distance, int xz, List<Block> initialCrack) {
-
-        List<Block> expandedCrack = new ArrayList<>();
-        // crack de norte a sul, expandir de leste a oeste
-        if (xz == 0) {
-            for (Block b : initialCrack) {
-                expandedCrack.add(b.getRelative(BlockFace.EAST, distance));
-                expandedCrack.add(b.getRelative(BlockFace.WEST, distance));
-            }
-        }
-        // crack de leste a oeste, expandir de norte a sul
-        else {
-            for (Block b : initialCrack) {
-                expandedCrack.add(b.getRelative(BlockFace.NORTH, distance));
-                expandedCrack.add(b.getRelative(BlockFace.SOUTH, distance));
-            }
-        }
-        return expandedCrack;
-    }
-
     private GravityCandidates generateGravityCandidates() {
 
         List<Block> gravityCandidates = new ArrayList<>();
@@ -206,19 +64,19 @@ public class Earthquake extends Disaster {
 
         Random r = new Random();
         // Blocos podem ser afetados por gravidade acima de 1/2 da altura do mapa + [0, 1/4 da altura do mapa]
-        int yTreshold = Math.floorDiv(map.top - map.floor, 2) + r.nextInt(Math.floorDiv(map.top - map.floor, 4));
+        int yTreshold = Math.floorDiv(map.getMapSize().getY(), 2) + r.nextInt(Math.floorDiv(map.getMapSize().getY(), 4));
 
-        for (int y = yTreshold; y <= map.top; y++) {
-            for (int x = map.minX; x <= map.minX + map.gapX; x++)
-                for (int z = map.minZ; z <= map.minZ + map.gapZ; z++)
+        for (int y = yTreshold; y <= map.getHighestCoordsLocation().getBlockY(); y++) {
+            for (int x = map.getLowestCoordsLocation().getBlockX(); x <= map.getHighestCoordsLocation().getBlockX(); x++)
+                for (int z = map.getLowestCoordsLocation().getBlockZ(); z <= map.getHighestCoordsLocation().getBlockZ(); z++)
                     if (map.getWorld().getBlockAt(x, y, z).getType() != Material.AIR) {
                         Block b = map.getWorld().getBlockAt(x, y, z);
                         Block downRelative = b.getRelative(BlockFace.DOWN);
                         if (!b.getType().toString().contains("LEAVES"))
-                        if (downRelative.getType() == Material.AIR || downRelative.isPassable())
-                            gravityCandidates.add(b);
-                        else if (gravityCandidates.contains(downRelative))
-                            lowPriorityGravityCandidates.add(b);
+                            if (downRelative.getType() == Material.AIR || downRelative.isPassable())
+                                gravityCandidates.add(b);
+                            else if (gravityCandidates.contains(downRelative))
+                                lowPriorityGravityCandidates.add(b);
                     }
         }
 
@@ -229,11 +87,11 @@ public class Earthquake extends Disaster {
 
         double secondsBetweenGravityBatches = 0.8;
 
-        Collections.shuffle(gravityCandidates.getHighPriorityBlocks());
-        Collections.shuffle(gravityCandidates.getLowPriorityBlocks());
+        Collections.shuffle(gravityCandidates.highPriorityBlocks());
+        Collections.shuffle(gravityCandidates.lowPriorityBlocks());
 
-        List<List<Block>> highPriorityBatches = Lists.partition(gravityCandidates.getHighPriorityBlocks(), gravityBuffer);
-        List<List<Block>> lowPriorityBatches  = Lists.partition(gravityCandidates.getLowPriorityBlocks() , gravityBuffer);
+        List<List<Block>> highPriorityBatches = Lists.partition(gravityCandidates.highPriorityBlocks(), gravityBuffer);
+        List<List<Block>> lowPriorityBatches  = Lists.partition(gravityCandidates.lowPriorityBlocks() , gravityBuffer);
 
         for (int i = 0; i < highPriorityBatches.size(); i++) {
 
@@ -253,17 +111,20 @@ public class Earthquake extends Disaster {
         }
     }
 
+    private int i = 0;
+    private Material[] debug = new Material[] { Material.RED_WOOL, Material.YELLOW_WOOL, Material.GREEN_WOOL, Material.BLUE_WOOL, Material.PURPLE_WOOL};
     private void destroyCrackPattern(List<Block> blocks) {
         List<Block> highBlocks = new ArrayList<>();
         List<Block> lowBlocks = new ArrayList<>();
         for (Block b : blocks) {
             GravityCandidates candidates = getYColumnBlocks(b.getX(), b.getZ());
-            highBlocks.addAll(candidates.getHighPriorityBlocks());
-            lowBlocks.addAll(candidates.getLowPriorityBlocks());
+            highBlocks.addAll(candidates.highPriorityBlocks());
+            lowBlocks.addAll(candidates.lowPriorityBlocks());
         }
 
-        map.bufferedReplaceBlocks(lowBlocks, Material.AIR, 300, false);
-        map.bufferedReplaceBlocks(highBlocks, Material.AIR, 300, true);
+        var mat = debug[i++ % debug.length];
+        map.bufferedReplaceBlocks(lowBlocks, mat, 300, false);
+        map.bufferedReplaceBlocks(highBlocks, mat, 300, true);
     }
 
     @Override
@@ -272,12 +133,26 @@ public class Earthquake extends Disaster {
 
         map.makeRain(true);
 
-        Random r = random;
-        // XZ = 0 norte - sul
-        // XZ = 1 leste - oeste
-        int xz = r.nextInt(2);
-        List<Block> initialCrack = generateInitialFloorCrack(xz);
-        GravityCandidates gravityCandidates = generateGravityCandidates();
+        Random r = NaturalDisaster.getRandom();
+        var crackDirections = EarthquakeUtils.randomizeCrackDirection();
+        var crack = new ArrayList<Block>();
+
+        int sizeX = map.getHighestCoordsLocation().getBlockX() - map.getLowestCoordsLocation().getBlockX();
+        int sizeZ = map.getHighestCoordsLocation().getBlockZ() - map.getLowestCoordsLocation().getBlockZ();
+
+        // Generate somewhere in the center of the map
+        int generatorX = map.getLowestCoordsLocation().getBlockX() + (sizeX / 3) + Math.round(random.nextFloat() * ((float) sizeX / 3));
+        int generatorZ = map.getLowestCoordsLocation().getBlockZ() + (sizeZ / 3) + Math.round(random.nextFloat() * ((float) sizeZ / 3));
+
+        Block generator = map.getWorld().getBlockAt(generatorX, map.getMinY(), generatorZ);
+        crack.add(generator);
+
+        EarthquakeUtils.expandCrackOnDirection(generator, crackDirections[0], map.getLowestCoordsLocation(), map.getHighestCoordsLocation(), crack);
+        EarthquakeUtils.expandCrackOnDirection(generator, crackDirections[1], map.getLowestCoordsLocation(), map.getHighestCoordsLocation(), crack);
+
+        NaturalDisaster.getMainReference().getLogger().info("Crack size: " + crack.size());
+
+        var expansions = EarthquakeUtils.getCrackExpansions(crack, map.getLowestCoordsLocation(), map.getHighestCoordsLocation(), crackDirections);
 
         AtomicInteger timesRunned = new AtomicInteger(0);
         AtomicInteger currentExpansion = new AtomicInteger(0);
@@ -288,19 +163,27 @@ public class Earthquake extends Disaster {
             timesRunned.addAndGet(1);
             if ((timesRunned.get() % 3) == 0) {
 
-                // 40% de chance
-                if (r.nextInt(100) < 70) {
-                    if (hasCracked.get()) {
-                        List<Block> expansion = expandFloorCrack(currentExpansion.getAndIncrement(), xz, initialCrack);
-                        destroyCrackPattern(expansion);
-                    } else {
-                        hasCracked.set(true);
-                        destroyCrackPattern(initialCrack);
-
-                        breakGravityCandidates(gravityCandidates);
-
-                    }
+                if (currentExpansion.get() < expansions.size()) {
+                    var index = currentExpansion.getAndIncrement();
+                    destroyCrackPattern(expansions.get(index));
                 }
+
+
+//                // 40% de chance
+//                if (r.nextInt(100) < 70) {
+//
+//
+//
+////                    if (hasCracked.get()) {
+////                        destroyCrackPattern(expansion);
+////                    } else {
+////                        hasCracked.set(true);
+////                        destroyCrackPattern(initialCrack);
+////
+////                        breakGravityCandidates(gravityCandidates);
+////
+////                    }
+//                }
 
             }
 

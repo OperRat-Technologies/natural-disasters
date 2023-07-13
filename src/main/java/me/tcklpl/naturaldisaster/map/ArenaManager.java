@@ -122,18 +122,17 @@ public class ArenaManager {
 
         arena.updateArenaWorld(w);
 
-        new ActionBar(ChatColor.GRAY + "Carregando arena...");
-
         Set<Chunk> arenaChunks = new HashSet<>();
 
-        int startChunkX = (arena.minX - 8) >> 4;
-        int startChunkZ = (arena.minZ - 8) >> 4;
+        int startChunkX = (arena.getMinX() - 8) >> 4;
+        int startChunkZ = (arena.getMinZ() - 8) >> 4;
 
-        int endChunkX = (arena.minX + arena.gapX + 8) >> 4;
-        int endChunkZ = (arena.minZ + arena.gapZ + 8) >> 4;
+        int endChunkX = (arena.getMinX() + arena.getMapSize().getX() + 8) >> 4;
+        int endChunkZ = (arena.getMinZ() + arena.getMapSize().getZ() + 8) >> 4;
 
         int totalChunks = Math.abs((endChunkX - startChunkX + 1) * (endChunkZ - startChunkZ + 1));
         Bukkit.getLogger().info("Carregando " + totalChunks + " chunks");
+        new ActionBar(ChatColor.YELLOW + "Carregando arena " + ChatColor.RED + arena.getName() + ChatColor.YELLOW + "...").sendToAll();
 
         int i = 1;
         for (int x = startChunkX; x <= endChunkX; x++) {
@@ -142,7 +141,6 @@ public class ArenaManager {
                 int finalZ = z;
                 int finalI = i;
                 Bukkit.getScheduler().runTaskLater(main, () -> {
-                    new ActionBar("[...] Carregando mundo: " + Math.floorDiv(finalI * 100, totalChunks) + "%").sendToAll();
                     Chunk c = w.getChunkAt(finalX, finalZ);
                     c.load();
                     arenaChunks.add(c);
@@ -151,7 +149,7 @@ public class ArenaManager {
                         arena.setArenaChunks(arenaChunks);
                         NaturalDisaster.getGameManager().startNextGame();
                     }
-                }, i * 10L);
+                }, i);
                 i++;
             }
         }

@@ -1,6 +1,6 @@
 package me.tcklpl.naturaldisaster.disasters;
 
-import me.tcklpl.naturaldisaster.reflection.ReflectionWorldUtils;
+import me.tcklpl.naturaldisaster.util.BiomeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -15,7 +15,7 @@ public class TNTRain extends Disaster {
     private Random r;
 
     public TNTRain() {
-        super("TNT Rain", true, Material.TNT, ReflectionWorldUtils.Precipitation.ALL);
+        super("TNT Rain", true, Material.TNT, BiomeUtils.PrecipitationRequirements.ANYTHING);
     }
 
     @Override
@@ -33,15 +33,15 @@ public class TNTRain extends Disaster {
         int taskId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(main, () -> {
 
             for (int i = 0; i < tntToSpawn.get(); i++) {
-                int x = map.minX + r.nextInt(map.gapX);
-                int z = map.minZ + r.nextInt(map.gapZ);
-                Location loc = new Location(map.getWorld(), x, map.top, z);
+                int x = map.getLowestCoordsLocation().getBlockX() + r.nextInt(map.getMapSize().getX());
+                int z = map.getLowestCoordsLocation().getBlockZ() + r.nextInt(map.getMapSize().getZ());
+                Location loc = new Location(map.getWorld(), x, map.getHighestCoordsLocation().getBlockY(), z);
 
                 TNTPrimed tnt = Objects.requireNonNull(map.getWorld()).spawn(loc, TNTPrimed.class);
 
                 tnt.setTicksLived(5);
 
-                tnt.setFuseTicks(20 + 20 * Math.floorDiv(map.top - map.floor, 20)); // 1s inicial + 1s p/ cada 20 blocos
+                tnt.setFuseTicks(20 + map.getMapSize().getY()); // 1s inicial + 1s p/ cada 20 blocos
             }
 
             if ((timesRunned.incrementAndGet() % 10) == 0)

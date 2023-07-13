@@ -6,7 +6,7 @@ import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.player.skins.CustomSkin;
 import me.tcklpl.naturaldisaster.reflection.Packets;
 import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
-import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.json.JSONArray;
@@ -128,12 +128,12 @@ public class SkinUtils {
             GameProfile gameProfile = (GameProfile) p.getClass().getMethod("getProfile").invoke(p);
             gameProfile.getProperties().put("textures", new Property("textures", skin.getValue(), skin.getSignature()));
 
-            var packetPlayerOutRemove = Packets.Play.PlayOutPlayerInfo(ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER, p);
+            var packetPlayerOutRemove = Packets.Play.PlayerInfoRemove(p);
             ReflectionUtils.sendPacket(p, packetPlayerOutRemove);
 
             setGameProfile(playerHandle, gameProfile);
 
-            var packetPlayerOutAdd = Packets.Play.PlayOutPlayerInfo(ClientboundPlayerInfoPacket.Action.ADD_PLAYER, p);
+            var packetPlayerOutAdd = Packets.Play.PlayOutPlayerInfo(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, p);
             ReflectionUtils.sendPacket(p, packetPlayerOutAdd);
 
             ReflectionUtils.updatePlayerForEveryone(main, p);

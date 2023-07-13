@@ -24,8 +24,7 @@ public class WorldManager {
         for(String world : worlds) {
             File folder = new File(Bukkit.getServer().getWorldContainer(), world);
             if (!folder.exists()) {
-                NaturalDisaster.getMainReference().getLogger().log(Level.WARNING, "Could not load world " + world + ", exiting world load");
-                return;
+                NaturalDisaster.getMainReference().getLogger().log(Level.WARNING, "Could not load world " + world + ", ignoring...");
             } else {
                 managedWorlds.add(world);
             }
@@ -35,10 +34,11 @@ public class WorldManager {
 
     public boolean createVoidWorld(String name) {
         if (managedWorlds.stream().noneMatch(name::equalsIgnoreCase)) {
-            String voidSource = Bukkit.getServer().getWorldContainer() + "/void-template";
-            File srcDir = new File(voidSource);
-            String voidDest = Bukkit.getServer().getWorldContainer() + "/" + name;
-            File destDir = new File(voidDest);
+
+            var worldFolder = Bukkit.getServer().getWorldContainer();
+
+            File srcDir = new File(worldFolder, "void-template");
+            File destDir = new File(worldFolder, name);
             try {
                 FileUtils.copyDirectory(srcDir, destDir);
             } catch (IOException e) {
@@ -66,7 +66,6 @@ public class WorldManager {
     public List<String> getManagedWorlds() {
         return managedWorlds;
     }
-
 
 
 }

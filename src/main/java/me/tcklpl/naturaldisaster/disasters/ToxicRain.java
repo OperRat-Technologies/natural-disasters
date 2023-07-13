@@ -1,6 +1,6 @@
 package me.tcklpl.naturaldisaster.disasters;
 
-import me.tcklpl.naturaldisaster.reflection.ReflectionWorldUtils;
+import me.tcklpl.naturaldisaster.util.BiomeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class ToxicRain extends Disaster {
 
     public ToxicRain() {
-        super("Toxic Rain", true, Material.LIME_DYE, ReflectionWorldUtils.Precipitation.RAIN);
+        super("Toxic Rain", true, Material.LIME_DYE, BiomeUtils.PrecipitationRequirements.SHOULD_RAIN);
     }
 
     @Override
@@ -38,56 +38,56 @@ public class ToxicRain extends Disaster {
             timesExecuted.getAndIncrement();
 
             if (map.getPlayersInArena().size() > 0)
-            for (Player p : map.getPlayersInArena()) {
+                for (Player p : map.getPlayersInArena()) {
 
-                // Damage player
-                assert p != null;
-                if (p.getGameMode() == GameMode.ADVENTURE) {
-                    Location l = p.getLocation();
-                    int topo = Math.max(map.getPos1().getBlockY(), map.getPos2().getBlockY());
-                    boolean blockAbove = false;
-                    for (int y = l.getBlockY() + 1; y <= topo && !blockAbove; y++) {
-                        if (map.getWorld().getBlockAt(l.getBlockX(), y, l.getBlockZ()).getBlockData().getMaterial() != Material.AIR)
-                            blockAbove = true;
-                    }
-                    if (!blockAbove) {
-                        p.damage(currentDamage.get());
-                        p.addPotionEffect(PotionEffectType.POISON.createEffect(poisonDuration.get(), poisonStrenght.get()));
-                    }
-                }
-
-                // Destroy blocks
-                for (int i = 0; i < blocksToBreak.get(); i++) {
-                    int blockX = map.minX + r.nextInt(map.gapX);
-                    int blockY = map.top;
-                    int blockZ = map.minZ + r.nextInt(map.gapZ);
-                    for (; blockY >= map.floor; blockY--) {
-                        Block b = map.getWorld().getBlockAt(blockX, blockY, blockZ);
-                        Block bUnder = map.getWorld().getBlockAt(blockX, blockY - 1, blockZ);
-                        if (b.getBlockData().getMaterial() != Material.AIR) {
-                            if (bUnder.getType() == Material.AIR || b.getBlockData().getMaterial().isSolid())
-                                b.setType(Material.LIME_WOOL);
-                            else b.setType(Material.LIME_CARPET);
-                            Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> b.setType(Material.AIR), 40L);
-                            break;
+                    // Damage player
+                    assert p != null;
+                    if (p.getGameMode() == GameMode.ADVENTURE) {
+                        Location l = p.getLocation();
+                        int topo = Math.max(map.getPos1().getBlockY(), map.getPos2().getBlockY());
+                        boolean blockAbove = false;
+                        for (int y = l.getBlockY() + 1; y <= topo && !blockAbove; y++) {
+                            if (map.getWorld().getBlockAt(l.getBlockX(), y, l.getBlockZ()).getBlockData().getMaterial() != Material.AIR)
+                                blockAbove = true;
+                        }
+                        if (!blockAbove) {
+                            p.damage(currentDamage.get());
+                            p.addPotionEffect(PotionEffectType.POISON.createEffect(poisonDuration.get(), poisonStrenght.get()));
                         }
                     }
+
+                    // Destroy blocks
+                    for (int i = 0; i < blocksToBreak.get(); i++) {
+                        int blockX = map.getLowestCoordsLocation().getBlockX() + r.nextInt(map.getMapSize().getX());
+                        int blockY = map.getHighestCoordsLocation().getBlockY();
+                        int blockZ = map.getLowestCoordsLocation().getBlockZ() + r.nextInt(map.getMapSize().getZ());
+                        for (; blockY >= map.getLowestCoordsLocation().getBlockY(); blockY--) {
+                            Block b = map.getWorld().getBlockAt(blockX, blockY, blockZ);
+                            Block bUnder = map.getWorld().getBlockAt(blockX, blockY - 1, blockZ);
+                            if (b.getBlockData().getMaterial() != Material.AIR) {
+                                if (bUnder.getType() == Material.AIR || b.getBlockData().getMaterial().isSolid())
+                                    b.setType(Material.LIME_WOOL);
+                                else b.setType(Material.LIME_CARPET);
+                                Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> b.setType(Material.AIR), 40L);
+                                break;
+                            }
+                        }
+                    }
+
+                    // Increase difficulty with time
+                    if ((timesExecuted.get() % 10) == 0) {
+                        blocksToBreak.addAndGet(5);
+                    }
+
+                    if ((timesExecuted.get() % 20) == 0)
+                        poisonDuration.addAndGet(20);
+
+                    if ((timesExecuted.get() % 30) == 0)
+                        poisonStrenght.addAndGet(1);
+
+                    if ((timesExecuted.get() % 60) == 0)
+                        currentDamage.addAndGet(1);
                 }
-
-                // Increase difficulty with time
-                if ((timesExecuted.get() % 10) == 0) {
-                    blocksToBreak.addAndGet(5);
-                }
-
-                if ((timesExecuted.get() % 20) == 0)
-                    poisonDuration.addAndGet(20);
-
-                if ((timesExecuted.get() % 30) == 0)
-                    poisonStrenght.addAndGet(1);
-
-                if ((timesExecuted.get() % 60) == 0)
-                    currentDamage.addAndGet(1);
-            }
 
         }, startDelay, 20L);
 

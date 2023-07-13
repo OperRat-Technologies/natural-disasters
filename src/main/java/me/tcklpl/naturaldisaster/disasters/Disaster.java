@@ -2,7 +2,7 @@ package me.tcklpl.naturaldisaster.disasters;
 
 import me.tcklpl.naturaldisaster.NaturalDisaster;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
-import me.tcklpl.naturaldisaster.reflection.ReflectionWorldUtils;
+import me.tcklpl.naturaldisaster.util.BiomeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Biome;
@@ -19,7 +19,7 @@ public abstract class Disaster {
     boolean isActive;
     protected boolean playable;
     protected Material icon;
-    protected ReflectionWorldUtils.Precipitation precipitationType;
+    protected BiomeUtils.PrecipitationRequirements precipitationRequirements;
     protected Biome arenaSpecificBiome;
 
     long startDelay = 100L;
@@ -31,13 +31,13 @@ public abstract class Disaster {
      * @param name the name of the disaster.
      * @param playable if it's currently playable or is still in development.
      * @param icon the org.bukkit.Material that represents the disaster.
-     * @param precipitationType the precipitation that can occur on the arena.
+     * @param precipitationRequirements the precipitation that can occur on the arena.
      */
-    public Disaster(String name, boolean playable, Material icon, ReflectionWorldUtils.Precipitation precipitationType) {
+    public Disaster(String name, boolean playable, Material icon, BiomeUtils.PrecipitationRequirements precipitationRequirements) {
         this.name = name;
         this.playable = playable;
         this.icon = icon;
-        this.precipitationType = precipitationType;
+        this.precipitationRequirements = precipitationRequirements;
 
         this.main = NaturalDisaster.getMainReference();
         this.map = null;
@@ -65,7 +65,24 @@ public abstract class Disaster {
     public void startDisaster() {
         isActive = true;
         int timeoutTaskId = Bukkit.getScheduler().scheduleSyncDelayedTask(main, this::endByTimeout, timeout * 20 * 60);
-        registerTasks(timeoutTaskId);
+        int damagePlayersId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, this::damagePlayersOutsideBounds, 0L, 20L);
+        registerTasks(timeoutTaskId, damagePlayersId);
+    }
+
+    private void damagePlayersOutsideBounds() {
+        map.getPlayersInArena().forEach(p -> {
+            var l = p.getLocation();
+            if (
+                l.getX() < map.getLowestCoordsLocation().getX() ||
+                l.getY() < map.getLowestCoordsLocation().getX() ||
+                l.getZ() < map.getLowestCoordsLocation().getZ() ||
+                l.getX() > map.getHighestCoordsLocation().getX() ||
+                l.getY() > map.getHighestCoordsLocation().getY() ||
+                l.getZ() > map.getHighestCoordsLocation().getZ()
+            ) {
+                p.damage(2);
+            }
+        });
     }
 
     /**
@@ -102,8 +119,8 @@ public abstract class Disaster {
         return icon;
     }
 
-    public ReflectionWorldUtils.Precipitation getPrecipitationType() {
-        return precipitationType;
+    public BiomeUtils.PrecipitationRequirements getPrecipitationRequirements() {
+        return precipitationRequirements;
     }
 
     public Biome getArenaSpecificBiome() {

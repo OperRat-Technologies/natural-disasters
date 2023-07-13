@@ -1,6 +1,6 @@
 package me.tcklpl.naturaldisaster.disasters;
 
-import me.tcklpl.naturaldisaster.reflection.ReflectionWorldUtils;
+import me.tcklpl.naturaldisaster.util.BiomeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -18,16 +18,16 @@ public class Flooding extends Disaster {
     private final HashMap<Integer, List<Block>> blocksToWaterlogPerYLevel;
 
     public Flooding() {
-        super("Flooding", true, Material.WATER_BUCKET, ReflectionWorldUtils.Precipitation.RAIN);
+        super("Flooding", true, Material.WATER_BUCKET, BiomeUtils.PrecipitationRequirements.SHOULD_RAIN);
         blocksToChangePerYLevel = new HashMap<>();
         blocksToWaterlogPerYLevel = new HashMap<>();
     }
 
     private void calcBlocksToChange() {
-        for (int y = map.floor; y <= map.top; y++) {
+        for (int y = map.getLowestCoordsLocation().getBlockY(); y <= map.getHighestCoordsLocation().getBlockY(); y++) {
             List<Block> change = new ArrayList<>(), waterlog = new ArrayList<>();
-            for (int x = map.minX; x <= map.minX + map.gapX; x++) {
-                for (int z = map.minZ; z <= map.minZ + map.gapZ; z++) {
+            for (int x = map.getLowestCoordsLocation().getBlockX(); x <= map.getHighestCoordsLocation().getBlockX(); x++) {
+                for (int z = map.getLowestCoordsLocation().getBlockX(); z <= map.getHighestCoordsLocation().getBlockZ(); z++) {
                     Block b = map.getWorld().getBlockAt(x, y, z);
                     if ((b.getType() == Material.AIR || !b.getType().isSolid() || !b.getType().isOccluding()) && !(b.getBlockData() instanceof Waterlogged))
                         change.add(b);
@@ -58,11 +58,11 @@ public class Flooding extends Disaster {
         calcBlocksToChange();
         map.makeRain(false);
 
-        AtomicInteger currentY = new AtomicInteger(map.floor);
+        AtomicInteger currentY = new AtomicInteger(map.getLowestCoordsLocation().getBlockY());
 
         // 5s
         int waterRiseTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
-            if (currentY.get() <= map.top) {
+            if (currentY.get() <= map.getHighestCoordsLocation().getBlockY()) {
                 floodYLevel(currentY.get());
                 currentY.getAndIncrement();
             }
@@ -77,7 +77,6 @@ public class Flooding extends Disaster {
                     if (p.getLocation().getY() < currentY.get())
                         p.damage(1);
                 }
-            map.damagePlayerOutsideBounds(3);
         }, startDelay, 10L);
 
         registerTasks(waterRiseTask, damageTask);

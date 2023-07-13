@@ -1,6 +1,6 @@
 package me.tcklpl.naturaldisaster.disasters;
 
-import me.tcklpl.naturaldisaster.reflection.ReflectionWorldUtils;
+import me.tcklpl.naturaldisaster.util.BiomeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.block.Block;
@@ -19,13 +19,13 @@ public class Fire extends Disaster {
     private final List<Material> burnedBlocksMaterials;
 
     public Fire() {
-        super("Fire", true, Material.FIRE_CHARGE, ReflectionWorldUtils.Precipitation.NONE);
+        super("Fire", true, Material.FIRE_CHARGE, BiomeUtils.PrecipitationRequirements.ANYTHING);
         burnedBlocksMaterials = new ArrayList<>();
         burnedBlocksMaterials.add(Material.COAL_BLOCK);
     }
 
     private boolean theresBlockInY(int x, int z) {
-        for (int y = map.floor + 1; y <= map.top; y++) {
+        for (int y = map.getLowestCoordsLocation().getBlockY() + 1; y <= map.getHighestCoordsLocation().getBlockY(); y++) {
             if (map.getWorld().getBlockAt(x, y, z).getType() != Material.AIR)
                 return true;
         }
@@ -43,13 +43,13 @@ public class Fire extends Disaster {
         List<Block> previousBurnedBlocks = new ArrayList<>();
 
         do {
-            sourceX = map.minX + r.nextInt(map.gapX);
-            sourceZ = map.minZ + r.nextInt(map.gapZ);
+            sourceX = map.getLowestCoordsLocation().getBlockX() + r.nextInt(map.getMapSize().getX());
+            sourceZ = map.getLowestCoordsLocation().getBlockZ() + r.nextInt(map.getMapSize().getZ());
         } while (!theresBlockInY(sourceX, sourceZ));
 
         Block sourceBlock;
 
-        for (int y = map.floor; y <= map.top; y++) {
+        for (int y = map.getLowestCoordsLocation().getBlockY(); y <= map.getHighestCoordsLocation().getBlockY(); y++) {
             if (map.getWorld().getBlockAt(sourceX, y, sourceZ).getType() != Material.AIR)
                 yCandidates.add(y);
         }

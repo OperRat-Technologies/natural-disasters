@@ -9,8 +9,5 @@
         <module name="NaturalDisaster" />
       </profile>
     </annotationProcessing>
-    <bytecodeTargetLevel>
-      <module name="NaturalDisaster" target="17" />
-    </bytecodeTargetLevel>
   </component>
 </project>

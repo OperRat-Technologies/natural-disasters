@@ -8,10 +8,18 @@ You'll need Spigot's BuildTools, you can download it from [here](https://hub.spi
 
 With BuildTools inside some folder you'll need to run it as:
 ````
-    $ java -jar BuildTools.jar --rev 1.19.2 --remapped
+java -jar BuildTools.jar --rev 1.20.1 --remapped
 ````
 This will take some time, BuildTools will download and patch a lot of things, as well as build stuff to your local
 maven repository.
 
 After this, compiling the project with `maven package` should work. The output file that is used is the
 `NaturalDisaster-0.1-remapped.jar`, you can just place it inside your plugins folder.
+
+## Compiling
+
+Just run
+```
+mvn package
+```
+After that the target jar that you'll want is `NaturalDisaster-<VERSION>-remapped.jar` 

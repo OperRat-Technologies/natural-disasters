@@ -24,6 +24,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
 public class NaturalDisaster extends JavaPlugin {
 
@@ -34,6 +35,8 @@ public class NaturalDisaster extends JavaPlugin {
     private static GameManager gameManager;
     private static SkinManager skinManager;
     private static SchematicManager schematicManager;
+
+    private static Random random = new Random();
 
     @Override
     public void onEnable() {
@@ -147,4 +150,7 @@ public class NaturalDisaster extends JavaPlugin {
         return schematicManager;
     }
 
+    public static Random getRandom() {
+        return random;
+    }
 }

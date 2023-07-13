@@ -1,15 +1,13 @@
 package me.tcklpl.naturaldisaster.reflection;
 
-import net.minecraft.network.protocol.game.ClientboundAddPlayerPacket;
-import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
-import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket;
-import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket;
+import net.minecraft.network.protocol.game.*;
 import org.bukkit.Chunk;
-import org.bukkit.craftbukkit.v1_19_R1.CraftChunk;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R1.CraftChunk;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import java.util.BitSet;
+import java.util.Collections;
 
 /**
  * Class with packets used in the plugin, used to call all packets using reflection and to keep normal classes cleaner
@@ -18,8 +16,12 @@ public class Packets {
 
     public static class Play {
 
-        public static ClientboundPlayerInfoPacket PlayOutPlayerInfo(ClientboundPlayerInfoPacket.Action playerInfoEnum, Player player) {
-            return new ClientboundPlayerInfoPacket(playerInfoEnum, ((CraftPlayer) player).getHandle());
+        public static ClientboundPlayerInfoUpdatePacket PlayOutPlayerInfo(ClientboundPlayerInfoUpdatePacket.Action playerInfoEnum, Player player) {
+            return new ClientboundPlayerInfoUpdatePacket(playerInfoEnum, ((CraftPlayer) player).getHandle());
+        }
+
+        public static ClientboundPlayerInfoRemovePacket PlayerInfoRemove(Player p) {
+            return new ClientboundPlayerInfoRemovePacket(Collections.singletonList(p.getUniqueId()));
         }
 
         public static ClientboundRemoveEntitiesPacket PlayOutEntityDestroy(int entityId) {
@@ -31,8 +33,8 @@ public class Packets {
         }
 
         public static ClientboundLevelChunkWithLightPacket PlayOutMapChunk(Chunk chunkToUpdate) {
-            var levelChunk = ((CraftChunk) chunkToUpdate).getHandle();
-            return new ClientboundLevelChunkWithLightPacket(levelChunk, levelChunk.getLevel().getLightEngine(), new BitSet(), new BitSet(), true);
+            var levelChunk = ((CraftChunk) chunkToUpdate).getCraftWorld().getHandle().getLevel().getChunk(chunkToUpdate.getX(), chunkToUpdate.getZ());
+            return new ClientboundLevelChunkWithLightPacket(levelChunk, levelChunk.getLevel().getLightEngine(), new BitSet(), new BitSet());
 //            PacketContainer mapChunk = new PacketContainer(PacketType.Play.Server.MAP_CHUNK);
 //            mapChunk.get
 //            new ClientboundLevelChunkPacketData(chunkToUpdate.)

@@ -1,6 +1,6 @@
 package me.tcklpl.naturaldisaster.disasters;
 
-import me.tcklpl.naturaldisaster.reflection.ReflectionWorldUtils;
+import me.tcklpl.naturaldisaster.util.BiomeUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -15,7 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Blizzard extends Disaster {
 
     public Blizzard() {
-        super("Blizzard", true, Material.SNOWBALL, ReflectionWorldUtils.Precipitation.SNOW);
+        super("Blizzard", true, Material.SNOWBALL, BiomeUtils.PrecipitationRequirements.SHOULD_SNOW);
     }
 
     @Override
@@ -28,11 +28,11 @@ public class Blizzard extends Disaster {
         HashMap<Integer, List<Block>> blocksToChangePerLevel = new HashMap<>();
         List<Chunk> changedChunks = new ArrayList<>();
 
-        for (int y = map.top; y >= map.floor; y--) {
+        for (int y = map.getHighestCoordsLocation().getBlockY(); y >= map.getLowestCoordsLocation().getBlockY(); y--) {
             List<Block> layerBlocks = new ArrayList<>();
 
-            for (int x = map.minX; x <= map.minX + map.gapX; x++) {
-                for (int z = map.minZ; z <= map.minZ + map.gapZ; z++) {
+            for (int x = map.getLowestCoordsLocation().getBlockX(); x <= map.getHighestCoordsLocation().getBlockX(); x++) {
+                for (int z = map.getLowestCoordsLocation().getBlockZ(); z <= map.getHighestCoordsLocation().getBlockZ(); z++) {
                     Block b = map.getWorld().getBlockAt(x, y, z);
                     if (b.getType() != Material.AIR && !b.isPassable() && (!(b.getState() instanceof InventoryHolder)))
                         layerBlocks.add(b);
@@ -53,37 +53,39 @@ public class Blizzard extends Disaster {
 
         int taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
 
-            if (currentY.get() >= map.floor)
-            if ((timesRunned.incrementAndGet() % nextIteration.get()) == 0) {
+            if (currentY.get() >= map.getLowestCoordsLocation().getBlockY()) {
+                if ((timesRunned.incrementAndGet() % nextIteration.get()) == 0) {
 
-                nextIteration.set(10 + r.nextInt(6));
-                map.bufferedReplaceBlocks(blocksToChangePerLevel.get(currentY.getAndDecrement()), blockPallete, 500, false);
-
-            }
-
-            if (map.getPlayersInArena().size() > 0)
-            for (Player p : map.getPlayersInArena()) {
-
-                assert p != null;
-
-                if (p.getGameMode() == GameMode.ADVENTURE) {
-
-                    Location l = p.getLocation();
-                    Block b = l.getBlock();
-                    int finalDamage = 0;
-
-                    // Half a heart if player is away from lights
-                    if (b.getLightFromBlocks() < 8)
-                        finalDamage += 1;
-
-                    // Half a heart if player is above ice level
-                    if (b.getY() >= currentY.get()) {
-                        finalDamage += 2;
-                    }
-                    p.damage(finalDamage);
+                    nextIteration.set(10 + r.nextInt(6));
+                    map.bufferedReplaceBlocks(blocksToChangePerLevel.get(currentY.getAndDecrement()), blockPallete, 500, false);
 
                 }
+            }
 
+            if (map.getPlayersInArena().size() > 0) {
+                for (Player p : map.getPlayersInArena()) {
+
+                    assert p != null;
+
+                    if (p.getGameMode() == GameMode.ADVENTURE) {
+
+                        Location l = p.getLocation();
+                        Block b = l.getBlock();
+                        int finalDamage = 0;
+
+                        // Half a heart if player is away from lights
+                        if (b.getLightFromBlocks() < 8)
+                            finalDamage += 1;
+
+                        // Half a heart if player is above ice level
+                        if (b.getY() >= currentY.get()) {
+                            finalDamage += 2;
+                        }
+                        p.damage(finalDamage);
+
+                    }
+
+                }
             }
 
         }, startDelay, 20L);

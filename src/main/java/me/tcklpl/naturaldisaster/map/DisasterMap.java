@@ -1,9 +1,9 @@
 package me.tcklpl.naturaldisaster.map;
 
 import me.tcklpl.naturaldisaster.NaturalDisaster;
+import me.tcklpl.naturaldisaster.data.Vec3i;
 import me.tcklpl.naturaldisaster.reflection.Packets;
 import me.tcklpl.naturaldisaster.reflection.ReflectionUtils;
-import me.tcklpl.naturaldisaster.reflection.ReflectionWorldUtils;
 import org.bukkit.*;
 import org.bukkit.block.Biome;
 import org.bukkit.block.Block;
@@ -23,11 +23,13 @@ public class DisasterMap {
 
     private final JavaPlugin main = NaturalDisaster.getMainReference();
     private final Location pos1, pos2;
+    private final Location lowestCoordsLocation, highestCoordsLocation;
+
+    private final Vec3i mapSize;
     private final String name, worldName;
     private final List<Location> spawns;
     private List<Player> playersInArena;
     private Set<Chunk> arenaChunks;
-    public int x1, x2, y1, y2, z1, z2, minX, minZ, gapX, gapZ, top, floor;
     private final Random r;
     private final int fallingBlockKillTimeSeconds = 2;
     private final Material icon;
@@ -42,6 +44,18 @@ public class DisasterMap {
         playersInArena = new ArrayList<>();
         arenaChunks = new HashSet<>();
         r = new Random();
+
+        var minX = Math.min(pos1.getBlockX(), pos2.getBlockX());
+        var minY = Math.min(pos1.getBlockY(), pos2.getBlockY());
+        var minZ = Math.min(pos1.getBlockZ(), pos2.getBlockZ());
+
+        var maxX = Math.max(pos1.getBlockX(), pos2.getBlockX());
+        var maxY = Math.max(pos1.getBlockY(), pos2.getBlockY());
+        var maxZ = Math.max(pos1.getBlockZ(), pos2.getBlockZ());
+
+        lowestCoordsLocation = new Location(pos1.getWorld(), minX, minY, minZ);
+        highestCoordsLocation = new Location(pos1.getWorld(), maxX, maxY, maxZ);
+        mapSize = new Vec3i(maxX - minX, maxY - minY, maxZ - minZ);
     }
 
     // Name and object comparasion
@@ -87,14 +101,26 @@ public class DisasterMap {
         this.arenaChunks = arenaChunks;
     }
 
+    public Location getLowestCoordsLocation() {
+        return lowestCoordsLocation;
+    }
+
+    public Location getHighestCoordsLocation() {
+        return highestCoordsLocation;
+    }
+
+    public Vec3i getMapSize() {
+        return mapSize;
+    }
+
     /**
      * Function to get the max Y level of all the map
      * @return the max Y level
      */
     public int getMaxYLevel() {
         List<Integer> topBlocks = new ArrayList<>();
-        for (int x = minX; x <= minX + gapX + 1; x++) {
-            for (int z = minZ; z <= minZ + gapZ + 1; z++) {
+        for (int x = lowestCoordsLocation.getBlockX(); x <= highestCoordsLocation.getBlockX(); x++) {
+            for (int z = lowestCoordsLocation.getBlockZ(); z <= highestCoordsLocation.getBlockZ(); z++) {
                 topBlocks.add(getWorld().getHighestBlockYAt(x, z));
             }
         }
@@ -114,19 +140,8 @@ public class DisasterMap {
 
         Collections.shuffle(spawns);
 
-        x1 = pos1.getBlockX();
-        x2 = pos2.getBlockX();
-        y1 = pos1.getBlockY();
-        y2 = pos2.getBlockY();
-        z1 = pos1.getBlockZ();
-        z2 = pos2.getBlockZ();
-
-        minX = Math.min(x1, x2);
-        minZ = Math.min(z1, z2);
-        top = Math.max(y1, y2);
-        floor = Math.min(y1, y2);
-        gapX = Math.max(x1, x2) - minX + 1;
-        gapZ = Math.max(z1, z2) - minZ + 1;
+        lowestCoordsLocation.setWorld(w);
+        highestCoordsLocation.setWorld(w);
 
         getWorld().setGameRule(GameRule.DO_TILE_DROPS, false);
         getWorld().setGameRule(GameRule.DO_WEATHER_CYCLE, false);
@@ -166,9 +181,13 @@ public class DisasterMap {
 
     public void setArenaBiome(Biome biome) {
 
-        for (int x = minX - 8; x <= minX + gapX + 8; x++) {
-            for (int z = minZ - 8; z <= minZ + gapZ + 8; z++) {
-                for (int y = 0; y <= top + 16; y++) {
+        // size of the outside border that will still have the same biome as the map
+        // this exists so that it doesn't make a weird weather effect as it's raining only inside the arena.
+        int biomeExtraBorder = 8;
+
+        for (int x = lowestCoordsLocation.getBlockX() - biomeExtraBorder; x <= highestCoordsLocation.getBlockX() + biomeExtraBorder; x++) {
+            for (int z = lowestCoordsLocation.getBlockZ() - biomeExtraBorder; z <= highestCoordsLocation.getBlockZ() + biomeExtraBorder; z++) {
+                for (int y = lowestCoordsLocation.getBlockY() - biomeExtraBorder; y <= highestCoordsLocation.getBlockY() + biomeExtraBorder; y++) {
                     Block b = getWorld().getBlockAt(x, y, z);
                     b.setBiome(biome);
                 }
@@ -182,17 +201,6 @@ public class DisasterMap {
             }
         }
 
-    }
-
-    /**
-     * Sets the arena biome to one random biome of specified precipitation type,
-     * for types refer reflection.ReflectionUtils.PrecipitationType.
-     * @param precipitationType the specified precipitation type.
-     */
-    public void setArenaRandomBiomeBasedOnPrecipitationType(ReflectionWorldUtils.Precipitation precipitationType) {
-        List<Biome> biomes = ReflectionWorldUtils.getBiomeListPerPrecipitation(precipitationType);
-        biomes.forEach(x -> NaturalDisaster.getMainReference().getLogger().info(x.toString()));
-        setArenaBiome(biomes.get(r.nextInt(biomes.size())));
     }
 
     /**
@@ -380,50 +388,6 @@ public class DisasterMap {
         return result;
     }
 
-    public void damagePlayerOutsideBounds(double dmg) {
-        for (Player p : playersInArena) {
-            Location l = p.getLocation();
-            if (l.getX() < minX || l.getX() > (minX + gapX) ||
-            l.getY() < floor || l.getY() > top ||
-            l.getZ() < minZ || l.getZ() > (minZ + gapZ))
-                p.damage(dmg);
-        }
-    }
-
-    public List<Location> getRandomXZPoints(int quant, boolean needsGround, int y) {
-        List<Location> xzPoints = new ArrayList<>();
-
-        for (int i = 0; i < quant; i++) {
-            int x = minX + r.nextInt(gapX);
-            int z = minZ + r.nextInt(gapZ);
-            Location loc = new Location(getWorld(), x, y, z);
-
-            while (xzPoints.contains(loc)) {
-                x = minX + r.nextInt(gapX);
-                z = minZ + r.nextInt(gapZ);
-
-                if (needsGround)
-                    while (getWorld().getHighestBlockYAt(x, z) == 0) {
-                        x = minX + r.nextInt(gapX);
-                        z = minZ + r.nextInt(gapZ);
-                    }
-            }
-
-            if (needsGround) {
-                while (getWorld().getHighestBlockYAt(x, z) == 0) {
-                    x = minX + r.nextInt(gapX);
-                    z = minZ + r.nextInt(gapZ);
-                }
-            }
-
-            loc.setX(x);
-            loc.setZ(z);
-
-            xzPoints.add(loc);
-        }
-        return xzPoints;
-    }
-
     public void progressivelyAdvanceTime(long target, int... advancementPace) {
         // with the pace of 50/tick time will advance 1000/second
         int pace = advancementPace.length == 1 ? advancementPace[0] : 50;
@@ -444,5 +408,17 @@ public class DisasterMap {
             }
         }
     }
+
+    public int getMinX() { return lowestCoordsLocation.getBlockX(); }
+
+    public int getMinY() { return lowestCoordsLocation.getBlockY(); }
+
+    public int getMinZ() { return lowestCoordsLocation.getBlockZ(); }
+
+    public int getMaxX() { return highestCoordsLocation.getBlockX(); }
+
+    public int getMaxY() { return highestCoordsLocation.getBlockY(); }
+
+    public int getMaxZ() { return highestCoordsLocation.getBlockZ(); }
 
 }

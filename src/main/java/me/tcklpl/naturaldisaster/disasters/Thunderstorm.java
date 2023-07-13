@@ -1,6 +1,6 @@
 package me.tcklpl.naturaldisaster.disasters;
 
-import me.tcklpl.naturaldisaster.reflection.ReflectionWorldUtils;
+import me.tcklpl.naturaldisaster.util.BiomeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -21,7 +21,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Thunderstorm extends Disaster {
 
     public Thunderstorm() {
-        super("Thunderstorm", false, Material.CREEPER_HEAD, ReflectionWorldUtils.Precipitation.RAIN);
+        super("Thunderstorm", false, Material.CREEPER_HEAD, BiomeUtils.PrecipitationRequirements.SHOULD_RAIN);
     }
 
     @Override
@@ -50,7 +50,7 @@ public class Thunderstorm extends Disaster {
                         int playersNearby = 0;
 
                         // Lightning chance of spawning per factor
-                        if (l.getY() >= Math.floorDiv(map.top - map.floor, 2))
+                        if (l.getY() >= Math.floorDiv(map.getMapSize().getY(), 2))
                             chanceOfStrike += 30;
                         if (map.getWorld().getHighestBlockYAt(l.getBlockX(), l.getBlockZ()) <= l.getBlockY())
                             chanceOfStrike += 50;

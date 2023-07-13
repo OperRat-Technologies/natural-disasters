@@ -24,7 +24,7 @@ public class WorldCommands implements CommandExecutor {
     public boolean onCommand(CommandSender sender, @NotNull Command cmd, @NotNull String alias, String[] args) {
         if (!sender.isOp()) return false;
         if (cmd.getName().equalsIgnoreCase("world") || alias.equalsIgnoreCase("w")) {
-            if (args.length == 0) return false; 
+            if (args.length == 0) return false;
 
             // World creation
             if (args[0].equalsIgnoreCase("create")) {

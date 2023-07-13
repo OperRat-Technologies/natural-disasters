@@ -3,9 +3,9 @@ package me.tcklpl.naturaldisaster.reflection;
 import com.mojang.authlib.GameProfile;
 import me.tcklpl.naturaldisaster.NaturalDisaster;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientboundPlayerInfoPacket;
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_20_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -69,11 +69,11 @@ public class ReflectionUtils {
     }
 
     public static void setPlayerGameProfile(Player p, GameProfile gp) {
-        sendPacket(p, Packets.Play.PlayOutPlayerInfo(ClientboundPlayerInfoPacket.Action.REMOVE_PLAYER, p));
+        sendPacket(p, Packets.Play.PlayerInfoRemove(p));
         p.setDisplayName(gp.getName());
         p.setPlayerListName(gp.getName());
         replaceGameProfileAttributes(getPlayerGameProfile(p), gp);
-        sendPacket(p, Packets.Play.PlayOutPlayerInfo(ClientboundPlayerInfoPacket.Action.ADD_PLAYER, p));
+        sendPacket(p, Packets.Play.PlayOutPlayerInfo(ClientboundPlayerInfoUpdatePacket.Action.ADD_PLAYER, p));
         updatePlayerForEveryone(NaturalDisaster.getMainReference(), p);
     }
 

@@ -30,8 +30,8 @@ public class Move implements Listener {
         else
         if (NaturalDisaster.getGameManager().getCurrentStatus() == GameStatus.STARTING) {
             Location l = e.getFrom();
-            Objects.requireNonNull(e.getTo()).setX(e.getFrom().getX());
-            Objects.requireNonNull(e.getTo()).setZ(e.getFrom().getZ());
+            Objects.requireNonNull(e.getTo()).setX(l.getX());
+            Objects.requireNonNull(e.getTo()).setZ(l.getZ());
         }
     }
 }

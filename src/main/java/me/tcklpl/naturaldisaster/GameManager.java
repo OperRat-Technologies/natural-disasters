@@ -7,8 +7,8 @@ import me.tcklpl.naturaldisaster.map.ArenaManager;
 import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.player.cPlayer.CPlayer;
 import me.tcklpl.naturaldisaster.player.ingamePlayer.ArenaPlayerManager;
-import me.tcklpl.naturaldisaster.reflection.ReflectionWorldUtils;
 import me.tcklpl.naturaldisaster.util.ActionBar;
+import me.tcklpl.naturaldisaster.util.BiomeUtils;
 import me.tcklpl.naturaldisaster.util.NamesAndColors;
 import me.tcklpl.naturaldisaster.util.PlayerUtils;
 import org.bukkit.*;
@@ -94,11 +94,7 @@ public class GameManager {
                 cancelStartupCounter();
         }, 20L, 20L);
 
-        if (currentDisaster.getPrecipitationType() == ReflectionWorldUtils.Precipitation.SPECIFIC)
-            currentMap.setArenaBiome(currentDisaster.getArenaSpecificBiome());
-        else
-            currentMap.setArenaRandomBiomeBasedOnPrecipitationType(currentDisaster.getPrecipitationType());
-
+        currentMap.setArenaBiome(BiomeUtils.randomizeBiome(currentDisaster.getPrecipitationRequirements()));
         currentMap.teleportPlayersToSpawns();
 
         for (Player p : currentMap.getPlayersInArena())
@@ -185,7 +181,7 @@ public class GameManager {
         Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> {
             for (Player p : Bukkit.getOnlinePlayers()) {
                 p.setGameMode(GameMode.ADVENTURE);
-                p.teleport(new Location(Bukkit.getWorld("void"), 8, 8, 8));
+                p.teleport(new Location(Bukkit.getWorld("worlds/void"), 8, 8, 8));
                 p.getInventory().clear();
                 PlayerUtils.healPlayer(p);
             }
