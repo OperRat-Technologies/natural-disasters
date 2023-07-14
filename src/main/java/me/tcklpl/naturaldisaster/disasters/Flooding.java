@@ -1,5 +1,6 @@
 package me.tcklpl.naturaldisaster.disasters;
 
+import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.util.BiomeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -56,7 +57,7 @@ public class Flooding extends Disaster {
         super.startDisaster();
 
         calcBlocksToChange();
-        map.makeRain(false);
+        map.setPrecipitation(DisasterMap.MapPrecipitation.PRECIPITATE);
 
         AtomicInteger currentY = new AtomicInteger(map.getLowestCoordsLocation().getBlockY());
 

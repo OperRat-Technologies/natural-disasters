@@ -1,5 +1,6 @@
 package me.tcklpl.naturaldisaster.disasters;
 
+import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.util.BiomeUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -29,7 +30,7 @@ public class Thunderstorm extends Disaster {
         //map.getWorld().setMonsterSpawnLimit(100);
         super.startDisaster();
 
-        map.makeRain(false);
+        map.setPrecipitation(DisasterMap.MapPrecipitation.PRECIPITATE);
 
         Random r = random;
 

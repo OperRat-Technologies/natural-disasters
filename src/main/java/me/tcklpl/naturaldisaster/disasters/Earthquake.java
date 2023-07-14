@@ -2,6 +2,7 @@ package me.tcklpl.naturaldisaster.disasters;
 
 import com.google.common.collect.Lists;
 import me.tcklpl.naturaldisaster.NaturalDisaster;
+import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.util.BiomeUtils;
 import me.tcklpl.naturaldisaster.util.EarthquakeUtils;
 import org.bukkit.Bukkit;
@@ -13,7 +14,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class Earthquake extends Disaster {
@@ -112,7 +112,7 @@ public class Earthquake extends Disaster {
     }
 
     private int i = 0;
-    private Material[] debug = new Material[] { Material.RED_WOOL, Material.YELLOW_WOOL, Material.GREEN_WOOL, Material.BLUE_WOOL, Material.PURPLE_WOOL};
+
     private void destroyCrackPattern(List<Block> blocks) {
         List<Block> highBlocks = new ArrayList<>();
         List<Block> lowBlocks = new ArrayList<>();
@@ -122,16 +122,15 @@ public class Earthquake extends Disaster {
             lowBlocks.addAll(candidates.lowPriorityBlocks());
         }
 
-        var mat = debug[i++ % debug.length];
-        map.bufferedReplaceBlocks(lowBlocks, mat, 300, false);
-        map.bufferedReplaceBlocks(highBlocks, mat, 300, true);
+        map.bufferedReplaceBlocks(lowBlocks, Material.AIR, 300, false);
+        map.bufferedReplaceBlocks(highBlocks, Material.AIR, 300, true);
     }
 
     @Override
     public void startDisaster() {
         super.startDisaster();
 
-        map.makeRain(true);
+        map.setPrecipitation(DisasterMap.MapPrecipitation.RANDOM);
 
         Random r = NaturalDisaster.getRandom();
         var crackDirections = EarthquakeUtils.randomizeCrackDirection();
@@ -144,19 +143,19 @@ public class Earthquake extends Disaster {
         int generatorX = map.getLowestCoordsLocation().getBlockX() + (sizeX / 3) + Math.round(random.nextFloat() * ((float) sizeX / 3));
         int generatorZ = map.getLowestCoordsLocation().getBlockZ() + (sizeZ / 3) + Math.round(random.nextFloat() * ((float) sizeZ / 3));
 
+        // Randomize start of the crack somewhere in the center of the map
         Block generator = map.getWorld().getBlockAt(generatorX, map.getMinY(), generatorZ);
         crack.add(generator);
 
+        // Expand the crack on 2 directions until the end of the map
         EarthquakeUtils.expandCrackOnDirection(generator, crackDirections[0], map.getLowestCoordsLocation(), map.getHighestCoordsLocation(), crack);
         EarthquakeUtils.expandCrackOnDirection(generator, crackDirections[1], map.getLowestCoordsLocation(), map.getHighestCoordsLocation(), crack);
 
-        NaturalDisaster.getMainReference().getLogger().info("Crack size: " + crack.size());
-
+        // Pre-calculate fissure expansions based on the initial fissure
         var expansions = EarthquakeUtils.getCrackExpansions(crack, map.getLowestCoordsLocation(), map.getHighestCoordsLocation(), crackDirections);
 
         AtomicInteger timesRunned = new AtomicInteger(0);
         AtomicInteger currentExpansion = new AtomicInteger(0);
-        AtomicBoolean hasCracked = new AtomicBoolean(false);
 
         int taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
 

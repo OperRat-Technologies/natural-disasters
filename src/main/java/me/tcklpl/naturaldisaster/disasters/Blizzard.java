@@ -1,5 +1,6 @@
 package me.tcklpl.naturaldisaster.disasters;
 
+import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.util.BiomeUtils;
 import org.bukkit.*;
 import org.bukkit.block.Block;
@@ -41,7 +42,7 @@ public class Blizzard extends Disaster {
             blocksToChangePerLevel.put(y, layerBlocks);
         }
 
-        map.makeRain(false);
+        map.setPrecipitation(DisasterMap.MapPrecipitation.PRECIPITATE);
 
         AtomicInteger timesRunned = new AtomicInteger(0);
         AtomicInteger nextIteration = new AtomicInteger(10 + r.nextInt(6));

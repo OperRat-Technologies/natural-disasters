@@ -21,6 +21,10 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class DisasterMap {
 
+    public enum MapPrecipitation {
+        PRECIPITATE, RANDOM
+    }
+
     private final JavaPlugin main = NaturalDisaster.getMainReference();
     private final Location pos1, pos2;
     private final Location lowestCoordsLocation, highestCoordsLocation;
@@ -204,12 +208,11 @@ public class DisasterMap {
     }
 
     /**
-     * Makes the arena rain certainly or with a 50% chance if random boolean is specified as true.
-     * @param random make it 50% chance of rain instead of 100%.
+     * Makes the arena rain certainly or with a 50% chance.
+     * @param opt if the precipitation should be certain or random.
      */
-    public void makeRain(boolean random) {
-        Random r = new Random();
-        if (!random || r.nextInt(2) == 0) {
+    public void setPrecipitation(MapPrecipitation opt) {
+        if (opt == MapPrecipitation.PRECIPITATE || r.nextInt(2) == 0) {
             getWorld().setStorm(true);
             getWorld().setWeatherDuration(600 * 20);
         }
