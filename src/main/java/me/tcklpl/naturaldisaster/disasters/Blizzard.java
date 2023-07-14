@@ -56,7 +56,7 @@ public class Blizzard extends Disaster {
             if (currentY.get() >= map.getLowestCoordsLocation().getBlockY()) {
                 if ((timesRunned.incrementAndGet() % nextIteration.get()) == 0) {
 
-                    nextIteration.set(10 + r.nextInt(6));
+                    nextIteration.set(5 + r.nextInt(5));
                     map.bufferedReplaceBlocks(blocksToChangePerLevel.get(currentY.getAndDecrement()), blockPallete, 500, false);
 
                 }
@@ -81,6 +81,10 @@ public class Blizzard extends Disaster {
                         if (b.getY() >= currentY.get()) {
                             finalDamage += 2;
                         }
+
+                        if (finalDamage > 0)
+                            p.setFreezeTicks(100);
+
                         p.damage(finalDamage);
 
                     }
