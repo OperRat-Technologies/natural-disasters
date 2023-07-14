@@ -21,7 +21,7 @@ public class Death implements Listener {
         if (e.getEntity() instanceof Player p) {
             if (p.getHealth() - e.getDamage() <= 0) {
                 e.setCancelled(true);
-                p.playEffect(EntityEffect.HURT);
+                p.playEffect(EntityEffect.HURT_EXPLOSION);
 
                 if (NaturalDisaster.getGameManager().isIngame())
                     NaturalDisaster.getGameManager().registerPlayerDeath(p);

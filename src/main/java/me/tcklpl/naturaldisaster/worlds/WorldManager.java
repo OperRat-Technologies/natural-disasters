@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 
@@ -20,7 +21,7 @@ public class WorldManager {
 
     public WorldManager(List<String> worlds) {
         managedWorlds = new ArrayList<>();
-        loadedWorlds = new ArrayList<>();
+        loadedWorlds = new ArrayList<>(Collections.singleton("void"));
         for(String world : worlds) {
             File folder = new File(Bukkit.getServer().getWorldContainer(), world);
             if (!folder.exists()) {

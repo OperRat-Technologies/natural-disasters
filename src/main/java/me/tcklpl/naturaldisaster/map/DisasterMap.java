@@ -258,9 +258,7 @@ public class DisasterMap {
                         currentBlockIndex.incrementAndGet();
 
                     if (entities.size() > 0)
-                        Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> {
-                            entities.forEach(Entity::remove);
-                        }, fallingBlockKillTimeSeconds * 20L);
+                        Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> entities.forEach(Entity::remove), fallingBlockKillTimeSeconds * 20L);
                 }
             }, currentCycle + 1);
 
@@ -310,9 +308,7 @@ public class DisasterMap {
                         currentBlockIndex.incrementAndGet();
 
                     if (entities.size() > 0)
-                        Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> {
-                            entities.forEach(Entity::remove);
-                        }, fallingBlockKillTimeSeconds * 20L);
+                        Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> entities.forEach(Entity::remove), fallingBlockKillTimeSeconds * 20L);
                 }
             }, currentCycle + 1);
 

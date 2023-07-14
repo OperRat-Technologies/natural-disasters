@@ -55,7 +55,7 @@ public class WorldCommands implements CommandExecutor {
             if (args[0].equalsIgnoreCase("list")) {
                 if (args.length != 1) return false;
                 sender.sendMessage();
-                StringBuilder msg = new StringBuilder(ChatColor.GRAY + "");
+                StringBuilder msg = new StringBuilder(String.valueOf(ChatColor.GRAY));
                 NaturalDisaster.getMainReference().getWorldManager().managedWorlds.forEach(w -> {
                     msg.append(Bukkit.getWorlds().stream().map(WorldInfo::getName).anyMatch(x -> x.equalsIgnoreCase(w)) ? ChatColor.GREEN : ChatColor.GRAY);
                     msg.append(w);

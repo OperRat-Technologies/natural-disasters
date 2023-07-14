@@ -2,7 +2,10 @@ package me.tcklpl.naturaldisaster.disasters;
 
 import me.tcklpl.naturaldisaster.map.DisasterMap;
 import me.tcklpl.naturaldisaster.util.BiomeUtils;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.InventoryHolder;
@@ -27,7 +30,6 @@ public class Blizzard extends Disaster {
         Random r = random;
 
         HashMap<Integer, List<Block>> blocksToChangePerLevel = new HashMap<>();
-        List<Chunk> changedChunks = new ArrayList<>();
 
         for (int y = map.getHighestCoordsLocation().getBlockY(); y >= map.getLowestCoordsLocation().getBlockY(); y--) {
             List<Block> layerBlocks = new ArrayList<>();
