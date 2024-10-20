@@ -33,7 +33,7 @@ public class Death implements Listener {
 
                 p.sendMessage(ChatColor.GRAY + ">> Você morrreu levando " + e.getDamage() / 2 + " corações de dano.");
 
-                if (p.getActivePotionEffects().size() > 0)
+                if (!p.getActivePotionEffects().isEmpty())
                     for (PotionEffect effect : p.getActivePotionEffects())
                         p.removePotionEffect(effect.getType());
 

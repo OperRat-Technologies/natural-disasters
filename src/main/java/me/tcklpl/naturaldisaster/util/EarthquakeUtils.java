@@ -2,6 +2,7 @@ package me.tcklpl.naturaldisaster.util;
 
 import me.tcklpl.naturaldisaster.NaturalDisaster;
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 
@@ -112,6 +113,23 @@ public class EarthquakeUtils {
         }
 
         return expansions;
+    }
+
+    public static boolean blockShouldFall(Block b) {
+        // Ignore air
+        if (b.getType().equals(Material.AIR)) return false;
+        // Ignore water and lava
+        if (b.isLiquid()) return false;
+        // Ignore not solid blocks
+        if (b.isPassable()) return false;
+
+        var blockBelow = b.getRelative(BlockFace.DOWN);
+
+        // Ignore blocks that are on top of something else
+        if (!blockBelow.getType().equals(Material.AIR)) return false;
+
+        var blockBelowBelow = blockBelow.getRelative(BlockFace.DOWN);
+        return blockBelowBelow.isPassable() && blockBelowBelow.getType().equals(Material.AIR);
     }
 
 }

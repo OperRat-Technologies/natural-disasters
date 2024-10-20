@@ -118,21 +118,6 @@ public class DisasterMap {
     }
 
     /**
-     * Function to get the max Y level of all the map
-     * @return the max Y level
-     */
-    public int getMaxYLevel() {
-        List<Integer> topBlocks = new ArrayList<>();
-        for (int x = lowestCoordsLocation.getBlockX(); x <= highestCoordsLocation.getBlockX(); x++) {
-            for (int z = lowestCoordsLocation.getBlockZ(); z <= highestCoordsLocation.getBlockZ(); z++) {
-                topBlocks.add(getWorld().getHighestBlockYAt(x, z));
-            }
-        }
-        Collections.sort(topBlocks);
-        return topBlocks.get(topBlocks.size() - 1);
-    }
-
-    /**
      * Updates arena-relative positions with given world
      * @param w the world
      */
@@ -275,7 +260,7 @@ public class DisasterMap {
      */
     public void bufferedReplaceBlocks(List<Block> blocks, List<Material> replacement, int buffer, boolean fallingBlock) {
 
-        if (blocks.size() == 0) return;
+        if (blocks.isEmpty()) return;
 
         AtomicInteger currentBlockIndex = new AtomicInteger(0);
         AtomicInteger currentRandomValue = new AtomicInteger(0);
@@ -307,12 +292,18 @@ public class DisasterMap {
                     if (currentBlockIndex.get() < blocks.size() - 1)
                         currentBlockIndex.incrementAndGet();
 
-                    if (entities.size() > 0)
+                    if (!entities.isEmpty())
                         Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> entities.forEach(Entity::remove), fallingBlockKillTimeSeconds * 20L);
                 }
             }, currentCycle + 1);
 
         }
+    }
+
+    public Location getRandomBlockInMap() {
+        var x = getMinX() + r.nextInt(mapSize.getX());
+        var z = getMinZ() + r.nextInt(mapSize.getZ());
+        return getWorld().getHighestBlockAt(x, z).getLocation();
     }
 
     public List<Block> bufferedExpandBlocks(List<Block> origin, int... customBuffer) {

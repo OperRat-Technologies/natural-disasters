@@ -58,27 +58,30 @@ public abstract class Disaster {
         return Objects.hash(name);
     }
 
+    public void setupDisaster() {
+        int timeoutTaskId = Bukkit.getScheduler().scheduleSyncDelayedTask(main, this::endByTimeout, timeout * 20 * 60);
+        int damagePlayersId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, this::damagePlayersOutsideBounds, 0L, 20L);
+        registerTasks(timeoutTaskId, damagePlayersId);
+    }
+
     /**
      * General method to start disaster, children inherit this method to make the disasters.
      * Method also schedules a task to timeout the arena.
      */
     public void startDisaster() {
         isActive = true;
-        int timeoutTaskId = Bukkit.getScheduler().scheduleSyncDelayedTask(main, this::endByTimeout, timeout * 20 * 60);
-        int damagePlayersId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, this::damagePlayersOutsideBounds, 0L, 20L);
-        registerTasks(timeoutTaskId, damagePlayersId);
     }
 
     private void damagePlayersOutsideBounds() {
         map.getPlayersInArena().forEach(p -> {
             var l = p.getLocation();
             if (
-                l.getX() < map.getLowestCoordsLocation().getX() ||
-                l.getY() < map.getLowestCoordsLocation().getX() ||
-                l.getZ() < map.getLowestCoordsLocation().getZ() ||
-                l.getX() > map.getHighestCoordsLocation().getX() ||
-                l.getY() > map.getHighestCoordsLocation().getY() ||
-                l.getZ() > map.getHighestCoordsLocation().getZ()
+                l.getX() < map.getMinX() ||
+                l.getY() < map.getMinY() ||
+                l.getZ() < map.getMinZ() ||
+                l.getX() > map.getMaxX() ||
+                l.getY() > map.getMaxY() ||
+                l.getZ() > map.getMaxZ()
             ) {
                 p.damage(2);
             }

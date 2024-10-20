@@ -100,6 +100,8 @@ public class GameManager {
         for (Player p : currentMap.getPlayersInArena())
             p.setInvulnerable(true);
 
+        currentDisaster.setupDisaster();
+
         Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> {
             currentDisaster.startDisaster();
             new ActionBar(ChatColor.RED + "Boa sorte!").sendToAll();
@@ -133,6 +135,7 @@ public class GameManager {
     public void registerPlayerDeath(Player p) {
         if (!currentMap.getPlayersInArena().contains(p)) return;
 
+        p.playSound(p, Sound.BLOCK_BEACON_DEACTIVATE, 10, 1);
         arenaPlayerManager.returnPlayerToNormal(p);
         currentMap.getPlayersInArena().remove(p);
 
@@ -150,17 +153,16 @@ public class GameManager {
                 cp.getPlayerData().setMoney(cp.getPlayerData().getMoney() + 25);
                 winner.sendMessage(ChatColor.GOLD + "+$25 por ganhar a partida.");
                 endGame();
-            } else {
-                Bukkit.broadcastMessage(p.getDisplayName() + ChatColor.GRAY + "( " + p.getName() + " ) morreu, ainda restam " + currentMap.getPlayersInArena().size() + " jogadores vivos!");
-                p.playSound(p.getLocation(), Sound.BLOCK_BEACON_DEACTIVATE, 1f, 1f);
-                for (Player player : currentMap.getPlayersInArena()) {
-                    player.sendMessage(ChatColor.GRAY + "+$1 por sobreviver.");
-
-                    CPlayer cp = NaturalDisaster.getPlayerManager().getCPlayer(player.getUniqueId());
-                    cp.getPlayerData().setMoney(cp.getPlayerData().getMoney() + 1);
-                }
-                teleportSpectatorToArena(p);
             }
+        } else {
+            Bukkit.broadcastMessage(p.getDisplayName() + ChatColor.GRAY + "( " + p.getName() + " ) morreu, ainda restam " + currentMap.getPlayersInArena().size() + " jogadores vivos!");
+            for (Player player : currentMap.getPlayersInArena()) {
+                player.sendMessage(ChatColor.GRAY + "+$1 por sobreviver.");
+
+                CPlayer cp = NaturalDisaster.getPlayerManager().getCPlayer(player.getUniqueId());
+                cp.getPlayerData().setMoney(cp.getPlayerData().getMoney() + 1);
+            }
+            teleportSpectatorToArena(p);
         }
     }
 

@@ -65,7 +65,7 @@ public class CPlayerManager {
     }
 
     public void savePlayers() {
-        if (managedPlayers.size() > 0) {
+        if (!managedPlayers.isEmpty()) {
             File playerFolder = new File(NaturalDisaster.getMainReference().getDataFolder() + "/players");
             if (!(playerFolder.exists() && playerFolder.isDirectory())) {
                 if (!playerFolder.mkdirs()) {

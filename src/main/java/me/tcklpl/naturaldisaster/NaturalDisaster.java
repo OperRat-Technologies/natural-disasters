@@ -2,8 +2,6 @@ package me.tcklpl.naturaldisaster;
 
 import me.tcklpl.naturaldisaster.admin.AdminInventoryClick;
 import me.tcklpl.naturaldisaster.admin.ArenaAdmin;
-import me.tcklpl.naturaldisaster.auth.AuthCommands;
-import me.tcklpl.naturaldisaster.auth.AuthManager;
 import me.tcklpl.naturaldisaster.commands.*;
 import me.tcklpl.naturaldisaster.events.*;
 import me.tcklpl.naturaldisaster.events.arena.Damage;
@@ -30,19 +28,17 @@ public class NaturalDisaster extends JavaPlugin {
 
     WorldManager worldManager;
     private static NaturalDisaster mainReference;
-    private static AuthManager authManager;
     private static CPlayerManager cPlayerManager;
     private static GameManager gameManager;
     private static SkinManager skinManager;
     private static SchematicManager schematicManager;
 
-    private static Random random = new Random();
+    private static final Random random = new Random();
 
     @Override
     public void onEnable() {
 
         mainReference = this;
-        authManager = new AuthManager();
 
         List<String> managedWorlds = getConfig().getStringList("worlds");
         worldManager = new WorldManager(managedWorlds);
@@ -118,9 +114,6 @@ public class NaturalDisaster extends JavaPlugin {
         Objects.requireNonNull(getCommand("shop")).setExecutor(new ShopCommand());
         Objects.requireNonNull(getCommand("friends")).setExecutor(new FriendsGUI());
         Objects.requireNonNull(getCommand("refresh")).setExecutor(new RefreshSkin());
-        AuthCommands authCommands = new AuthCommands();
-        Objects.requireNonNull(getCommand("register")).setExecutor(authCommands);
-        Objects.requireNonNull(getCommand("login")).setExecutor(authCommands);
 
     }
 
@@ -128,17 +121,11 @@ public class NaturalDisaster extends JavaPlugin {
         return worldManager;
     }
 
-    public static AuthManager getAuthManager() { return authManager; }
-
     public static NaturalDisaster getMainReference() {
         return mainReference;
     }
 
     public static CPlayerManager getPlayerManager() { return  cPlayerManager; }
-
-    public static AuthManager getAuthenticationManager() {
-        return authManager;
-    }
 
     public static GameManager getGameManager() {
         return gameManager;
