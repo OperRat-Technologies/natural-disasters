@@ -6,7 +6,7 @@
 
     <groupId>groupId</groupId>
     <artifactId>NaturalDisaster</artifactId>
-    <version>0.1</version>
+    <version>0.1.0</version>
 
     <properties>
         <maven.compiler.source>20</maven.compiler.source>
@@ -15,7 +15,7 @@
 
         <minecraft.version>1.21.1</minecraft.version>
         <minecraft.version.snapshot>${minecraft.version}-R0.1-SNAPSHOT</minecraft.version.snapshot>
-        <kotlin.version>1.9.0</kotlin.version>
+        <kotlin.version>2.0.21</kotlin.version>
     </properties>
 
     <repositories>
@@ -82,7 +82,7 @@
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-test</artifactId>
+            <artifactId>kotlin-test-junit</artifactId>
             <version>${kotlin.version}</version>
             <scope>test</scope>
         </dependency>
@@ -190,5 +190,11 @@
             </plugin>
 
         </plugins>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
 </project>

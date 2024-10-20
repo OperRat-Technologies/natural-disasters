@@ -1,7 +1,7 @@
 name: NaturalDisasters
 main: me.tcklpl.naturaldisaster.NaturalDisaster
-version: '${project.version}'
-api-version: "1.21.1"
+version: ${project.version}
+api-version: ${minecraft.version}
 prefix: Natural Disasters
 commands:
   world:
