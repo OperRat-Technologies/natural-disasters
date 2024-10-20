@@ -27,7 +27,7 @@ public class Join implements Listener {
         if (NaturalDisaster.getPlayerManager().getCPlayer(p.getUniqueId()) == null) {
             PlayerData playerData = new PlayerData(p.getName(), 0, 0, 0, 50, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
             playerData.setPlayerUUID(p.getUniqueId());
-            CPlayer cp = new CPlayer(p.getUniqueId(), null, null, playerData);
+            CPlayer cp = new CPlayer(p.getUniqueId(), playerData);
             if (!NaturalDisaster.getPlayerManager().registerCPlayer(cp))
                 NaturalDisaster.getMainReference().getLogger().warning("Falha ao registrar player " + p.getName());
             p.sendMessage(ChatColor.GREEN + "Bem-vindo ao servidor!");

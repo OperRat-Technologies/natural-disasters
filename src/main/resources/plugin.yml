@@ -1,7 +1,7 @@
 name: NaturalDisasters
 main: me.tcklpl.naturaldisaster.NaturalDisaster
-version: "1.9.5"
-api-version: "1.15"
+version: '${project.version}'
+api-version: "1.21.1"
 prefix: Natural Disasters
 commands:
   world:
@@ -70,5 +70,4 @@ commands:
     description: Loga o usuario.
     usage: "Usage: /<command> [senha]"
 libraries:
-  - de.mkammerer:argon2-jvm:2.11
   - org.json:json:20220924
