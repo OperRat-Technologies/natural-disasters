@@ -14,7 +14,6 @@ public class Leave implements Listener {
         if (NaturalDisaster.getGameManager().getCurrentStatus() != GameStatus.IN_LOBBY)
             NaturalDisaster.getGameManager().registerPlayerDeath(e.getPlayer());
         e.setQuitMessage(ChatColor.GRAY + e.getPlayer().getName() + ChatColor.GRAY + " saiu do servidor");
-        NaturalDisaster.getAuthManager().removeIfAuthenticated(e.getPlayer());
     }
 
 }
