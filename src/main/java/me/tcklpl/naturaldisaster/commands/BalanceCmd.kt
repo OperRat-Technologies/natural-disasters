@@ -1,23 +1,19 @@
-package me.tcklpl.naturaldisaster.commands;
+package me.tcklpl.naturaldisaster.commands
 
-import me.tcklpl.naturaldisaster.NaturalDisaster;
-import me.tcklpl.naturaldisaster.player.cPlayer.CPlayer;
-import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.entity.Player;
+import me.tcklpl.naturaldisaster.NaturalDisaster
+import org.bukkit.ChatColor
+import org.bukkit.command.Command
+import org.bukkit.command.CommandExecutor
+import org.bukkit.command.CommandSender
+import org.bukkit.entity.Player
 
-public class Balance implements CommandExecutor {
-    @Override
-    public boolean onCommand(CommandSender sender, Command cmd, String alias, String[] args) {
-        if (cmd.getName().equalsIgnoreCase("balance")) {
-            if (sender instanceof Player p) {
-                CPlayer cp = NaturalDisaster.getPlayerManager().getCPlayer(p.getUniqueId());
-                p.sendMessage(ChatColor.GOLD + "Capital: $" + ChatColor.BOLD + cp.getPlayerData().getMoney());
-            }
-            return true;
-        }
-        return false;
+object BalanceCmd : CommandExecutor {
+
+    override fun onCommand(sender: CommandSender, cmd: Command, alias: String, args: Array<String>): Boolean {
+        if (sender !is Player) return false
+
+        val cp = NaturalDisaster.getPlayerManager().getCPlayer(sender.uniqueId)
+        sender.sendMessage("${ChatColor.GOLD}Capital: $${ChatColor.BOLD}${cp.playerData.money}")
+        return true
     }
 }

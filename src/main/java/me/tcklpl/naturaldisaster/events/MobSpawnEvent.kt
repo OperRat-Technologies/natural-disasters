@@ -1,15 +1,14 @@
-package me.tcklpl.naturaldisaster.events;
+package me.tcklpl.naturaldisaster.events
 
-import org.bukkit.entity.Bat;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntitySpawnEvent;
+import org.bukkit.entity.Bat
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.entity.EntitySpawnEvent
 
-public class MobSpawn implements Listener {
+object MobSpawnEvent : Listener {
 
     @EventHandler
-    public void onMobSpawn(EntitySpawnEvent e) {
-        if (e.getEntity() instanceof Bat)
-            e.setCancelled(true);
+    fun onMobSpawn(e: EntitySpawnEvent) {
+        if (e.getEntity() is Bat) e.isCancelled = true
     }
 }

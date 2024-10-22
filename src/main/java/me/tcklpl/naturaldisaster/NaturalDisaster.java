@@ -1,12 +1,11 @@
 package me.tcklpl.naturaldisaster;
 
-import me.tcklpl.naturaldisaster.admin.AdminInventoryClick;
-import me.tcklpl.naturaldisaster.admin.ArenaAdmin;
+import me.tcklpl.naturaldisaster.admin.AdminInventoryClickEvent;
+import me.tcklpl.naturaldisaster.admin.ArenaAdminCmd;
 import me.tcklpl.naturaldisaster.commands.*;
 import me.tcklpl.naturaldisaster.events.*;
-import me.tcklpl.naturaldisaster.events.arena.Damage;
-import me.tcklpl.naturaldisaster.events.arena.Death;
-import me.tcklpl.naturaldisaster.events.arena.EntityChangeBlock;
+import me.tcklpl.naturaldisaster.events.arena.DamageEvent;
+import me.tcklpl.naturaldisaster.events.arena.DeathEvent;
 import me.tcklpl.naturaldisaster.player.cPlayer.CPlayerManager;
 import me.tcklpl.naturaldisaster.player.friends.FriendsGUI;
 import me.tcklpl.naturaldisaster.player.skins.RefreshSkin;
@@ -76,45 +75,39 @@ public class NaturalDisaster extends JavaPlugin {
     }
 
     private void registerEvents() {
-
         PluginManager pm = getServer().getPluginManager();
-        pm.registerEvents(new Motd(), this);
-        pm.registerEvents(new Join(this), this);
-        pm.registerEvents(new Death(), this);
-        pm.registerEvents(new PickItem(), this);
-        pm.registerEvents(new FoodLevel(), this);
-        pm.registerEvents(new IceMelt(), this);
-        pm.registerEvents(new Leave(), this);
-        pm.registerEvents(new Move(), this);
-        pm.registerEvents(new AdminInventoryClick(), this);
-        pm.registerEvents(new Chat(), this);
-        pm.registerEvents(new Damage(), this);
-        pm.registerEvents(new Chair(), this);
-        pm.registerEvents(new MobSpawn(), this);
+        pm.registerEvents(MotdEvent.INSTANCE, this);
+        pm.registerEvents(JoinEvent.INSTANCE, this);
+        pm.registerEvents(DeathEvent.INSTANCE, this);
+        pm.registerEvents(PickItemEvent.INSTANCE, this);
+        pm.registerEvents(FoodLevelEvent.INSTANCE, this);
+        pm.registerEvents(IceMeltEvent.INSTANCE, this);
+        pm.registerEvents(LeaveEvent.INSTANCE, this);
+        pm.registerEvents(MoveEvent.INSTANCE, this);
+        pm.registerEvents(AdminInventoryClickEvent.INSTANCE, this);
+        pm.registerEvents(ChatEvent.INSTANCE, this);
+        pm.registerEvents(DamageEvent.INSTANCE, this);
+        pm.registerEvents(MobSpawnEvent.INSTANCE, this);
         pm.registerEvents(new ShopInventoryClick(), this);
         pm.registerEvents(new FriendsGUI(), this);
-        pm.registerEvents(new EntityChangeBlock(), this);
-
     }
 
     private void registerCommands() {
-
         Objects.requireNonNull(getCommand("world")).setExecutor(new WorldCommands(worldManager));
-        GamemodeCommands gmc = new GamemodeCommands();
-        Objects.requireNonNull(getCommand("creative")).setExecutor(gmc);
-        Objects.requireNonNull(getCommand("survival")).setExecutor(gmc);
-        Objects.requireNonNull(getCommand("adventure")).setExecutor(gmc);
-        Objects.requireNonNull(getCommand("spectator")).setExecutor(gmc);
+        Objects.requireNonNull(getCommand("creative")).setExecutor(GamemodeCmd.INSTANCE);
+        Objects.requireNonNull(getCommand("survival")).setExecutor(GamemodeCmd.INSTANCE);
+        Objects.requireNonNull(getCommand("adventure")).setExecutor(GamemodeCmd.INSTANCE);
+        Objects.requireNonNull(getCommand("spectator")).setExecutor(GamemodeCmd.INSTANCE);
         Objects.requireNonNull(getCommand("arena")).setExecutor(new MapCreator());
-        Objects.requireNonNull(getCommand("start")).setExecutor(new Start(this));
-        Objects.requireNonNull(getCommand("balance")).setExecutor(new Balance());
-        Objects.requireNonNull(getCommand("admin")).setExecutor(new ArenaAdmin());
+        Objects.requireNonNull(getCommand("start")).setExecutor(StartCmd.INSTANCE);
+        Objects.requireNonNull(getCommand("balance")).setExecutor(BalanceCmd.INSTANCE);
+        Objects.requireNonNull(getCommand("admin")).setExecutor(ArenaAdminCmd.INSTANCE);
+        Objects.requireNonNull(getCommand("admin")).setTabCompleter(ArenaAdminCmd.INSTANCE);
         Objects.requireNonNull(getCommand("sch")).setExecutor(new SchematicCreator());
-        Objects.requireNonNull(getCommand("heal")).setExecutor(new Heal());
+        Objects.requireNonNull(getCommand("heal")).setExecutor(HealCmd.INSTANCE);
         Objects.requireNonNull(getCommand("shop")).setExecutor(new ShopCommand());
         Objects.requireNonNull(getCommand("friends")).setExecutor(new FriendsGUI());
         Objects.requireNonNull(getCommand("refresh")).setExecutor(new RefreshSkin());
-
     }
 
     public WorldManager getWorldManager() {
@@ -125,13 +118,17 @@ public class NaturalDisaster extends JavaPlugin {
         return mainReference;
     }
 
-    public static CPlayerManager getPlayerManager() { return  cPlayerManager; }
+    public static CPlayerManager getPlayerManager() {
+        return cPlayerManager;
+    }
 
     public static GameManager getGameManager() {
         return gameManager;
     }
 
-    public static SkinManager getSkinManager() { return skinManager; }
+    public static SkinManager getSkinManager() {
+        return skinManager;
+    }
 
     public static SchematicManager getSchematicManager() {
         return schematicManager;

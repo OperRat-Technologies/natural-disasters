@@ -1,51 +1,59 @@
-package me.tcklpl.naturaldisaster.admin;
+package me.tcklpl.naturaldisaster.admin
 
-import me.tcklpl.naturaldisaster.NaturalDisaster;
-import me.tcklpl.naturaldisaster.disasters.Disaster;
-import me.tcklpl.naturaldisaster.map.DisasterMap;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.inventory.InventoryClickEvent;
+import me.tcklpl.naturaldisaster.NaturalDisaster
+import org.bukkit.ChatColor
+import org.bukkit.entity.Player
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.inventory.meta.ItemMeta
 
-import java.util.Objects;
+object AdminInventoryClickEvent : Listener {
 
-public class AdminInventoryClick implements Listener {
-
-    @EventHandler
-    public void onInvClick(InventoryClickEvent e) {
-
-        if (e.getWhoClicked() instanceof Player p) {
-
-            if (p.isOp()) {
-                if (e.getView().getTitle().equalsIgnoreCase("Admin Map Selection")) {
-                    e.setCancelled(true);
-                    if (e.getCurrentItem() == null) return;
-                    String mapname = ChatColor.stripColor(Objects.requireNonNull(Objects.requireNonNull(e.getCurrentItem()).getItemMeta()).getDisplayName());
-                    DisasterMap map = NaturalDisaster.getGameManager().getArenaManager().getArenaByName(mapname);
-                    if (map != null) {
-                        NaturalDisaster.getGameManager().setCurrentMap(map);
-                        p.sendMessage(ChatColor.GREEN + "Mapa definido como " + ChatColor.RED + mapname);
-                        p.closeInventory();
-                    } else p.sendMessage(ChatColor.RED + "Erro ao definir o mapa.");
-                }
-
-                if (e.getView().getTitle().equalsIgnoreCase("Admin Disaster Selection")) {
-                    e.setCancelled(true);
-                    if (e.getCurrentItem() == null) return;
-                    String disname = ChatColor.stripColor(Objects.requireNonNull(Objects.requireNonNull(e.getCurrentItem()).getItemMeta()).getDisplayName());
-                    Disaster disaster = NaturalDisaster.getGameManager().getDisasterManager().getDisasterByName(disname);
-                    if (disaster != null) {
-                        NaturalDisaster.getGameManager().setCurrentDisaster(disaster);
-                        p.sendMessage(ChatColor.GREEN + "Desastre definido como " + ChatColor.RED + disname);
-                        p.closeInventory();
-                    } else p.sendMessage(ChatColor.RED + "Erro ao definir o desastre.");
-                }
-            }
-
-        }
-
+    private fun getClickedItemCleanName(e: InventoryClickEvent): String {
+        return ChatColor.stripColor(
+            java.util.Objects.requireNonNull<ItemMeta?>(
+                java.util.Objects.requireNonNull<org.bukkit.inventory.ItemStack?>(
+                    e.currentItem
+                ).itemMeta
+            ).displayName
+        )!!
     }
 
+    private fun defineMapByName(name: String, p: Player) {
+        val map = NaturalDisaster.getGameManager().arenaManager.getArenaByName(name)
+        if (map != null) {
+            NaturalDisaster.getGameManager().currentMap = map
+            p.sendMessage("${ChatColor.GREEN}Mapa definido como ${ChatColor.RED}${name}")
+        } else p.sendMessage("${ChatColor.RED}Erro ao definir o mapa.")
+    }
+
+    private fun defineDisasterByName(name: String, p: Player) {
+        val disaster = NaturalDisaster.getGameManager().disasterManager.getDisasterByName(name)
+        if (disaster != null) {
+            NaturalDisaster.getGameManager().currentDisaster = disaster
+            p.sendMessage("${ChatColor.GREEN}Desastre definido como ${ChatColor.RED}${name}")
+            p.closeInventory()
+        } else p.sendMessage("${ChatColor.RED}Erro ao definir o desastre.")
+    }
+
+    @EventHandler
+    fun onInvClick(e: InventoryClickEvent) {
+        if (e.whoClicked !is Player) return
+        if (!e.whoClicked.isOp) return
+        if (e.currentItem == null) return
+        if (!listOf("Admin Map Selection", "Admin Disaster Selection").contains(e.view.title)) return;
+
+        var p = e.whoClicked as Player
+        var itemName = getClickedItemCleanName(e)
+        e.isCancelled = true
+
+        when (e.view.title) {
+            "Admin Map Selection" -> defineMapByName(itemName, p)
+            "Admin Disaster Selection" -> defineDisasterByName(itemName, p)
+            else -> p.sendMessage("${ChatColor.RED}Erro ao definir")
+        }
+
+        p.closeInventory()
+    }
 }

@@ -1,50 +1,54 @@
-package me.tcklpl.naturaldisaster.events;
+package me.tcklpl.naturaldisaster.events
 
-import me.tcklpl.naturaldisaster.GameStatus;
-import me.tcklpl.naturaldisaster.NaturalDisaster;
-import me.tcklpl.naturaldisaster.player.cPlayer.CPlayer;
-import me.tcklpl.naturaldisaster.player.cPlayer.PlayerData;
-import me.tcklpl.naturaldisaster.util.SkinUtils;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.plugin.java.JavaPlugin;
+import me.tcklpl.naturaldisaster.GameStatus
+import me.tcklpl.naturaldisaster.NaturalDisaster
+import me.tcklpl.naturaldisaster.player.cPlayer.CPlayer
+import me.tcklpl.naturaldisaster.player.cPlayer.PlayerData
+import me.tcklpl.naturaldisaster.util.SkinUtils
+import org.bukkit.ChatColor
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerJoinEvent
+import java.util.ArrayList
+import java.util.UUID
 
-import java.util.ArrayList;
-
-public class Join implements Listener {
-
-    private final JavaPlugin main;
-    public Join(JavaPlugin main) {
-        this.main = main;
-    }
+object JoinEvent : Listener {
 
     @EventHandler
-    public void onLogin(PlayerJoinEvent e) {
-        Player p = e.getPlayer();
-        if (NaturalDisaster.getPlayerManager().getCPlayer(p.getUniqueId()) == null) {
-            PlayerData playerData = new PlayerData(p.getName(), 0, 0, 0, 50, new ArrayList<>(), new ArrayList<>(), new ArrayList<>());
-            playerData.setPlayerUUID(p.getUniqueId());
-            CPlayer cp = new CPlayer(p.getUniqueId(), playerData);
-            if (!NaturalDisaster.getPlayerManager().registerCPlayer(cp))
-                NaturalDisaster.getMainReference().getLogger().warning("Falha ao registrar player " + p.getName());
-            p.sendMessage(ChatColor.GREEN + "Bem-vindo ao servidor!");
+    fun onLogin(e: PlayerJoinEvent) {
+        val p = e.player
+
+        // Register custom player
+        if (NaturalDisaster.getPlayerManager().getCPlayer(p.uniqueId) == null) {
+            val playerData =
+                PlayerData(p.name, 0, 0, 0, 50.0, ArrayList<UUID>(), ArrayList<UUID>(), ArrayList<UUID>())
+            playerData.setPlayerUUID(p.uniqueId)
+            val cp = CPlayer(p.uniqueId, playerData)
+            if (!NaturalDisaster.getPlayerManager().registerCPlayer(cp)) NaturalDisaster.getMainReference().logger
+                .warning("Falha ao registrar player " + p.name)
+            p.sendMessage(ChatColor.GREEN.toString() + "Bem-vindo ao servidor!")
         } else {
-            p.sendMessage(ChatColor.GREEN + "Bem-vindo de volta!");
+            p.sendMessage(ChatColor.GREEN.toString() + "Bem-vindo de volta!")
         }
-        if (NaturalDisaster.getGameManager().getCurrentStatus() != GameStatus.IN_LOBBY) {
-            NaturalDisaster.getGameManager().teleportSpectatorToArena(p);
-            p.sendMessage(ChatColor.GRAY + "O jogo já está em andamento, você jogará na próxima partida.");
+
+        // Set player a sspectator if the hame has already started
+        if (NaturalDisaster.getGameManager().currentStatus != GameStatus.IN_LOBBY) {
+            NaturalDisaster.getGameManager().teleportSpectatorToArena(p)
+            p.sendMessage(ChatColor.GRAY.toString() + "O jogo já está em andamento, você jogará na próxima partida.")
         }
-        if (!NaturalDisaster.getSkinManager().isRegistered(p.getName())) {
-            String uuidStr = SkinUtils.getOriginalUUIDString(p);
+
+        // Download or apply player skins
+        if (!NaturalDisaster.getSkinManager().isRegistered(p.name)) {
+            val uuidStr = SkinUtils.getOriginalUUIDString(p)
             if (uuidStr != null) {
-                NaturalDisaster.getSkinManager().addPlayerToSkinQueue(p, uuidStr);
+                NaturalDisaster.getSkinManager().addPlayerToSkinQueue(p, uuidStr)
             }
         } else {
-            SkinUtils.applySkin(main, p, NaturalDisaster.getSkinManager().getSkin(p.getName()));
+            SkinUtils.applySkin(
+                NaturalDisaster.getMainReference(),
+                p,
+                NaturalDisaster.getSkinManager().getSkin(p.name)
+            )
         }
     }
 }

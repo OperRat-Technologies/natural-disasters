@@ -70,4 +70,5 @@ commands:
     description: Loga o usuario.
     usage: "Usage: /<command> [senha]"
 libraries:
-  - org.json:json:20220924
+  - org.json:json:${org.json.version}
+  - org.jetbrains.kotlin:kotlin-stdlib:${kotlin.version}

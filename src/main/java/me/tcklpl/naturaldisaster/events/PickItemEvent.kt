@@ -1,18 +1,17 @@
-package me.tcklpl.naturaldisaster.events;
+package me.tcklpl.naturaldisaster.events
 
-import org.bukkit.GameMode;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.GameMode
+import org.bukkit.entity.Player
+import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.entity.EntityPickupItemEvent
 
-public class PickItem implements Listener {
+object PickItemEvent : Listener {
 
     @EventHandler
-    public void onPick(EntityPickupItemEvent e) {
-        if (e.getEntity() instanceof Player p) {
-            if (p.getGameMode().equals(GameMode.ADVENTURE))
-                e.setCancelled(true);
-        }
+    fun onPick(e: EntityPickupItemEvent) {
+        var entity = e.entity
+        if (entity !is Player) return
+        if (entity.gameMode == GameMode.ADVENTURE) e.isCancelled = true
     }
 }
