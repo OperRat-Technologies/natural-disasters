@@ -1,5 +1,5 @@
-package me.tcklpl.naturaldisaster;
+package me.tcklpl.naturaldisaster
 
-public enum GameStatus {
+enum class GameStatus {
     IN_LOBBY, STARTING, IN_GAME
 }

@@ -1,4 +1,5 @@
-package me.tcklpl.naturaldisaster.exceptions;
+package me.tcklpl.naturaldisaster.exceptions
 
-public class InvalidGameStartException extends Exception {
-}
+import java.lang.Exception
+
+class InvalidGameStartException : Exception()

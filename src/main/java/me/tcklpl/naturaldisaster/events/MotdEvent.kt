@@ -11,7 +11,7 @@ object MotdEvent : Listener {
 
     @EventHandler
     fun onServerListPing(e: ServerListPingEvent) {
-        when (NaturalDisaster.getGameManager().currentStatus) {
+        when (NaturalDisaster.instance.gameManager.currentStatus) {
             GameStatus.IN_LOBBY -> e.motd = "${ChatColor.GREEN}Em lobby"
             GameStatus.STARTING -> e.motd = "${ChatColor.YELLOW}Iniciando..."
             GameStatus.IN_GAME -> e.motd = "${ChatColor.RED}Em jogo"

@@ -12,8 +12,8 @@ object BalanceCmd : CommandExecutor {
     override fun onCommand(sender: CommandSender, cmd: Command, alias: String, args: Array<String>): Boolean {
         if (sender !is Player) return false
 
-        val cp = NaturalDisaster.getPlayerManager().getCPlayer(sender.uniqueId)
-        sender.sendMessage("${ChatColor.GOLD}Capital: $${ChatColor.BOLD}${cp.playerData.money}")
+        val cp = NaturalDisaster.instance.cPlayerManager.getCPlayer(sender.uniqueId)
+        sender.sendMessage("${ChatColor.GOLD}Capital: $${ChatColor.BOLD}${cp?.money}")
         return true
     }
 }

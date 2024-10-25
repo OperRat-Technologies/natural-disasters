@@ -1,85 +1,77 @@
-package me.tcklpl.naturaldisaster.disasters;
+package me.tcklpl.naturaldisaster.disasters
 
-import me.tcklpl.naturaldisaster.map.DisasterMap;
-import me.tcklpl.naturaldisaster.util.BiomeUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.data.Waterlogged;
-import org.bukkit.entity.Player;
+import me.tcklpl.naturaldisaster.map.DisasterMap
+import me.tcklpl.naturaldisaster.util.BiomeUtils
+import org.bukkit.Bukkit
+import org.bukkit.Material
+import org.bukkit.block.Block
+import org.bukkit.block.data.Waterlogged
+import java.util.ArrayList
+import java.util.HashMap
+import java.util.concurrent.atomic.AtomicInteger
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+class Flooding : Disaster("Flooding", true, Material.WATER_BUCKET, BiomeUtils.PrecipitationRequirements.SHOULD_RAIN) {
 
-public class Flooding extends Disaster {
+    private val blocksToChangePerYLevel: HashMap<Int, MutableList<Block>> = HashMap<Int, MutableList<Block>>()
+    private val blocksToWaterlogPerYLevel: HashMap<Int, MutableList<Block>> = HashMap<Int, MutableList<Block>>()
 
-    private final HashMap<Integer, List<Block>> blocksToChangePerYLevel;
-    private final HashMap<Integer, List<Block>> blocksToWaterlogPerYLevel;
-
-    public Flooding() {
-        super("Flooding", true, Material.WATER_BUCKET, BiomeUtils.PrecipitationRequirements.SHOULD_RAIN);
-        blocksToChangePerYLevel = new HashMap<>();
-        blocksToWaterlogPerYLevel = new HashMap<>();
-    }
-
-    private void calcBlocksToChange() {
-        for (int y = map.getLowestCoordsLocation().getBlockY(); y <= map.getHighestCoordsLocation().getBlockY(); y++) {
-            List<Block> change = new ArrayList<>(), waterlog = new ArrayList<>();
-            for (int x = map.getLowestCoordsLocation().getBlockX(); x <= map.getHighestCoordsLocation().getBlockX(); x++) {
-                for (int z = map.getLowestCoordsLocation().getBlockX(); z <= map.getHighestCoordsLocation().getBlockZ(); z++) {
-                    Block b = map.getWorld().getBlockAt(x, y, z);
-                    if ((b.getType() == Material.AIR || !b.getType().isSolid() || !b.getType().isOccluding()) && !(b.getBlockData() instanceof Waterlogged))
-                        change.add(b);
-                    if (b.getBlockData() instanceof Waterlogged) {
-                        waterlog.add(b);
+    private fun calcBlocksToChange() {
+        for (y in map.getLowestCoordsLocation().blockY..map.getHighestCoordsLocation().blockY) {
+            val change = ArrayList<Block>()
+            val waterlog = ArrayList<Block>()
+            for (x in map.getLowestCoordsLocation().blockX..map.getHighestCoordsLocation().blockX) {
+                for (z in map.getLowestCoordsLocation().blockX..map.getHighestCoordsLocation().blockZ) {
+                    val b = map.getWorld().getBlockAt(x, y, z)
+                    if ((b.type == Material.AIR || !b.type.isSolid || !b.type.isOccluding) && b.blockData !is Waterlogged)
+                        change.add(b)
+                    if (b.blockData is Waterlogged) {
+                        waterlog.add(b)
                     }
                 }
             }
-            blocksToChangePerYLevel.put(y, change);
-            blocksToWaterlogPerYLevel.put(y, waterlog);
+            blocksToChangePerYLevel.put(y, change)
+            blocksToWaterlogPerYLevel.put(y, waterlog)
         }
     }
 
-    private void floodYLevel(int y) {
-
-        map.bufferedReplaceBlocks(blocksToChangePerYLevel.get(y), Material.WATER, 500, false);
-        for (Block b : blocksToWaterlogPerYLevel.get(y)) {
-            Waterlogged waterlogged = (Waterlogged) b.getBlockData();
-            waterlogged.setWaterlogged(true);
-            b.setBlockData(waterlogged);
+    private fun floodYLevel(y: Int) {
+        map.bufferedReplaceBlocks(blocksToChangePerYLevel.get(y)!!, Material.WATER, 500, false)
+        for (b in blocksToWaterlogPerYLevel.get(y)!!) {
+            val waterlogged = b.blockData as Waterlogged
+            waterlogged.isWaterlogged = true
+            b.blockData = waterlogged
         }
     }
 
-    @Override
-    public void startDisaster() {
-        super.startDisaster();
+    override fun setupDisaster() {
+        super.setupDisaster()
+        blocksToChangePerYLevel.clear()
+        blocksToWaterlogPerYLevel.clear()
+        calcBlocksToChange()
+        map.setPrecipitation(DisasterMap.MapPrecipitation.PRECIPITATE)
+    }
 
-        calcBlocksToChange();
-        map.setPrecipitation(DisasterMap.MapPrecipitation.PRECIPITATE);
+    override fun startDisaster() {
+        super.startDisaster()
 
-        AtomicInteger currentY = new AtomicInteger(map.getLowestCoordsLocation().getBlockY());
+        val currentY = AtomicInteger(map.getLowestCoordsLocation().blockY)
 
         // 5s
-        int waterRiseTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
-            if (currentY.get() <= map.getHighestCoordsLocation().getBlockY()) {
-                floodYLevel(currentY.get());
-                currentY.getAndIncrement();
+        val waterRiseTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, Runnable {
+            if (currentY.get() <= map.getHighestCoordsLocation().blockY) {
+                floodYLevel(currentY.get())
+                currentY.getAndIncrement()
             }
-        }, startDelay, 100L);
+        }, startDelay, 5 * 20L)
 
         // 0.5s
-        int damageTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
+        val damageTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, Runnable {
             // Damage players that are on water
-            if (map.getPlayersInArena().size() > 0)
-                for (Player p : map.getPlayersInArena()) {
-                    assert p != null;
-                    if (p.getLocation().getY() < currentY.get())
-                        p.damage(1);
-                }
-        }, startDelay, 10L);
+            for (p in map.playersInArena) {
+                if (p.getLocation().y < currentY.get()) p.damage(1.0)
+            }
+        }, startDelay, 10L)
 
-        registerTasks(waterRiseTask, damageTask);
+        registerTasks(waterRiseTask, damageTask)
     }
 }

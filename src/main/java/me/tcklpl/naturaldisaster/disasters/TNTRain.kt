@@ -1,57 +1,49 @@
-package me.tcklpl.naturaldisaster.disasters;
+package me.tcklpl.naturaldisaster.disasters
 
-import me.tcklpl.naturaldisaster.map.DisasterMap;
-import me.tcklpl.naturaldisaster.util.BiomeUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.entity.TNTPrimed;
+import me.tcklpl.naturaldisaster.map.DisasterMap
+import me.tcklpl.naturaldisaster.util.BiomeUtils
+import org.bukkit.Bukkit
+import org.bukkit.Location
+import org.bukkit.Material
+import org.bukkit.World
+import org.bukkit.entity.TNTPrimed
+import java.util.Objects
+import java.util.Random
+import java.util.concurrent.atomic.AtomicInteger
 
-import java.util.Objects;
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
+class TNTRain : Disaster("TNT Rain", true, Material.TNT, BiomeUtils.PrecipitationRequirements.ANYTHING) {
+    private var r: Random? = null
 
-public class TNTRain extends Disaster {
-
-    private Random r;
-
-    public TNTRain() {
-        super("TNT Rain", true, Material.TNT, BiomeUtils.PrecipitationRequirements.ANYTHING);
+    override fun setupDisaster() {
+        super.setupDisaster()
+        map.setPrecipitation(DisasterMap.MapPrecipitation.RANDOM)
     }
 
-    @Override
-    public void startDisaster() {
+    override fun startDisaster() {
+        super.startDisaster()
 
-        super.startDisaster();
+        val tntToSpawn = AtomicInteger(1)
+        val timesRunned = AtomicInteger(0)
 
-        r = random;
+        val taskId = Bukkit.getServer().scheduler.scheduleSyncRepeatingTask(main, Runnable {
+            for (i in 0 until tntToSpawn.get()) {
+                val x = map.getLowestCoordsLocation().blockX + r!!.nextInt(map.mapSize.x)
+                val z = map.getLowestCoordsLocation().blockZ + r!!.nextInt(map.mapSize.z)
+                val loc = Location(
+                    map.getWorld(),
+                    x.toDouble(),
+                    map.getHighestCoordsLocation().blockY.toDouble(),
+                    z.toDouble()
+                )
 
-        map.setPrecipitation(DisasterMap.MapPrecipitation.RANDOM);
+                val tnt = Objects.requireNonNull<World?>(map.getWorld()).spawn<TNTPrimed>(loc, TNTPrimed::class.java)
 
-        AtomicInteger tntToSpawn = new AtomicInteger(1);
-        AtomicInteger timesRunned = new AtomicInteger(0);
-
-        int taskId = Bukkit.getServer().getScheduler().scheduleSyncRepeatingTask(main, () -> {
-
-            for (int i = 0; i < tntToSpawn.get(); i++) {
-                int x = map.getLowestCoordsLocation().getBlockX() + r.nextInt(map.getMapSize().getX());
-                int z = map.getLowestCoordsLocation().getBlockZ() + r.nextInt(map.getMapSize().getZ());
-                Location loc = new Location(map.getWorld(), x, map.getHighestCoordsLocation().getBlockY(), z);
-
-                TNTPrimed tnt = Objects.requireNonNull(map.getWorld()).spawn(loc, TNTPrimed.class);
-
-                tnt.setTicksLived(5);
-
-                tnt.setFuseTicks(20 + map.getMapSize().getY()); // 1s inicial + 1s p/ cada 20 blocos
+                tnt.ticksLived = 5
+                tnt.fuseTicks = 20 + map.mapSize.y // 1s inicial + 1s p/ cada 20 blocos
             }
+            if ((timesRunned.incrementAndGet() % 10) == 0) tntToSpawn.addAndGet(1)
+        }, startDelay, 20L)
 
-            if ((timesRunned.incrementAndGet() % 10) == 0)
-                tntToSpawn.addAndGet(1);
-
-        }, startDelay, 20L);
-
-        registerTasks(taskId);
-
+        registerTasks(taskId)
     }
-
 }

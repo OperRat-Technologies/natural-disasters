@@ -1,16 +1,14 @@
-package me.tcklpl.naturaldisaster.util;
+package me.tcklpl.naturaldisaster.util
 
-import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffect;
+import org.bukkit.entity.Player
 
-public class PlayerUtils {
+object PlayerUtils {
 
-    public static void healPlayer(Player p) {
-        p.setHealth(20);
-        p.setFoodLevel(20);
-        p.setFireTicks(0);
-        p.setFallDistance(0);
-        for (PotionEffect pe : p.getActivePotionEffects())
-            p.removePotionEffect(pe.getType());
+    fun healPlayer(p: Player) {
+        p.health = 20.0
+        p.foodLevel = 20
+        p.fireTicks = 0
+        p.fallDistance = 0f
+        for (pe in p.activePotionEffects) p.removePotionEffect(pe.type)
     }
 }

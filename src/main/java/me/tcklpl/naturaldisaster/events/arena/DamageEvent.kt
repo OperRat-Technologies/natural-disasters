@@ -17,13 +17,13 @@ object DamageEvent : Listener {
 
         if (p.gameMode == GameMode.ADVENTURE) {
             // Don't damage players if we're in lobby
-            if (!NaturalDisaster.getGameManager().isIngame) e.isCancelled = true
+            if (!NaturalDisaster.instance.gameManager.isIngame()) e.isCancelled = true
             // Ingame players can get fucked
             // Kill players that fell from the arena
-            else if (e.cause == EntityDamageEvent.DamageCause.VOID && NaturalDisaster.getGameManager()
-                    .currentMap.playersInArena.contains(p)
+            else if (e.cause == EntityDamageEvent.DamageCause.VOID && NaturalDisaster.instance.gameManager
+                    .currentMap!!.playersInArena.contains(p)
             ) {
-                NaturalDisaster.getGameManager().registerPlayerDeath(p)
+                NaturalDisaster.instance.gameManager.registerPlayerDeath(p)
                 p.sendMessage(ChatColor.GRAY.toString() + ">> Você morreu por cair da arena.")
             }
         }

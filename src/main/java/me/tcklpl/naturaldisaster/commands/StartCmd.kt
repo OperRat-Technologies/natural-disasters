@@ -11,10 +11,10 @@ object StartCmd : CommandExecutor {
 
     override fun onCommand(sender: CommandSender, cmd: Command, alias: String, args: Array<String>): Boolean {
         if (!sender.isOp) return false
-        if (!NaturalDisaster.getGameManager().isIngame) {
+        if (!NaturalDisaster.instance.gameManager.isIngame()) {
             sender.sendMessage("${ChatColor.GREEN}Começando o jogo...")
             try {
-                NaturalDisaster.getGameManager().pickNextGame()
+                NaturalDisaster.instance.gameManager.pickNextGame()
             } catch (e: InvalidGameStartException) {
                 e.printStackTrace()
             }

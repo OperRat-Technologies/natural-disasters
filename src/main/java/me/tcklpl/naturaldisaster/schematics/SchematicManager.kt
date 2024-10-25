@@ -1,112 +1,128 @@
-package me.tcklpl.naturaldisaster.schematics;
+package me.tcklpl.naturaldisaster.schematics
 
-import me.tcklpl.naturaldisaster.NaturalDisaster;
-import org.apache.commons.lang.NullArgumentException;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
+import me.tcklpl.naturaldisaster.NaturalDisaster
+import org.apache.commons.lang.NullArgumentException
+import org.bukkit.Location
+import org.bukkit.Material
+import org.bukkit.World
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
+import java.util.ArrayList
+import java.util.Arrays
+import java.util.Locale
+import java.util.Objects
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.function.Consumer
 
-import java.io.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
+class SchematicManager {
+    private val schematics = ArrayList<Schematic>()
+    private val schematicFolder: File = File(NaturalDisaster.instance.dataFolder, "schematics")
 
-public class SchematicManager {
-
-    private final List<Schematic> schematics;
-    private final File schematicFolder;
-
-    public SchematicManager() {
-        schematics = new ArrayList<>();
-        schematicFolder = new File(NaturalDisaster.getMainReference().getDataFolder(), "schematics");
-        if (schematicFolder.mkdirs())
-            NaturalDisaster.getMainReference().getLogger().info("Criada a pasta dos schematics");
-        loadSchematics();
+    init {
+        if (schematicFolder.mkdirs()) NaturalDisaster.instance.logger.info("Criada a pasta dos schematics")
+        loadSchematics()
     }
 
-    private void loadSchematics() {
-        System.out.print("Carregando schematics...");
-        AtomicInteger currentSchematicIndex = new AtomicInteger(1);
-        int totalSchematics = schematicFolder.listFiles().length;
-        Arrays.stream(schematicFolder.listFiles()).filter(f -> !f.isDirectory() && f.getName().endsWith(".schematic")).forEach(f -> {
-            System.out.print("\rCarregando schematics... [" + currentSchematicIndex + "/" + totalSchematics + "] (" + f.getName() + ") [1/2] Carregando arquivo");
-            try (FileInputStream fis = new FileInputStream(f); ObjectInputStream ois = new ObjectInputStream(fis)) {
-                Schematic s = (Schematic) ois.readObject();
-                System.out.print("\rCarregando schematics... [" + currentSchematicIndex + "/" + totalSchematics + "] (" + f.getName() + ") [2/2] Gerando BlockData");
-                s.buildBlockData();
-                schematics.add(s);
-            } catch (IOException | ClassNotFoundException e) {
-                NaturalDisaster.getMainReference().getLogger().warning("Falha ao carregar schematic " + f.getName());
-            }
-            currentSchematicIndex.getAndIncrement();
-        });
-        System.out.print("Carregando schematics... OK");
-    }
-
-    public void saveSchematics() {
-        NaturalDisaster.getMainReference().getLogger().info("Salvando schematics...");
-        schematics.forEach(s -> {
-            String fileName = s.getName().toLowerCase().replace(" ", "_") + ".schematic";
-            File schematicFile = new File(schematicFolder, fileName);
-            if (!schematicFile.exists()) {
-                try (FileOutputStream fos = new FileOutputStream(schematicFile); ObjectOutputStream oos = new ObjectOutputStream(fos)) {
-                    oos.writeObject(s);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-    }
-
-    public boolean isNameAvailable(String name) {
-        return schematics.stream().noneMatch(x -> x.getName().equalsIgnoreCase(name));
-    }
-
-    public void registerSchematic(Schematic schematic) {
-        schematics.add(schematic);
-    }
-
-    public Schematic getSchematicByName(String name) {
-        return schematics.stream().filter(x -> x.getName().equalsIgnoreCase(name)).findFirst().orElse(null);
-    }
-
-    public void loadSchematicAt(Location location, Schematic schematic, boolean keepSchematicAir, SchematicLoadPosition loadPosition) {
-        if (location == null) throw new NullArgumentException("Location cannot be null");
-        if (schematic == null) throw new NullArgumentException("Schematic cannot be null");
-
-        int schematicX = location.getBlockX();
-        int schematicY = location.getBlockY();
-        int schematicZ = location.getBlockZ();
-
-        switch (loadPosition) {
-            case FLOOR_CENTER -> {
-                schematicX -= Math.floorDiv(schematic.getWidth(), 2);
-                schematicZ -= Math.floorDiv(schematic.getLenght(), 2);
-            }
-            case TRUE_CENTER -> {
-                schematicX -= Math.floorDiv(schematic.getWidth(), 2);
-                schematicY -= Math.floorDiv(schematic.getHeight(), 2);
-                schematicZ -= Math.floorDiv(schematic.getLenght(), 2);
-            }
-        }
-
-        int currentBlockIndex = 0;
-        for (int x = schematicX; x <= schematicX + schematic.getWidth(); x++) {
-            for (int y = schematicY; y <= schematicY + schematic.getHeight(); y++) {
-                for (int z = schematicZ; z <= schematicZ + schematic.getLenght(); z++) {
-                    if (!keepSchematicAir && schematic.getBlocks().get(currentBlockIndex) == Material.AIR) {
-                        currentBlockIndex++;
-                        continue;
+    private fun loadSchematics() {
+        NaturalDisaster.instance.logger.info("Carregando schematics...")
+        val currentSchematicIndex = AtomicInteger(1)
+        Arrays.stream<File>(schematicFolder.listFiles())
+            .filter { f: File -> !f.isDirectory() && f.getName().endsWith(".schematic") }.forEach { f: File ->
+                try {
+                    FileInputStream(f).use { fis ->
+                        ObjectInputStream(fis).use { ois ->
+                            val s = ois.readObject() as Schematic
+                            s.buildBlockData()
+                            schematics.add(s)
+                        }
                     }
-                    Block b = Objects.requireNonNull(location.getWorld()).getBlockAt(x, y, z);
-                    b.setType(schematic.getBlocks().get(currentBlockIndex));
-                    b.setBlockData(schematic.getBlockData().get(currentBlockIndex));
-                    currentBlockIndex++;
+                } catch (_: IOException) {
+                    NaturalDisaster.instance.logger.warning("Falha ao carregar schematic " + f.getName())
+                } catch (_: ClassNotFoundException) {
+                    NaturalDisaster.instance.logger.warning("Falha ao carregar schematic " + f.getName())
+                }
+                currentSchematicIndex.getAndIncrement()
+            }
+    }
+
+    fun saveSchematics() {
+        NaturalDisaster.instance.logger.info("Salvando schematics...")
+        schematics.forEach(Consumer { s: Schematic ->
+            val fileName = s.name.lowercase(Locale.getDefault()).replace(" ", "_") + ".schematic"
+            val schematicFile = File(schematicFolder, fileName)
+            if (!schematicFile.exists()) {
+                try {
+                    FileOutputStream(schematicFile).use { fos ->
+                        ObjectOutputStream(fos).use { oos ->
+                            oos.writeObject(s)
+                        }
+                    }
+                } catch (e: IOException) {
+                    e.printStackTrace()
+                }
+            }
+        })
+    }
+
+    fun isNameAvailable(name: String?): Boolean {
+        return schematics.stream().noneMatch { x: Schematic? -> x!!.name.equals(name, ignoreCase = true) }
+    }
+
+    fun registerSchematic(schematic: Schematic) {
+        schematics.add(schematic)
+    }
+
+    fun getSchematicByName(name: String): Schematic? {
+        return schematics.stream().filter { x: Schematic -> x.name.equals(name, ignoreCase = true) }.findFirst()
+            .orElse(null)
+    }
+
+    fun loadSchematicAt(
+        location: Location?,
+        schematic: Schematic?,
+        keepSchematicAir: Boolean,
+        loadPosition: SchematicLoadPosition
+    ) {
+        if (location == null) throw NullArgumentException("Location cannot be null")
+        if (schematic == null) throw NullArgumentException("Schematic cannot be null")
+
+        var schematicX = location.blockX
+        var schematicY = location.blockY
+        var schematicZ = location.blockZ
+
+        when (loadPosition) {
+            SchematicLoadPosition.FLOOR_CENTER -> {
+                schematicX -= Math.floorDiv(schematic.width, 2)
+                schematicZ -= Math.floorDiv(schematic.lenght, 2)
+            }
+
+            SchematicLoadPosition.TRUE_CENTER -> {
+                schematicX -= Math.floorDiv(schematic.width, 2)
+                schematicY -= Math.floorDiv(schematic.height, 2)
+                schematicZ -= Math.floorDiv(schematic.lenght, 2)
+            }
+
+            SchematicLoadPosition.LOWEST_COORDINATES -> {}
+        }
+
+        var currentBlockIndex = 0
+        for (x in schematicX..(schematicX + schematic.width)) {
+            for (y in schematicY..(schematicY + schematic.height)) {
+                for (z in schematicZ..(schematicZ + schematic.lenght)) {
+                    if (!keepSchematicAir && schematic.blocks[currentBlockIndex] === Material.AIR) {
+                        currentBlockIndex++
+                        continue
+                    }
+                    val b = Objects.requireNonNull<World?>(location.world).getBlockAt(x, y, z)
+                    b.type = schematic.blocks[currentBlockIndex]
+                    b.blockData = schematic.blockData[currentBlockIndex]
+                    currentBlockIndex++
                 }
             }
         }
-
     }
 }

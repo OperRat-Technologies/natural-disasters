@@ -1,97 +1,90 @@
-package me.tcklpl.naturaldisaster.disasters;
+package me.tcklpl.naturaldisaster.disasters
 
-import me.tcklpl.naturaldisaster.map.DisasterMap;
-import me.tcklpl.naturaldisaster.util.BiomeUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.entity.Player;
-import org.bukkit.potion.PotionEffectType;
+import me.tcklpl.naturaldisaster.map.DisasterMap
+import me.tcklpl.naturaldisaster.util.BiomeUtils
+import org.bukkit.Bukkit
+import org.bukkit.GameMode
+import org.bukkit.Material
+import org.bukkit.potion.PotionEffectType
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.math.max
 
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
+class ToxicRain : Disaster("Toxic Rain", true, Material.LIME_DYE, BiomeUtils.PrecipitationRequirements.SHOULD_RAIN) {
 
-public class ToxicRain extends Disaster {
-
-    public ToxicRain() {
-        super("Toxic Rain", true, Material.LIME_DYE, BiomeUtils.PrecipitationRequirements.SHOULD_RAIN);
+    override fun setupDisaster() {
+        super.setupDisaster()
+        map.setPrecipitation(DisasterMap.MapPrecipitation.PRECIPITATE)
     }
 
-    @Override
-    public void startDisaster() {
+    override fun startDisaster() {
+        super.startDisaster()
 
-        super.startDisaster();
+        val blocksToBreak = AtomicInteger(15)
+        val timesExecuted = AtomicInteger(0)
+        val currentDamage = AtomicInteger(1)
+        val poisonDuration = AtomicInteger(2)
+        val poisonStrenght = AtomicInteger(1)
 
-        map.setPrecipitation(DisasterMap.MapPrecipitation.PRECIPITATE);
+        val corrosionTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, Runnable {
+            timesExecuted.getAndIncrement()
 
-        Random r = random;
-
-        AtomicInteger blocksToBreak = new AtomicInteger(5);
-        AtomicInteger timesExecuted = new AtomicInteger(0);
-        AtomicInteger currentDamage = new AtomicInteger(1);
-        AtomicInteger poisonDuration = new AtomicInteger(2);
-        AtomicInteger poisonStrenght = new AtomicInteger(1);
-
-        int taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
-
-            timesExecuted.getAndIncrement();
-
-            if (map.getPlayersInArena().size() > 0)
-                for (Player p : map.getPlayersInArena()) {
-
-                    // Damage player
-                    assert p != null;
-                    if (p.getGameMode() == GameMode.ADVENTURE) {
-                        Location l = p.getLocation();
-                        int topo = Math.max(map.getPos1().getBlockY(), map.getPos2().getBlockY());
-                        boolean blockAbove = false;
-                        for (int y = l.getBlockY() + 1; y <= topo && !blockAbove; y++) {
-                            if (map.getWorld().getBlockAt(l.getBlockX(), y, l.getBlockZ()).getBlockData().getMaterial() != Material.AIR)
-                                blockAbove = true;
-                        }
-                        if (!blockAbove) {
-                            p.damage(currentDamage.get());
-                            p.addPotionEffect(PotionEffectType.POISON.createEffect(poisonDuration.get(), poisonStrenght.get()));
-                        }
+            // Destroy blocks
+            for (i in 0 until blocksToBreak.get()) {
+                val blockX = map.getLowestCoordsLocation().blockX + random.nextInt(map.mapSize.x)
+                var blockY = map.getHighestCoordsLocation().blockY
+                val blockZ = map.getLowestCoordsLocation().blockZ + random.nextInt(map.mapSize.z)
+                while (blockY >= map.getLowestCoordsLocation().blockY) {
+                    val b = map.getWorld().getBlockAt(blockX, blockY, blockZ)
+                    val bUnder = map.getWorld().getBlockAt(blockX, blockY - 1, blockZ)
+                    if (b.blockData.material != Material.AIR) {
+                        if (bUnder.type == Material.AIR || b.blockData.material.isSolid) b.type = Material.LIME_WOOL
+                        else b.type = Material.LIME_CARPET
+                        Bukkit.getScheduler().scheduleSyncDelayedTask(main, Runnable { b.type = Material.AIR }, 40L)
+                        break
                     }
-
-                    // Destroy blocks
-                    for (int i = 0; i < blocksToBreak.get(); i++) {
-                        int blockX = map.getLowestCoordsLocation().getBlockX() + r.nextInt(map.getMapSize().getX());
-                        int blockY = map.getHighestCoordsLocation().getBlockY();
-                        int blockZ = map.getLowestCoordsLocation().getBlockZ() + r.nextInt(map.getMapSize().getZ());
-                        for (; blockY >= map.getLowestCoordsLocation().getBlockY(); blockY--) {
-                            Block b = map.getWorld().getBlockAt(blockX, blockY, blockZ);
-                            Block bUnder = map.getWorld().getBlockAt(blockX, blockY - 1, blockZ);
-                            if (b.getBlockData().getMaterial() != Material.AIR) {
-                                if (bUnder.getType() == Material.AIR || b.getBlockData().getMaterial().isSolid())
-                                    b.setType(Material.LIME_WOOL);
-                                else b.setType(Material.LIME_CARPET);
-                                Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> b.setType(Material.AIR), 40L);
-                                break;
-                            }
-                        }
-                    }
-
-                    // Increase difficulty with time
-                    if ((timesExecuted.get() % 10) == 0) {
-                        blocksToBreak.addAndGet(5);
-                    }
-
-                    if ((timesExecuted.get() % 20) == 0)
-                        poisonDuration.addAndGet(20);
-
-                    if ((timesExecuted.get() % 30) == 0)
-                        poisonStrenght.addAndGet(1);
-
-                    if ((timesExecuted.get() % 60) == 0)
-                        currentDamage.addAndGet(1);
+                    blockY--
                 }
+            }
 
-        }, startDelay, 20L);
+        }, startDelay, 20L)
 
-        registerTasks(taskId);
+        val damageTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, Runnable {
+            for (p in map.playersInArena) {
+                if (p.gameMode == GameMode.ADVENTURE) {
+                    val l = p.getLocation()
+                    val topo = max(map.pos1.blockY, map.pos2.blockY)
+                    var blockAbove = false
+                    var y = l.blockY + 1
+                    while (y <= topo && !blockAbove) {
+                        if (map.getWorld().getBlockAt(l.blockX, y, l.blockZ).blockData.material != Material.AIR)
+                            blockAbove = true
+                        y++
+                    }
+                    if (!blockAbove) {
+                        p.damage(currentDamage.get().toDouble())
+                        p.addPotionEffect(
+                            PotionEffectType.POISON.createEffect(
+                                poisonDuration.get(),
+                                poisonStrenght.get()
+                            )
+                        )
+                    }
+                }
+            }
+        }, startDelay, 10L)
+
+        val increaseDifficultyTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, Runnable {
+            // Increase difficulty with time
+            if ((timesExecuted.get() % 10) == 0) blocksToBreak.addAndGet(5)
+
+            if ((timesExecuted.get() % 30) == 0) poisonDuration.addAndGet(2)
+
+            if ((timesExecuted.get() % 60) == 0) {
+                poisonStrenght.addAndGet(1)
+                currentDamage.addAndGet(1)
+            }
+        }, startDelay, 10 * 20L)
+
+        registerTasks(corrosionTask, damageTask, increaseDifficultyTask)
     }
 }

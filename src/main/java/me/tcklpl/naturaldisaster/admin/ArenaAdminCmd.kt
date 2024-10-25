@@ -15,7 +15,7 @@ import java.util.ArrayList
 object ArenaAdminCmd : CommandExecutor, TabCompleter {
 
     private fun openMapSelectionMenu(p: Player) {
-        val maps = NaturalDisaster.getGameManager().arenaManager.arenas
+        val maps = NaturalDisaster.instance.gameManager.arenaManager.arenas
         val size = 9 + 9 * Math.floorDiv(maps.size - 1, 9)
         val i = Bukkit.createInventory(p, size, "Admin Map Selection")
         for (map in maps) {
@@ -29,16 +29,16 @@ object ArenaAdminCmd : CommandExecutor, TabCompleter {
     }
 
     private fun openDisasterSelectionMenu(p: Player) {
-        val disasters = NaturalDisaster.getGameManager().disasterManager.disasters
+        val disasters = NaturalDisaster.instance.gameManager.disasterManager.disasters
         val size = 9 + 9 * Math.floorDiv(disasters.size - 1, 9)
         val i = Bukkit.createInventory(p, size, "Admin Disaster Selection")
         for (disaster in disasters) {
-            val itemStack = ItemStack(disaster.getIcon())
+            val itemStack = ItemStack(disaster.icon)
             val im = checkNotNull(itemStack.itemMeta)
-            im.setDisplayName(ChatColor.WHITE.toString() + disaster.getName())
+            im.setDisplayName(ChatColor.WHITE.toString() + disaster.name)
 
             val lore: MutableList<String> = ArrayList<String>()
-            lore.add("Playable: " + (if (disaster.isPlayable) "${ChatColor.GREEN}YES" else "${ChatColor.RED}NO"))
+            lore.add("Playable: " + (if (disaster.playable) "${ChatColor.GREEN}YES" else "${ChatColor.RED}NO"))
             im.lore = lore
             itemStack.itemMeta = im
             i.addItem(itemStack)
@@ -52,7 +52,7 @@ object ArenaAdminCmd : CommandExecutor, TabCompleter {
         if (args.size != 2) return false
 
         if (args[0].equals("set", ignoreCase = true)) {
-            if (NaturalDisaster.getGameManager().currentStatus != GameStatus.IN_LOBBY) {
+            if (NaturalDisaster.instance.gameManager.currentStatus != GameStatus.IN_LOBBY) {
                 sender.sendMessage("${ChatColor.RED}Só é possível definir mapa e desastre quando estiver em lobby, se o jogo já acabou aguarde alguns segundos.")
                 return true
             }

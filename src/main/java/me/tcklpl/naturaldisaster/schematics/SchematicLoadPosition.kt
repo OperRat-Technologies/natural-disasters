@@ -1,7 +1,5 @@
-package me.tcklpl.naturaldisaster.schematics;
+package me.tcklpl.naturaldisaster.schematics
 
-public enum SchematicLoadPosition {
-
+enum class SchematicLoadPosition {
     LOWEST_COORDINATES, FLOOR_CENTER, TRUE_CENTER
-
 }

@@ -1,41 +1,32 @@
-package me.tcklpl.naturaldisaster.disasters;
+package me.tcklpl.naturaldisaster.disasters
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.ArrayList
+import java.util.stream.Collectors
 
-public class DisasterManager {
+class DisasterManager {
+    var disasters: List<Disaster> = ArrayList<Disaster>()
 
-    private List<Disaster> disasters = new ArrayList<>();
-
-    public DisasterManager() {
-        loadDisasters();
+    init {
+        loadDisasters()
     }
 
-    private void loadDisasters() {
-        disasters = new ArrayList<>(Arrays.asList(
-                new Biohazard(),
-                new Blizzard(),
-                new Earthquake(),
-                new Fire(),
-                new Flooding(),
-                new Thunderstorm(),
-                new TNTRain(),
-                new ToxicRain(),
-                new Volcano()
-        ));
+    private fun loadDisasters() {
+        disasters = listOf(
+            Blizzard(),
+            Fire(),
+            Flooding(),
+            Thunderstorm(),
+            TNTRain(),
+            ToxicRain(),
+        )
     }
 
-    public List<Disaster> getDisasters() {
-        return disasters;
+    fun getPlayableDisasters(): MutableList<Disaster?> {
+        return disasters.stream().filter { obj: Disaster? -> obj!!.playable }.collect(Collectors.toList())
     }
 
-    public List<Disaster> getPlayableDisasters() {
-        return disasters.stream().filter(Disaster::isPlayable).collect(Collectors.toList());
-    }
-
-    public Disaster getDisasterByName(String name) {
-        return disasters.stream().filter(d -> d.getName().equalsIgnoreCase(name)).findAny().orElseThrow();
+    fun getDisasterByName(name: String?): Disaster {
+        return disasters.stream().filter { d: Disaster -> d.name.equals(name, ignoreCase = true) }.findAny()
+            .orElseThrow()
     }
 }

@@ -1,21 +1,20 @@
-package me.tcklpl.naturaldisaster.util;
+package me.tcklpl.naturaldisaster.util
 
-import org.bukkit.Location;
+import org.bukkit.Location
+import kotlin.math.max
+import kotlin.math.min
 
-public class LocationUtils {
+object LocationUtils {
 
-    public static boolean isBetween(Location target, Location a, Location b) {
-        var minX = Math.min(a.getX(), b.getX());
-        var minY = Math.min(a.getY(), b.getY());
-        var minZ = Math.min(a.getZ(), b.getZ());
+    fun isBetween(target: Location, a: Location, b: Location): Boolean {
+        val minX = min(a.x, b.x)
+        val minY = min(a.y, b.y)
+        val minZ = min(a.z, b.z)
 
-        var maxX = Math.max(a.getX(), b.getX());
-        var maxY = Math.max(a.getY(), b.getY());
-        var maxZ = Math.max(a.getZ(), b.getZ());
+        val maxX = max(a.x, b.x)
+        val maxY = max(a.y, b.y)
+        val maxZ = max(a.z, b.z)
 
-        return target.getX() >= minX && target.getX() <= maxX &&
-                target.getY() >= minY && target.getY() <= maxY &&
-                target.getZ() >= minZ && target.getZ() <= maxZ;
+        return target.x >= minX && target.x <= maxX && target.y >= minY && target.y <= maxY && target.z >= minZ && target.z <= maxZ
     }
-
 }

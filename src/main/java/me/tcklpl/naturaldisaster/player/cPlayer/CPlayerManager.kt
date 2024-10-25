@@ -1,104 +1,98 @@
-package me.tcklpl.naturaldisaster.player.cPlayer;
+package me.tcklpl.naturaldisaster.player.cPlayer
 
-import me.tcklpl.naturaldisaster.NaturalDisaster;
+import me.tcklpl.naturaldisaster.NaturalDisaster
+import org.bukkit.configuration.file.YamlConfiguration
+import java.io.File
+import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.Paths
+import java.util.ArrayList
+import java.util.Objects
+import java.util.UUID
 
-import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Stream;
+class CPlayerManager {
+    private val managedPlayers = ArrayList<CPlayer>()
 
-public class CPlayerManager {
-
-    private final List<CPlayer> managedPlayers;
-
-    public CPlayerManager() {
-        managedPlayers = new ArrayList<>();
+    fun getCPlayer(uuid: UUID?): CPlayer? {
+        for (cp in managedPlayers) if (cp.uuid == uuid) return cp
+        return null
     }
 
-    public CPlayer getCPlayer(UUID uuid) {
-        for (CPlayer cp : managedPlayers)
-            if (cp.getUuid().equals(uuid))
-                return cp;
-        return null;
+    fun getCPlayer(name: String?): CPlayer? {
+        for (cp in managedPlayers) if (cp.name == name) return cp
+        return null
     }
 
-    public CPlayer getCPlayer(String name) {
-        for (CPlayer cp : managedPlayers)
-            if (cp.getPlayerData().getName().equals(name))
-                return cp;
-        return null;
+    fun registerCPlayer(cp: CPlayer?): Boolean {
+        return managedPlayers.add(cp!!)
     }
 
-    public boolean registerCPlayer(CPlayer cp) {
-        return managedPlayers.add(cp);
-    }
-
-    public void loadPlayers() {
-        File playerFolder = new File(NaturalDisaster.getMainReference().getDataFolder() + "/players");
+    fun loadPlayers() {
+        val playerFolder = File(NaturalDisaster.instance.dataFolder.toString() + "/players")
         if (playerFolder.exists() && playerFolder.isDirectory()) {
+            try {
+                Files.walk(Paths.get(NaturalDisaster.instance.dataFolder.toString() + "/players"))
+                    .use { walk ->
+                        val result = walk.map<String?> { obj: Path? -> obj.toString() }
+                            .filter { f: String? -> f!!.endsWith(".player.yaml") }.toList()
+                        for (playerFileName in result) {
+                            val playerFile = File(playerFileName)
 
-            try (Stream<Path> walk = Files.walk(Paths.get(NaturalDisaster.getMainReference().getDataFolder() + "/players"))) {
+                            val config = YamlConfiguration.loadConfiguration(playerFile)
+                            val name = config.getString("name")
+                            val uuid = UUID.fromString(Objects.requireNonNull<String?>(config.getString("uuid")))
+                            val money = config.getDouble("money")
+                            val wins = config.getInt("wins")
 
-                List<String> result = walk.map(Path::toString).filter(f -> f.endsWith(".player")).toList();
-                for (String playerFileName : result) {
-                    File playerFile = new File(playerFileName);
+                            checkNotNull(name)
+                            val cp = CPlayer(uuid, name, wins, money)
 
-                    FileInputStream fileInputStream = new FileInputStream(playerFile);
-                    ObjectInputStream objectInputStream = new ObjectInputStream(fileInputStream);
-
-                    CPlayer cp = (CPlayer) objectInputStream.readObject();
-                    objectInputStream.close();
-
-                    managedPlayers.add(cp);
-                }
-
-                NaturalDisaster.getMainReference().getLogger().info("Carregados " + result.size() + " jogadores");
-
-            } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
+                            managedPlayers.add(cp)
+                        }
+                        NaturalDisaster.instance.logger.info("Carregados " + result.size + " jogadores")
+                    }
+            } catch (_: IOException) {
+                NaturalDisaster.instance.logger.warning("ERRO AO CARREGAR JOGADORES")
             }
         }
     }
 
-    public void savePlayers() {
+    fun savePlayers() {
         if (!managedPlayers.isEmpty()) {
-            File playerFolder = new File(NaturalDisaster.getMainReference().getDataFolder() + "/players");
+            val playerFolder = File(NaturalDisaster.instance.dataFolder.toString() + "/players")
             if (!(playerFolder.exists() && playerFolder.isDirectory())) {
                 if (!playerFolder.mkdirs()) {
-                    NaturalDisaster.getMainReference().getLogger().warning("Falha ao criar diretório para players");
-                    return;
+                    NaturalDisaster.instance.logger.warning("Falha ao criar diretório para players")
+                    return
                 }
             }
-            int count = 0;
-            for (CPlayer cp : managedPlayers) {
-                if (cp.getPlayerData().isModified()) {
-                    File saveFile = new File(NaturalDisaster.getMainReference().getDataFolder() + "/players", cp.getPlayerData().getName() + ".player");
-                    if (saveFile.exists())
-                        if (!saveFile.delete()) {
-                            NaturalDisaster.getMainReference().getLogger().severe("NÃO FOI POSSÍVEL EXCLUIR ARQUIVO DO JOGADOR " + cp.getPlayerData().getName());
-                            return;
-                        }
 
-                    FileOutputStream fileOutputStream;
-                    ObjectOutputStream objectOutputStream;
+            var count = 0
+            for (cp in managedPlayers) {
+                val saveFile = File(
+                    NaturalDisaster.instance.dataFolder.toString() + "/players", "${cp.name}.player.yaml"
+                )
+                if (saveFile.exists()) if (!saveFile.delete()) {
+                    NaturalDisaster.instance.logger
+                        .severe("NÃO FOI POSSÍVEL EXCLUIR ARQUIVO DO JOGADOR " + cp.name)
+                    return
+                }
 
-                    try {
-                        fileOutputStream = new FileOutputStream(saveFile);
-                        objectOutputStream = new ObjectOutputStream(fileOutputStream);
-                        objectOutputStream.writeObject(cp);
-                        objectOutputStream.close();
-                        count++;
-                    } catch (IOException e) {
-                        NaturalDisaster.getMainReference().getLogger().warning("ERRO AO SALVAR JOGADOR " + cp.getPlayerData().getName());
-                        e.printStackTrace();
-                    }
+                val playerConfig = YamlConfiguration()
+                playerConfig.set("name", cp.name)
+                playerConfig.set("uuid", cp.uuid.toString())
+                playerConfig.set("money", cp.money)
+                playerConfig.set("wins", cp.wins)
+
+                try {
+                    playerConfig.save(saveFile)
+                    count++
+                } catch (_: IOException) {
+                    NaturalDisaster.instance.logger.warning("ERRO AO SALVAR JOGADOR ${cp.name}")
                 }
             }
-            NaturalDisaster.getMainReference().getLogger().info("Salvos " + count + " jogadores");
+            NaturalDisaster.instance.logger.info("Salvos $count jogadores")
         }
     }
 }

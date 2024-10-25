@@ -11,7 +11,7 @@ object LeaveEvent : Listener {
 
     @EventHandler
     fun onLeave(e: PlayerQuitEvent) {
-        if (NaturalDisaster.getGameManager().currentStatus != GameStatus.IN_LOBBY) NaturalDisaster.getGameManager()
+        if (NaturalDisaster.instance.gameManager.currentStatus != GameStatus.IN_LOBBY) NaturalDisaster.instance.gameManager
             .registerPlayerDeath(e.player)
         e.quitMessage = "${ChatColor.GRAY}${e.player.name} saiu do servidor"
     }

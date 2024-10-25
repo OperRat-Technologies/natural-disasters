@@ -24,8 +24,8 @@ object DeathEvent : Listener {
             p.playEffect(EntityEffect.HURT_EXPLOSION)
 
             // Register player death if we're ingame
-            if (NaturalDisaster.getGameManager().isIngame) {
-                NaturalDisaster.getGameManager().registerPlayerDeath(p)
+            if (NaturalDisaster.instance.gameManager.isIngame()) {
+                NaturalDisaster.instance.gameManager.registerPlayerDeath(p)
             } else {
                 p.teleport(Bukkit.getWorld("void")!!.spawnLocation)
             }

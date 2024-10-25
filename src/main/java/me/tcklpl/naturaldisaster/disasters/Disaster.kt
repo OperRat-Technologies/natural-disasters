@@ -1,132 +1,90 @@
-package me.tcklpl.naturaldisaster.disasters;
+package me.tcklpl.naturaldisaster.disasters
 
-import me.tcklpl.naturaldisaster.NaturalDisaster;
-import me.tcklpl.naturaldisaster.map.DisasterMap;
-import me.tcklpl.naturaldisaster.util.BiomeUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.block.Biome;
-import org.bukkit.plugin.java.JavaPlugin;
+import me.tcklpl.naturaldisaster.NaturalDisaster
+import me.tcklpl.naturaldisaster.map.DisasterMap
+import me.tcklpl.naturaldisaster.util.BiomeUtils.PrecipitationRequirements
+import org.bukkit.Bukkit
+import org.bukkit.Material
+import org.bukkit.block.Biome
+import org.bukkit.entity.Player
+import org.bukkit.plugin.java.JavaPlugin
+import java.util.ArrayList
+import java.util.Arrays
+import java.util.Objects
+import java.util.Random
+import java.util.function.Consumer
+import java.util.function.IntConsumer
 
-import java.util.*;
+abstract class Disaster(
+    val name: String,
+    val playable: Boolean,
+    val icon: Material,
+    val precipitationRequirements: PrecipitationRequirements
+) {
+    lateinit var map: DisasterMap
+    var main: JavaPlugin = NaturalDisaster.instance
+    private val tasks = ArrayList<Int>()
+    var isActive: Boolean = false
+    protected var arenaSpecificBiome: Biome? = null
 
-public abstract class Disaster {
+    var startDelay: Long = 100L
+    var timeout: Long = 3L // minutes
+    var random: Random = Random()
 
-    DisasterMap map;
-    JavaPlugin main;
-    String name;
-    private final List<Integer> tasks;
-    boolean isActive;
-    protected boolean playable;
-    protected Material icon;
-    protected BiomeUtils.PrecipitationRequirements precipitationRequirements;
-    protected Biome arenaSpecificBiome;
-
-    long startDelay = 100L;
-    long timeout = 3L; // minutes
-    Random random;
-
-    /**
-     * Distaster contructor, to be used inside children.
-     * @param name the name of the disaster.
-     * @param playable if it's currently playable or is still in development.
-     * @param icon the org.bukkit.Material that represents the disaster.
-     * @param precipitationRequirements the precipitation that can occur on the arena.
-     */
-    public Disaster(String name, boolean playable, Material icon, BiomeUtils.PrecipitationRequirements precipitationRequirements) {
-        this.name = name;
-        this.playable = playable;
-        this.icon = icon;
-        this.precipitationRequirements = precipitationRequirements;
-
-        this.main = NaturalDisaster.getMainReference();
-        this.map = null;
-        this.tasks = new ArrayList<>();
-        this.random = new Random();
+    override fun equals(o: Any?): Boolean {
+        if (this === o) return true
+        if (o == null || javaClass != o.javaClass) return false
+        val disaster = o as Disaster
+        return name == disaster.name
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Disaster disaster = (Disaster) o;
-        return Objects.equals(name, disaster.name);
+    override fun hashCode(): Int {
+        return Objects.hash(name)
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(name);
-    }
-
-    public void setupDisaster() {
-        int timeoutTaskId = Bukkit.getScheduler().scheduleSyncDelayedTask(main, this::endByTimeout, timeout * 20 * 60);
-        int damagePlayersId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, this::damagePlayersOutsideBounds, 0L, 20L);
-        registerTasks(timeoutTaskId, damagePlayersId);
+    open fun setupDisaster() {
+        val timeoutTaskId = Bukkit.getScheduler()
+            .scheduleSyncDelayedTask(main, Runnable { this.endByTimeout() }, timeout * 20 * 60)
+        val damagePlayersId = Bukkit.getScheduler()
+            .scheduleSyncRepeatingTask(main, Runnable { this.damagePlayersOutsideBounds() }, 0L, 20L)
+        registerTasks(timeoutTaskId, damagePlayersId)
     }
 
     /**
      * General method to start disaster, children inherit this method to make the disasters.
-     * Method also schedules a task to timeout the arena.
+     * Method also schedules a task to time out the arena.
      */
-    public void startDisaster() {
-        isActive = true;
+    open fun startDisaster() {
+        isActive = true
     }
 
-    private void damagePlayersOutsideBounds() {
-        map.getPlayersInArena().forEach(p -> {
-            var l = p.getLocation();
-            if (
-                l.getX() < map.getMinX() ||
-                l.getY() < map.getMinY() ||
-                l.getZ() < map.getMinZ() ||
-                l.getX() > map.getMaxX() ||
-                l.getY() > map.getMaxY() ||
-                l.getZ() > map.getMaxZ()
-            ) {
-                p.damage(2);
+    private fun damagePlayersOutsideBounds() {
+        map.playersInArena.forEach(Consumer { p: Player ->
+            val l = p.getLocation()
+            if (l.x < map.minX || l.y < map.minY || l.z < map.minZ || l.x > map.maxX || l.y > map.maxY || l.z > map.maxZ) {
+                p.damage(2.0)
             }
-        });
+        })
     }
 
     /**
      * Private method to end by timeout, to be called by the scheduled task declared above.
      */
-    private void endByTimeout() {
-        stopDisaster();
-        NaturalDisaster.getGameManager().endByTimeout();
+    private fun endByTimeout() {
+        stopDisaster()
+        NaturalDisaster.instance.gameManager.endByTimeout()
     }
 
-    public void registerTasks(int... taskNumber) {
-        Arrays.stream(taskNumber).forEach(tasks::add);
+    fun registerTasks(vararg taskNumber: Int) {
+        Arrays.stream(taskNumber).forEach(IntConsumer { e: Int -> tasks.add(e) })
     }
 
     /**
      * Method to be called when the game ends, it cancells all the disaster tasks.
      */
-    public void stopDisaster() {
-        tasks.forEach(Bukkit.getScheduler()::cancelTask);
-        isActive = false;
+    fun stopDisaster() {
+        tasks.forEach(Consumer { i: Int? -> Bukkit.getScheduler().cancelTask(i!!) })
+        isActive = false
     }
 
-    public String getName() { return name; }
-
-    public void setMap(DisasterMap map) {
-        this.map = map;
-    }
-
-    public boolean isPlayable() {
-        return playable;
-    }
-
-    public Material getIcon() {
-        return icon;
-    }
-
-    public BiomeUtils.PrecipitationRequirements getPrecipitationRequirements() {
-        return precipitationRequirements;
-    }
-
-    public Biome getArenaSpecificBiome() {
-        return arenaSpecificBiome;
-    }
 }

@@ -1,97 +1,95 @@
-package me.tcklpl.naturaldisaster.disasters;
+package me.tcklpl.naturaldisaster.disasters
 
-import me.tcklpl.naturaldisaster.map.DisasterMap;
-import me.tcklpl.naturaldisaster.util.BiomeUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.entity.LightningStrike;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
+import me.tcklpl.naturaldisaster.map.DisasterMap
+import me.tcklpl.naturaldisaster.util.BiomeUtils
+import org.bukkit.Bukkit
+import org.bukkit.Location
+import org.bukkit.Material
+import org.bukkit.block.BlockFace
+import org.bukkit.entity.Entity
+import org.bukkit.entity.LightningStrike
+import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
+import java.util.Arrays
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.function.Consumer
+import kotlin.math.max
 
-import java.util.Arrays;
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
+class Thunderstorm :
+    Disaster("Thunderstorm", true, Material.CREEPER_HEAD, BiomeUtils.PrecipitationRequirements.SHOULD_RAIN) {
 
-public class Thunderstorm extends Disaster {
-
-    public Thunderstorm() {
-        super("Thunderstorm", true, Material.CREEPER_HEAD, BiomeUtils.PrecipitationRequirements.SHOULD_RAIN);
-    }
-
-    private void spawnLightningStrikeAt(Location loc) {
-        LightningStrike ls = map.getWorld().spawn(loc, LightningStrike.class);
-        Block b = ls.getLocation().getBlock();
+    private fun spawnLightningStrikeAt(loc: Location) {
+        val ls = map.getWorld().spawn<LightningStrike>(loc, LightningStrike::class.java)
+        val b = ls.location.block
 
         // break blocks around the lighting strike
-        Arrays.stream(BlockFace.values()).map(b::getRelative).forEach(rel -> rel.breakNaturally(new ItemStack(Material.AIR)));
+        Arrays.stream<BlockFace>(BlockFace.entries.toTypedArray())
+            .map { blockFace -> b.getRelative(blockFace) }
+            .forEach { rel -> rel.breakNaturally(ItemStack(Material.AIR)) }
     }
 
-    @Override
-    public void startDisaster() {
-        super.startDisaster();
-        map.setPrecipitation(DisasterMap.MapPrecipitation.PRECIPITATE);
+    override fun setupDisaster() {
+        super.setupDisaster()
+        map.setPrecipitation(DisasterMap.MapPrecipitation.PRECIPITATE)
+    }
 
-        Random r = random;
+    override fun startDisaster() {
+        super.startDisaster()
 
-        AtomicInteger randomStrikesTimesRan = new AtomicInteger(0);
-        AtomicInteger randomLightningStrikes = new AtomicInteger(1);
+        val randomStrikesTimesRan = AtomicInteger(0)
+        val randomLightningStrikes = AtomicInteger(1)
 
         // Spawn random lightning strikes on the map
-        int randomLightningTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
-
-            for (var i = 0; i < randomLightningStrikes.get(); i++) {
-                Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> {
-
-                    var loc = map.getRandomBlockInMap();
-                    spawnLightningStrikeAt(loc);
-
-                }, r.nextInt(3 * 20));
+        val randomLightningTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, Runnable {
+            for (i in 0 until randomLightningStrikes.get()) {
+                Bukkit.getScheduler().scheduleSyncDelayedTask(main, Runnable {
+                    val loc = map.getRandomBlockInMap()
+                    spawnLightningStrikeAt(loc)
+                }, random.nextInt(3 * 20).toLong())
             }
-
             // Spawn 1 more lightning strike per cycle each 10s
             if (randomStrikesTimesRan.incrementAndGet() % 2 == 0) {
-                randomLightningStrikes.incrementAndGet();
+                randomLightningStrikes.incrementAndGet()
             }
-
-        }, startDelay, 5 * 20);
+        }, startDelay, (5 * 20).toLong())
 
         // Spawn lightning strikes somewhere around the players. The dispersion varies based on some conditions
-        int lightningOnPlayerTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
-
-            map.getPlayersInArena().forEach(p -> {
-                int y = p.getLocation().getBlockY();
-                int dispersion = 25;
+        val lightningOnPlayerTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, Runnable {
+            map.playersInArena.forEach(Consumer { p: Player ->
+                val y = p.getLocation().blockY
+                var dispersion = 25
 
                 // Decrease the dispersion based on the player Y level
-                int heightPenalityStep = Math.floorDiv(map.getMapSize().getY(), 10);
-                int heightPenality = Math.floorDiv(y - map.getMinY(), heightPenalityStep);
-                dispersion -= heightPenality;
+                val heightPenalityStep = Math.floorDiv(map.mapSize.y, 10)
+                val heightPenality = Math.floorDiv(y - map.minY, heightPenalityStep)
+                dispersion -= heightPenality
 
                 // Decrease the dispersion if there's no blocks above the players head
-                if (y >= map.getWorld().getHighestBlockYAt(p.getLocation().getBlockX(), p.getLocation().getBlockZ())) {
-                    dispersion -= 5;
+                if (y >= map.getWorld().getHighestBlockYAt(p.getLocation().blockX, p.getLocation().blockZ)) {
+                    dispersion -= 5
                 }
 
                 // Decrease the dispersion in 1 for each player nearby
-                var playersNearby = p.getNearbyEntities(3, 3, 3).stream().filter(e -> e instanceof Player).count();
-                dispersion -= (int) playersNearby;
+                val playersNearby =
+                    p.getNearbyEntities(3.0, 3.0, 3.0).stream().filter { e: Entity? -> e is Player }.count()
+                dispersion -= playersNearby.toInt()
 
                 // Spawn the lightning strike somewhere in a box centered around the player based on the dispersion
-                int finalDispersion = Math.max(dispersion, 0);
-                Bukkit.getScheduler().scheduleSyncDelayedTask(main, () ->
-                        spawnLightningStrikeAt(map.getWorld().getHighestBlockAt(
-                                p.getLocation().getBlockX() - finalDispersion + r.nextInt(2 * finalDispersion),
-                                p.getLocation().getBlockZ() - finalDispersion + r.nextInt(2 * finalDispersion)
-                        ).getLocation())
-                , r.nextInt(2 * 20));
-            });
+                val finalDispersion = max(dispersion, 0)
+                Bukkit.getScheduler().scheduleSyncDelayedTask(
+                    main, Runnable {
+                        spawnLightningStrikeAt(
+                            map.getWorld().getHighestBlockAt(
+                                p.getLocation().blockX - finalDispersion + random.nextInt(2 * finalDispersion),
+                                p.getLocation().blockZ - finalDispersion + random.nextInt(2 * finalDispersion)
+                            ).location
+                        )
+                    },
+                    random.nextInt(2 * 20).toLong()
+                )
+            })
+        }, startDelay, (3 * 20).toLong())
 
-        }, startDelay, 3 * 20);
-
-        registerTasks(randomLightningTask, lightningOnPlayerTask);
-
+        registerTasks(randomLightningTask, lightningOnPlayerTask)
     }
 }

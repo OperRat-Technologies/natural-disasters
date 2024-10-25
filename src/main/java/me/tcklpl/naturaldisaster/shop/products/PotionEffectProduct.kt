@@ -1,13 +1,7 @@
-package me.tcklpl.naturaldisaster.shop.products;
+package me.tcklpl.naturaldisaster.shop.products
 
-import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffect
 
-public class PotionEffectProduct extends Product {
-
-    private PotionEffect potionEffect;
-
-    public PotionEffectProduct(String name, double price) {
-        super(name, price);
-    }
-    
+class PotionEffectProduct(name: String, price: Double) : Product(name, price) {
+    private val potionEffect: PotionEffect? = null
 }

@@ -10,7 +10,7 @@ object MoveEvent : Listener {
 
     @EventHandler
     fun onMove(e: PlayerMoveEvent) {
-        if (NaturalDisaster.getGameManager().currentStatus == GameStatus.STARTING) {
+        if (NaturalDisaster.instance.gameManager.currentStatus == GameStatus.STARTING) {
             val l = e.from;
             e.to?.x = l.x;
             e.to?.z = l.z;

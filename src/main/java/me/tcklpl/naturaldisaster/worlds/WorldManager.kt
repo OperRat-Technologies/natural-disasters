@@ -1,72 +1,65 @@
-package me.tcklpl.naturaldisaster.worlds;
+package me.tcklpl.naturaldisaster.worlds
 
-import me.tcklpl.naturaldisaster.NaturalDisaster;
-import org.apache.commons.io.FileUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.WorldCreator;
-import org.bukkit.entity.Player;
+import me.tcklpl.naturaldisaster.NaturalDisaster
+import org.apache.commons.io.FileUtils
+import org.bukkit.Bukkit
+import org.bukkit.Location
+import org.bukkit.WorldCreator
+import org.bukkit.entity.Player
+import java.io.File
+import java.io.IOException
+import java.util.ArrayList
+import java.util.logging.Level
 
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.logging.Level;
+class WorldManager(worlds: MutableList<String>) {
+    var managedWorlds = ArrayList<String>()
+    var loadedWorlds = mutableListOf("void")
 
-public class WorldManager {
-
-    List<String> managedWorlds;
-    List<String> loadedWorlds;
-
-    public WorldManager(List<String> worlds) {
-        managedWorlds = new ArrayList<>();
-        loadedWorlds = new ArrayList<>(Collections.singleton("void"));
-        for(String world : worlds) {
-            File folder = new File(Bukkit.getServer().getWorldContainer(), world);
+    init {
+        for (world in worlds) {
+            val folder = File(Bukkit.getServer().worldContainer, world)
             if (!folder.exists()) {
-                NaturalDisaster.getMainReference().getLogger().log(Level.WARNING, "Could not load world " + world + ", ignoring...");
+                NaturalDisaster.instance.logger.log(Level.WARNING, "Could not load world $world, ignoring...")
             } else {
-                managedWorlds.add(world);
+                managedWorlds.add(world)
             }
         }
-        NaturalDisaster.getMainReference().getLogger().info("Carregados " + managedWorlds.size() + " mundos");
+        NaturalDisaster.instance.logger.info("Carregados ${managedWorlds.size} mundos")
     }
 
-    public boolean createVoidWorld(String name) {
-        if (managedWorlds.stream().noneMatch(name::equalsIgnoreCase)) {
+    fun createVoidWorld(name: String): Boolean {
+        if (managedWorlds.stream()
+                .noneMatch { anotherString: String? -> name.equals(anotherString, ignoreCase = true) }
+        ) {
+            val worldFolder = Bukkit.getServer().worldContainer
 
-            var worldFolder = Bukkit.getServer().getWorldContainer();
-
-            File srcDir = new File(worldFolder, "void-template");
-            File destDir = new File(worldFolder, name);
+            val srcDir = File(worldFolder, "void-template")
+            val destDir = File(worldFolder, name)
             try {
-                FileUtils.copyDirectory(srcDir, destDir);
-            } catch (IOException e) {
-                e.printStackTrace();
+                FileUtils.copyDirectory(srcDir, destDir)
+            } catch (e: IOException) {
+                e.printStackTrace()
             }
-            managedWorlds.add(name);
-            return true;
+            managedWorlds.add(name)
+            return true
         }
-        return false;
+        return false
     }
 
-    public boolean teleportPlayer(Player p, String world) {
-        if (managedWorlds.stream().anyMatch(world::equalsIgnoreCase)) {
-            if (loadedWorlds.stream().noneMatch(world::equalsIgnoreCase)) {
-                Bukkit.getServer().createWorld(new WorldCreator(world));
-                loadedWorlds.add(world);
+    fun teleportPlayer(p: Player, world: String): Boolean {
+        if (managedWorlds.stream()
+                .anyMatch { anotherString: String -> world.equals(anotherString, ignoreCase = true) }
+        ) {
+            if (loadedWorlds.stream()
+                    .noneMatch { anotherString: String -> world.equals(anotherString, ignoreCase = true) }
+            ) {
+                Bukkit.getServer().createWorld(WorldCreator(world))
+                loadedWorlds.add(world)
             }
-            Location loc = new Location(Bukkit.getWorld(world), 0, 100, 0);
-            p.teleport(loc);
-            return true;
+            val loc = Location(Bukkit.getWorld(world), 0.0, 100.0, 0.0)
+            p.teleport(loc)
+            return true
         }
-        return false;
+        return false
     }
-
-    public List<String> getManagedWorlds() {
-        return managedWorlds;
-    }
-
-
 }

@@ -41,7 +41,7 @@ commands:
     description: Mostra a situação financeira
     usage: "Usage: /<command>"
   admin:
-    description: Ferramenta de damin.
+    description: Ferramenta de admin.
     permission: op
     usage: "Usage: /<command> [set] [map/disaster]"
   sch:
@@ -56,19 +56,6 @@ commands:
     description: Abre a loja.
     aliases: loja
     usage: "Usage: /<command>"
-  friends:
-    description: Amigos.
-    aliases: amigos
-    usage: "Usage: /<command> [add]"
-  refresh:
-    description: Atualiza dados da conta.
-    usage: "Usage: /<command> [skin] (--force)"
-  register:
-    description: Registra o usuario.
-    usage: "Usage: /<command> [senha] [senha denovo]"
-  login:
-    description: Loga o usuario.
-    usage: "Usage: /<command> [senha]"
 libraries:
   - org.json:json:${org.json.version}
   - org.jetbrains.kotlin:kotlin-stdlib:${kotlin.version}

@@ -1,58 +1,57 @@
-package me.tcklpl.naturaldisaster.util;
+package me.tcklpl.naturaldisaster.util
 
-import me.tcklpl.naturaldisaster.NaturalDisaster;
-import org.bukkit.block.Biome;
+import me.tcklpl.naturaldisaster.util.BiomeUtils.PrecipitationRequirements
+import org.bukkit.block.Biome
+import java.util.ArrayList
+import kotlin.random.Random
 
-import java.util.ArrayList;
-import java.util.List;
+object BiomeUtils {
+    private val noPrecipitationBiomes = listOf(
+        Biome.DESERT,
+        Biome.SAVANNA,
+        Biome.BADLANDS
+    )
 
-public class BiomeUtils {
+    private val rainBiomes = listOf(
+        Biome.FOREST,
+        Biome.FLOWER_FOREST,
+        Biome.TAIGA,
+        Biome.BIRCH_FOREST,
+        Biome.DARK_FOREST,
+        Biome.JUNGLE,
+        Biome.BAMBOO_JUNGLE,
+        Biome.PLAINS
+    )
 
-    public enum PrecipitationRequirements {
+    private val snowBiomes = listOf(
+        Biome.SNOWY_PLAINS,
+        Biome.SNOWY_TAIGA,
+        Biome.SNOWY_SLOPES,
+        Biome.ICE_SPIKES,
+        Biome.FROZEN_RIVER
+    )
+
+    fun randomizeBiome(requirements: PrecipitationRequirements): Biome {
+        val r = Random(System.currentTimeMillis())
+
+        val availableBiomeLists = ArrayList<List<Biome>>()
+        when (requirements) {
+            PrecipitationRequirements.ANYTHING -> {
+                availableBiomeLists.add(noPrecipitationBiomes)
+                availableBiomeLists.add(rainBiomes)
+                availableBiomeLists.add(snowBiomes)
+            }
+
+            PrecipitationRequirements.SHOULD_RAIN -> availableBiomeLists.add(rainBiomes)
+            PrecipitationRequirements.SHOULD_SNOW -> availableBiomeLists.add(snowBiomes)
+        }
+        val biomeList = availableBiomeLists[r.nextInt(availableBiomeLists.size)]
+        return biomeList[r.nextInt(biomeList.size)]
+    }
+
+    enum class PrecipitationRequirements {
         ANYTHING,
         SHOULD_RAIN,
         SHOULD_SNOW
     }
-
-    private static List<Biome> noPrecipitationBiomes = List.of(
-            Biome.DESERT,
-            Biome.SAVANNA,
-            Biome.BADLANDS
-    );
-
-    private static List<Biome> rainBiomes = List.of(
-            Biome.FOREST,
-            Biome.FLOWER_FOREST,
-            Biome.TAIGA,
-            Biome.BIRCH_FOREST,
-            Biome.DARK_FOREST,
-            Biome.JUNGLE,
-            Biome.BAMBOO_JUNGLE,
-            Biome.PLAINS
-    );
-
-    private static List<Biome> snowBiomes = List.of(
-            Biome.SNOWY_PLAINS,
-            Biome.SNOWY_TAIGA,
-            Biome.SNOWY_SLOPES,
-            Biome.ICE_SPIKES,
-            Biome.FROZEN_RIVER
-    );
-
-    public static Biome randomizeBiome(PrecipitationRequirements requirements) {
-        var r = NaturalDisaster.getRandom();
-        List<List<Biome>> availableBiomeLists = new ArrayList<>();
-        switch (requirements) {
-            case ANYTHING -> {
-                availableBiomeLists.add(noPrecipitationBiomes);
-                availableBiomeLists.add(rainBiomes);
-                availableBiomeLists.add(snowBiomes);
-            }
-            case SHOULD_RAIN -> availableBiomeLists.add(rainBiomes);
-            case SHOULD_SNOW -> availableBiomeLists.add(snowBiomes);
-        }
-        var biomeList = availableBiomeLists.get(r.nextInt(availableBiomeLists.size()));
-        return biomeList.get(r.nextInt(biomeList.size()));
-    }
-
 }

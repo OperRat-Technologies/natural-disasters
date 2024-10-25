@@ -1,258 +1,211 @@
-package me.tcklpl.naturaldisaster;
+package me.tcklpl.naturaldisaster
 
-import me.tcklpl.naturaldisaster.disasters.Disaster;
-import me.tcklpl.naturaldisaster.disasters.DisasterManager;
-import me.tcklpl.naturaldisaster.exceptions.InvalidGameStartException;
-import me.tcklpl.naturaldisaster.map.ArenaManager;
-import me.tcklpl.naturaldisaster.map.DisasterMap;
-import me.tcklpl.naturaldisaster.player.cPlayer.CPlayer;
-import me.tcklpl.naturaldisaster.player.ingamePlayer.ArenaPlayerManager;
-import me.tcklpl.naturaldisaster.util.ActionBar;
-import me.tcklpl.naturaldisaster.util.BiomeUtils;
-import me.tcklpl.naturaldisaster.util.NamesAndColors;
-import me.tcklpl.naturaldisaster.util.PlayerUtils;
-import org.bukkit.*;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
+import me.tcklpl.naturaldisaster.disasters.Disaster
+import me.tcklpl.naturaldisaster.disasters.DisasterManager
+import me.tcklpl.naturaldisaster.exceptions.InvalidGameStartException
+import me.tcklpl.naturaldisaster.map.ArenaManager
+import me.tcklpl.naturaldisaster.map.DisasterMap
+import me.tcklpl.naturaldisaster.player.cPlayer.CPlayer
+import me.tcklpl.naturaldisaster.player.ingamePlayer.ArenaPlayerManager
+import me.tcklpl.naturaldisaster.util.ActionBar
+import me.tcklpl.naturaldisaster.util.BiomeUtils.randomizeBiome
+import me.tcklpl.naturaldisaster.util.NamesAndColors.pickRandomColors
+import me.tcklpl.naturaldisaster.util.NamesAndColors.pickRandomNames
+import me.tcklpl.naturaldisaster.util.PlayerUtils.healPlayer
+import org.bukkit.Bukkit
+import org.bukkit.ChatColor
+import org.bukkit.GameMode
+import org.bukkit.Location
+import org.bukkit.Sound
+import org.bukkit.entity.Player
+import org.bukkit.plugin.java.JavaPlugin
+import java.util.LinkedList
+import java.util.Queue
+import java.util.Random
+import java.util.concurrent.atomic.AtomicInteger
 
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
+class GameManager(private val main: JavaPlugin) {
+    var currentStatus: GameStatus? = null
 
-public class GameManager {
+    val disasterManager = DisasterManager()
+    val arenaManager = ArenaManager()
+    private var arenaPlayerManager: ArenaPlayerManager? = null
 
-    private final JavaPlugin main;
-    private GameStatus currentStatus;
+    var currentDisaster: Disaster? = null
+    var currentMap: DisasterMap? = null
 
-    private final DisasterManager disasterManager = new DisasterManager();
-    private final ArenaManager arenaManager = new ArenaManager();
-    private ArenaPlayerManager arenaPlayerManager;
+    private val lastDisasters: Queue<Disaster?> = LinkedList<Disaster?>()
+    private val lastMaps: Queue<DisasterMap?> = LinkedList<DisasterMap?>()
 
-    private Disaster currentDisaster;
-    private DisasterMap currentMap;
+    private val r = Random()
 
-    private final Queue<Disaster> lastDisasters = new LinkedList<>();
-    private final Queue<DisasterMap> lastMaps = new LinkedList<>();
+    private var startupCounterId = 0
 
-    private final Random r = new Random();
-
-    private int startupCounterId;
-
-    public GameManager(JavaPlugin main) {
-        this.main = main;
+    fun isIngame(): Boolean {
+        return currentStatus == GameStatus.IN_GAME
     }
 
-    public boolean isIngame() {
-        return currentStatus == GameStatus.IN_GAME;
-    }
-
-    public void setCurrentStatus(GameStatus currentStatus) {
-        this.currentStatus = currentStatus;
-    }
-
-    public void pickNextGame() throws InvalidGameStartException {
-        if (currentStatus != GameStatus.IN_LOBBY)
-            throw new InvalidGameStartException();
+    @Throws(InvalidGameStartException::class)
+    fun pickNextGame() {
+        if (currentStatus != GameStatus.IN_LOBBY) throw InvalidGameStartException()
 
         if (currentMap == null) {
-            List<DisasterMap> arenas = arenaManager.getArenas();
-            int i = r.nextInt(arenas.size());
-            if (lastMaps.size() > 3)
-                lastMaps.remove();
-            do
-                currentMap = arenas.get((i++) % arenas.size());
-            while (lastMaps.contains(currentMap));
+            val arenas = arenaManager.arenas
+            var i = r.nextInt(arenas.size)
+            if (lastMaps.size > 3) lastMaps.remove()
+            do currentMap = arenas[(i++) % arenas.size]
+            while (lastMaps.contains(currentMap))
         }
 
         if (currentDisaster == null) {
-            List<Disaster> disasters = disasterManager.getPlayableDisasters();
-            int i = r.nextInt(disasters.size());
-            if (lastDisasters.size() > 3)
-                lastDisasters.remove();
-            do
-                currentDisaster = disasters.get((i++) % disasters.size());
-            while (lastDisasters.contains(currentDisaster));
+            val disasters = disasterManager.getPlayableDisasters()
+            var i = r.nextInt(disasters.size)
+            if (lastDisasters.size > 3) lastDisasters.remove()
+            do currentDisaster = disasters[(i++) % disasters.size]
+            while (lastDisasters.contains(currentDisaster))
         }
 
-        currentDisaster.setMap(currentMap);
+        currentDisaster!!.map = currentMap!!
 
-        new ActionBar(ChatColor.GOLD + "Próximo mapa: " + currentMap.getName()).sendToAll();
+        ActionBar(ChatColor.GOLD.toString() + "Próximo mapa: " + currentMap!!.name).sendToAll()
 
-        arenaManager.loadArenaWorld(currentMap);
+        arenaManager.loadArenaWorld(currentMap!!)
     }
 
-    public void startNextGame() {
-        arenaPlayerManager = new ArenaPlayerManager();
-        currentStatus = GameStatus.STARTING;
-        currentMap.addAllPlayersToArena();
+    fun startNextGame() {
+        arenaPlayerManager = ArenaPlayerManager()
+        currentStatus = GameStatus.STARTING
+        currentMap!!.addAllPlayersToArena()
 
-        assignRandomNames();
+        assignRandomNames()
 
-        AtomicInteger counter = new AtomicInteger(5);
-        startupCounterId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
-            new ActionBar(ChatColor.GOLD + "Começando em: " + counter.get()).sendToAll();
-            if (counter.getAndDecrement() <= 0)
-                cancelStartupCounter();
-        }, 20L, 20L);
+        val counter = AtomicInteger(5)
+        startupCounterId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, Runnable {
+            ActionBar(ChatColor.GOLD.toString() + "Começando em: " + counter.get()).sendToAll()
+            if (counter.getAndDecrement() <= 0) cancelStartupCounter()
+        }, 20L, 20L)
 
-        currentMap.setArenaBiome(BiomeUtils.randomizeBiome(currentDisaster.getPrecipitationRequirements()));
-        currentMap.teleportPlayersToSpawns();
+        currentMap!!.setArenaBiome(randomizeBiome(currentDisaster!!.precipitationRequirements))
+        currentMap!!.teleportPlayersToSpawns()
 
-        for (Player p : currentMap.getPlayersInArena())
-            p.setInvulnerable(true);
+        for (p in currentMap!!.playersInArena) p.isInvulnerable = true
 
-        currentDisaster.setupDisaster();
+        currentDisaster!!.setupDisaster()
 
-        Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> {
-            currentDisaster.startDisaster();
-            new ActionBar(ChatColor.RED + "Boa sorte!").sendToAll();
-            currentStatus = GameStatus.IN_GAME;
-            for (Player all : currentMap.getPlayersInArena()) {
-                all.playSound(all.getLocation(), Sound.EVENT_RAID_HORN, 1f, 1f);
-                all.setInvulnerable(false);
-                PlayerUtils.healPlayer(all);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(main, Runnable {
+            currentDisaster!!.startDisaster()
+            ActionBar(ChatColor.RED.toString() + "Boa sorte!").sendToAll()
+            currentStatus = GameStatus.IN_GAME
+            for (all in currentMap!!.playersInArena) {
+                all.playSound(all.getLocation(), Sound.EVENT_RAID_HORN, 1f, 1f)
+                all.isInvulnerable = false
+                healPlayer(all)
             }
-        }, 130L);
+        }, 130L)
     }
 
-    public void assignRandomNames() {
+    fun assignRandomNames() {
         if (currentMap != null) {
-
-            int playerCount = currentMap.getPlayersInArena().size();
-            List<String> names = NamesAndColors.pickRandomNames(playerCount);
-            List<ChatColor> colors = NamesAndColors.pickRandomColors(playerCount);
-            for (int i = 0; i < playerCount; i++) {
-                Player p = currentMap.getPlayersInArena().get(i);
-                assert p != null;
-                arenaPlayerManager.disguisePlayer(p, colors.get(i).toString() + names.get(i));
+            val playerCount = currentMap!!.playersInArena.size
+            val names = pickRandomNames(playerCount)
+            val colors = pickRandomColors(playerCount)
+            for (i in 0 until playerCount) {
+                val p = checkNotNull(currentMap!!.playersInArena[i])
+                arenaPlayerManager!!.disguisePlayer(p, colors[i].toString() + names[i])
             }
         }
     }
 
-    private void cancelStartupCounter() {
-        Bukkit.getScheduler().cancelTask(startupCounterId);
+    private fun cancelStartupCounter() {
+        Bukkit.getScheduler().cancelTask(startupCounterId)
     }
 
-    public void registerPlayerDeath(Player p) {
-        if (!currentMap.getPlayersInArena().contains(p)) return;
+    fun registerPlayerDeath(p: Player) {
+        if (!currentMap!!.playersInArena.contains(p)) return
 
-        p.playSound(p, Sound.BLOCK_BEACON_DEACTIVATE, 10, 1);
-        arenaPlayerManager.returnPlayerToNormal(p);
-        currentMap.getPlayersInArena().remove(p);
+        p.playSound(p, Sound.BLOCK_BEACON_DEACTIVATE, 10f, 1f)
+        arenaPlayerManager!!.returnPlayerToNormal(p)
+        currentMap!!.playersInArena.remove(p)
 
-        if (currentMap.getPlayersInArena().size() <= 1) {
-            Bukkit.broadcastMessage(ChatColor.GOLD + "O jogo acabou.");
-            if (currentMap.getPlayersInArena().isEmpty()) {
-                endGame();
-            } else if (currentMap.getPlayersInArena().size() == 1) {
-                Player winner = currentMap.getPlayersInArena().get(0);
-                Bukkit.getScheduler().runTaskLater(main, () ->
-                        Bukkit.broadcastMessage(ChatColor.GREEN + winner.getName() + " venceu!"), 20L);
+        if (currentMap!!.playersInArena.size <= 1) {
+            Bukkit.broadcastMessage(ChatColor.GOLD.toString() + "O jogo acabou.")
+            if (currentMap!!.playersInArena.isEmpty()) {
+                endGame()
+            } else if (currentMap!!.playersInArena.size == 1) {
+                val winner = currentMap!!.playersInArena.get(0)
+                Bukkit.getScheduler().runTaskLater(
+                    main,
+                    Runnable { Bukkit.broadcastMessage("${ChatColor.GREEN}${winner.name} venceu!") },
+                    20L
+                )
 
-                CPlayer cp = NaturalDisaster.getPlayerManager().getCPlayer(winner.getUniqueId());
-                cp.getPlayerData().setWins(cp.getPlayerData().getWins() + 1);
-                cp.getPlayerData().setMoney(cp.getPlayerData().getMoney() + 25);
-                winner.sendMessage(ChatColor.GOLD + "+$25 por ganhar a partida.");
-                endGame();
+                val cp: CPlayer = NaturalDisaster.instance.cPlayerManager.getCPlayer(winner.uniqueId)!!
+                cp.wins = cp.wins + 1
+                cp.money = cp.money + 25
+                winner.sendMessage("${ChatColor.GOLD}+$25 por ganhar a partida.")
+                endGame()
             }
         } else {
-            Bukkit.broadcastMessage(p.getDisplayName() + ChatColor.GRAY + "( " + p.getName() + " ) morreu, ainda restam " + currentMap.getPlayersInArena().size() + " jogadores vivos!");
-            for (Player player : currentMap.getPlayersInArena()) {
-                player.sendMessage(ChatColor.GRAY + "+$1 por sobreviver.");
+            Bukkit.broadcastMessage("${p.displayName}${ChatColor.GRAY}( ${p.name} ) morreu, ainda restam ${currentMap!!.playersInArena.size} jogadores vivos!")
+            for (player in currentMap!!.playersInArena) {
+                player.sendMessage("${ChatColor.GRAY}+$1 por sobreviver.")
 
-                CPlayer cp = NaturalDisaster.getPlayerManager().getCPlayer(player.getUniqueId());
-                cp.getPlayerData().setMoney(cp.getPlayerData().getMoney() + 1);
+                val cp: CPlayer = NaturalDisaster.instance.cPlayerManager.getCPlayer(player.uniqueId)!!
+                cp.money = cp.money + 1
             }
-            teleportSpectatorToArena(p);
+            teleportSpectatorToArena(p)
         }
     }
 
-    public void endGame() {
-        currentDisaster.stopDisaster();
+    fun endGame() {
+        currentDisaster!!.stopDisaster()
 
-        for (Player p : currentMap.getPlayersInArena())
-            arenaPlayerManager.returnPlayerToNormal(p);
+        for (p in currentMap!!.playersInArena) arenaPlayerManager!!.returnPlayerToNormal(p)
 
-        for (Player p : Bukkit.getOnlinePlayers()) {
-            p.setDisplayName(p.getName());
-            p.setPlayerListName(p.getName());
-            p.setScoreboard(Objects.requireNonNull(Bukkit.getScoreboardManager()).getNewScoreboard());
+        for (p in Bukkit.getOnlinePlayers()) {
+            p.setDisplayName(p.name)
+            p.setPlayerListName(p.name)
+            p.scoreboard = Bukkit.getScoreboardManager()!!.newScoreboard
         }
 
-        NaturalDisaster.getSkinManager().applyAfterGameSkinChanges();
-
-        Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> {
-            for (Player p : Bukkit.getOnlinePlayers()) {
-                p.setGameMode(GameMode.ADVENTURE);
-                p.teleport(new Location(Bukkit.getWorld("worlds/void"), 8, 8, 8));
-                p.getInventory().clear();
-                PlayerUtils.healPlayer(p);
+        Bukkit.getScheduler().scheduleSyncDelayedTask(main, Runnable {
+            for (p in Bukkit.getOnlinePlayers()) {
+                p.gameMode = GameMode.ADVENTURE
+                p.teleport(Location(Bukkit.getWorld("worlds/void"), 8.0, 8.0, 8.0))
+                p.inventory.clear()
+                healPlayer(p)
             }
-        }, 20L);
+        }, 20L)
 
-        Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> {
-            if (Bukkit.unloadWorld(Objects.requireNonNull(currentMap.getPos1().getWorld()), false)) {
-                NaturalDisaster.getMainReference().getLogger().info("Mundo " + currentMap.getName() + " descarregado.");
-                for (Player p : Bukkit.getOnlinePlayers()) {
-                    if (p.isOp())
-                        p.sendMessage(ChatColor.GRAY + ">>" + ChatColor.DARK_GRAY + " [DEBUG INFO] " + ChatColor.GRAY + ">> Mundo descarregado.");
+        Bukkit.getScheduler().scheduleSyncDelayedTask(main, Runnable {
+            if (Bukkit.unloadWorld(currentMap!!.pos1.world!!, false)) {
+                NaturalDisaster.instance.logger.info("Mundo ${currentMap!!.name} descarregado.")
+                for (p in Bukkit.getOnlinePlayers()) {
+                    if (p.isOp) p.sendMessage("${ChatColor.GRAY}>> ${ChatColor.DARK_GRAY}[DEBUG INFO] ${ChatColor.GRAY}>> Mundo descarregado.")
                 }
-            } else NaturalDisaster.getMainReference().getLogger().severe("Falha ao descarregar mundo " + currentMap);
-            currentMap = null;
-            currentDisaster = null;
-            currentStatus = GameStatus.IN_LOBBY;
-        }, 40L);
-
+            } else NaturalDisaster.instance.logger.severe("Falha ao descarregar mundo $currentMap")
+            currentMap = null
+            currentDisaster = null
+            currentStatus = GameStatus.IN_LOBBY
+        }, 40L)
     }
 
-    public void teleportSpectatorToArena(Player p) {
+    fun teleportSpectatorToArena(p: Player) {
         if (currentStatus == GameStatus.IN_GAME) {
-            p.setGameMode(GameMode.SPECTATOR);
-            if (!currentMap.getPlayersInArena().isEmpty())
-                p.teleport(currentMap.getPlayersInArena().get(0));
+            p.gameMode = GameMode.SPECTATOR
+            if (!currentMap!!.playersInArena.isEmpty()) p.teleport(currentMap!!.playersInArena[0])
         }
     }
 
-    public void endByTimeout() {
-        for (Player p : currentMap.getPlayersInArena()) {
-            CPlayer cp = NaturalDisaster.getPlayerManager().getCPlayer(p.getUniqueId());
-            cp.getPlayerData().setWins(cp.getPlayerData().getWins() + 1);
-            cp.getPlayerData().setMoney(cp.getPlayerData().getMoney() + 25);
-            p.sendMessage(ChatColor.GOLD + "+$25 por ganhar a partida.");
+    fun endByTimeout() {
+        for (p in currentMap!!.playersInArena) {
+            val cp: CPlayer = NaturalDisaster.instance.cPlayerManager.getCPlayer(p.uniqueId)!!
+            cp.wins = cp.wins + 1
+            cp.money = cp.money + 25
+            p.sendMessage(ChatColor.GOLD.toString() + "+$25 por ganhar a partida.")
         }
 
-        Bukkit.broadcastMessage(ChatColor.YELLOW + "Acabou o tempo do mapa, todos ainda vivos ganharam");
-        endGame();
+        Bukkit.broadcastMessage(ChatColor.YELLOW.toString() + "Acabou o tempo do mapa, todos ainda vivos ganharam")
+        endGame()
     }
-
-    //region public getters
-    public GameStatus getCurrentStatus() {
-        return currentStatus;
-    }
-
-    public DisasterManager getDisasterManager() {
-        return disasterManager;
-    }
-
-    public ArenaManager getArenaManager() {
-        return arenaManager;
-    }
-
-    public Disaster getCurrentDisaster() {
-        return currentDisaster;
-    }
-
-    public DisasterMap getCurrentMap() {
-        return currentMap;
-    }
-
-    public void setCurrentDisaster(Disaster currentDisaster) {
-        this.currentDisaster = currentDisaster;
-    }
-
-    public void setCurrentMap(DisasterMap currentMap) {
-        this.currentMap = currentMap;
-    }
-
-    //endregion
-
 }

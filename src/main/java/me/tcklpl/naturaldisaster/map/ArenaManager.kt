@@ -1,156 +1,165 @@
-package me.tcklpl.naturaldisaster.map;
+package me.tcklpl.naturaldisaster.map
 
-import me.tcklpl.naturaldisaster.NaturalDisaster;
-import me.tcklpl.naturaldisaster.util.ActionBar;
-import org.bukkit.*;
-import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.java.JavaPlugin;
+import me.tcklpl.naturaldisaster.NaturalDisaster
+import me.tcklpl.naturaldisaster.util.ActionBar
+import org.bukkit.Bukkit
+import org.bukkit.ChatColor
+import org.bukkit.Chunk
+import org.bukkit.Difficulty
+import org.bukkit.Location
+import org.bukkit.Material
+import org.bukkit.World
+import org.bukkit.WorldCreator
+import org.bukkit.configuration.ConfigurationSection
+import org.bukkit.configuration.file.FileConfiguration
+import org.bukkit.configuration.file.YamlConfiguration
+import org.bukkit.plugin.java.JavaPlugin
+import java.io.File
+import java.io.IOException
+import java.lang.NullPointerException
+import java.nio.file.Files
+import java.nio.file.Path
+import java.util.ArrayList
+import java.util.HashSet
+import java.util.Objects
+import java.util.concurrent.atomic.AtomicInteger
+import java.util.logging.Level
+import kotlin.math.abs
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
-import java.util.stream.Stream;
+class ArenaManager {
+    val arenas: MutableList<DisasterMap> = ArrayList<DisasterMap>()
+    val main: JavaPlugin = NaturalDisaster.instance
 
-public class ArenaManager {
-
-    private final List<DisasterMap> arenas = new ArrayList<>();
-    private final JavaPlugin main = NaturalDisaster.getMainReference();
-
-    public ArenaManager() {
-        loadArenas();
+    init {
+        loadArenas()
     }
 
-    private void loadArenas() {
-        try (Stream<Path> arenaFiles = Files.walk(Path.of(new File(main.getDataFolder(), "arenas").getPath()))) {
-            AtomicInteger count = new AtomicInteger(0);
-            arenaFiles.filter(Files::isRegularFile).forEach(config -> {
+    private fun loadArenas() {
+        try {
+            Files.walk(Path.of(File(main.dataFolder, "arenas").path)).use { arenaFiles ->
+                val count = AtomicInteger(0)
+                arenaFiles.filter { path: Path -> Files.isRegularFile(path) }.forEach { config: Path ->
+                    val arenaConfig: FileConfiguration = YamlConfiguration.loadConfiguration(config.toFile())
+                    val name = arenaConfig.getString("name")!!
+                    val worldName = arenaConfig.getString("world")!!
+                    val icon = Material.valueOf(arenaConfig.getString("icon")!!)
 
-                FileConfiguration arenaConfig = YamlConfiguration.loadConfiguration(config.toFile());
+                    val pos1x = arenaConfig.getInt("pos1.x")
+                    val pos1y = arenaConfig.getInt("pos1.y")
+                    val pos1z = arenaConfig.getInt("pos1.z")
 
-                String name = arenaConfig.getString("name");
-                String worldName = arenaConfig.getString("world");
-                Material icon = Material.valueOf(arenaConfig.getString("icon"));
+                    val pos2x = arenaConfig.getInt("pos2.x")
+                    val pos2y = arenaConfig.getInt("pos2.y")
+                    val pos2z = arenaConfig.getInt("pos2.z")
 
-                int pos1x = arenaConfig.getInt("pos1.x");
-                int pos1y = arenaConfig.getInt("pos1.y");
-                int pos1z = arenaConfig.getInt("pos1.z");
+                    val pos1 = Location(null, pos1x.toDouble(), pos1y.toDouble(), pos1z.toDouble())
+                    val pos2 = Location(null, pos2x.toDouble(), pos2y.toDouble(), pos2z.toDouble())
 
-                int pos2x = arenaConfig.getInt("pos2.x");
-                int pos2y = arenaConfig.getInt("pos2.y");
-                int pos2z = arenaConfig.getInt("pos2.z");
+                    val spawns: MutableList<Location> = ArrayList<Location>()
+                    for (spawnCode in Objects.requireNonNull<ConfigurationSection?>(
+                        arenaConfig.getConfigurationSection(
+                            "spawns"
+                        )
+                    ).getKeys(false)) {
+                        val spawnx = arenaConfig.getInt("spawns.$spawnCode.x")
+                        val spawny = arenaConfig.getInt("spawns.$spawnCode.y")
+                        val spawnz = arenaConfig.getInt("spawns.$spawnCode.z")
+                        spawns.add(Location(null, spawnx.toDouble(), spawny.toDouble(), spawnz.toDouble()))
+                    }
 
-                Location pos1 = new Location(null, pos1x, pos1y, pos1z);
-                Location pos2 = new Location(null, pos2x, pos2y, pos2z);
-
-                List<Location> spawns = new ArrayList<>();
-                for (String spawnCode : Objects.requireNonNull(arenaConfig.getConfigurationSection("spawns")).getKeys(false)) {
-                    int spawnx = arenaConfig.getInt("spawns." + spawnCode + ".x");
-                    int spawny = arenaConfig.getInt("spawns." + spawnCode + ".y");
-                    int spawnz = arenaConfig.getInt("spawns." + spawnCode + ".z");
-                    spawns.add(new Location(null, spawnx, spawny, spawnz));
+                    val map = DisasterMap(name, worldName, pos1, pos2, spawns, icon)
+                    arenas.add(map)
+                    count.getAndIncrement()
                 }
-
-                DisasterMap map = new DisasterMap(name, worldName, pos1, pos2, spawns, icon);
-                arenas.add(map);
-                count.getAndIncrement();
-            });
-            NaturalDisaster.getMainReference().getLogger().info("Carregadas " + count.get() + " arenas");
-        } catch (IOException e) {
-            e.printStackTrace();
+                NaturalDisaster.instance.logger.info("Carregadas ${count.get()} arenas")
+            }
+        } catch (e: IOException) {
+            e.printStackTrace()
         }
     }
 
-    public void registerArena(DisasterMap map) {
-        arenas.add(map);
+    fun registerArena(map: DisasterMap?) {
+        arenas.add(map!!)
     }
 
-    public void saveArenas() {
-        File arenaFolder = new File(main.getDataFolder(), "arenas");
-        for (DisasterMap map : arenas) {
+    fun saveArenas() {
+        val arenaFolder = File(main.dataFolder, "arenas")
+        for (map in arenas) {
             try {
-
-                File arenaFile = new File(arenaFolder, map.getName() + ".yml");
+                val arenaFile = File(arenaFolder, map.name + ".yml")
                 if (!arenaFile.exists()) {
-                    FileConfiguration arenaConfig = new YamlConfiguration();
-                    arenaConfig.set("name", map.getName());
-                    arenaConfig.set("world", map.getWorldName());
-                    arenaConfig.set("icon", map.getIcon().toString());
+                    val arenaConfig: FileConfiguration = YamlConfiguration()
+                    arenaConfig.set("name", map.name)
+                    arenaConfig.set("world", map.worldName)
+                    arenaConfig.set("icon", map.icon.toString())
 
-                    arenaConfig.set("pos1.x", map.getPos1().getBlockX());
-                    arenaConfig.set("pos1.y", map.getPos1().getBlockY());
-                    arenaConfig.set("pos1.z", map.getPos1().getBlockZ());
+                    arenaConfig.set("pos1.x", map.pos1.blockX)
+                    arenaConfig.set("pos1.y", map.pos1.blockY)
+                    arenaConfig.set("pos1.z", map.pos1.blockZ)
 
-                    arenaConfig.set("pos2.x", map.getPos2().getBlockX());
-                    arenaConfig.set("pos2.y", map.getPos2().getBlockY());
-                    arenaConfig.set("pos2.z", map.getPos2().getBlockZ());
-
-                    int count = 0;
-                    for (Location loc : map.getSpawns()) {
-                        arenaConfig.set("spawns.spawn" + count + ".x", loc.getBlockX());
-                        arenaConfig.set("spawns.spawn" + count + ".y", loc.getBlockY());
-                        arenaConfig.set("spawns.spawn" + count + ".z", loc.getBlockZ());
-                        count++;
+                    arenaConfig.set("pos2.x", map.pos2.blockX)
+                    arenaConfig.set("pos2.y", map.pos2.blockY)
+                    arenaConfig.set("pos2.z", map.pos2.blockZ)
+                    3
+                    var count = 0
+                    for (loc in map.spawns) {
+                        arenaConfig.set("spawns.spawn$count.x", loc.blockX)
+                        arenaConfig.set("spawns.spawn$count.y", loc.blockY)
+                        arenaConfig.set("spawns.spawn$count.z", loc.blockZ)
+                        count++
                     }
-                    arenaConfig.save(arenaFile);
+                    arenaConfig.save(arenaFile)
                 }
-            } catch (NullPointerException | IOException e) {
-                NaturalDisaster.getMainReference().getLogger().log(Level.WARNING, "Erro ao salvar arena " + map.getName());
-                e.printStackTrace();
+            } catch (e: NullPointerException) {
+                NaturalDisaster.instance.logger.log(Level.WARNING, "Erro ao salvar arena ${map.name}")
+                e.printStackTrace()
+            } catch (e: IOException) {
+                NaturalDisaster.instance.logger.log(Level.WARNING, "Erro ao salvar arena ${map.name}")
+                e.printStackTrace()
             }
         }
     }
 
-    public List<DisasterMap> getArenas() {
-        return arenas;
+    fun getArenaByName(name: String?): DisasterMap {
+        return arenas.stream().filter { a: DisasterMap -> a.name.equals(name, ignoreCase = true) }.findAny()
+            .orElseThrow()
     }
 
-    public DisasterMap getArenaByName(String name) {
-        return arenas.stream().filter(a -> a.getName().equalsIgnoreCase(name)).findAny().orElseThrow();
-    }
+    fun loadArenaWorld(arena: DisasterMap) {
+        val w: World = checkNotNull(Bukkit.createWorld(WorldCreator(arena.worldName)))
+        w.isAutoSave = false
+        w.difficulty = Difficulty.NORMAL
 
-    public void loadArenaWorld(DisasterMap arena) {
-        World w = Bukkit.createWorld(new WorldCreator(arena.getWorldName()));
-        assert w != null;
+        arena.updateArenaWorld(w)
 
-        w.setAutoSave(false);
-        w.setDifficulty(Difficulty.NORMAL);
+        val arenaChunks: MutableSet<Chunk> = HashSet<Chunk>()
 
-        arena.updateArenaWorld(w);
+        val startChunkX = (arena.minX - 8) shr 4
+        val startChunkZ = (arena.minZ - 8) shr 4
 
-        Set<Chunk> arenaChunks = new HashSet<>();
+        val endChunkX = (arena.minX + arena.mapSize.x + 8) shr 4
+        val endChunkZ = (arena.minZ + arena.mapSize.z + 8) shr 4
 
-        int startChunkX = (arena.getMinX() - 8) >> 4;
-        int startChunkZ = (arena.getMinZ() - 8) >> 4;
+        val totalChunks: Int = abs((endChunkX - startChunkX + 1) * (endChunkZ - startChunkZ + 1))
+        Bukkit.getLogger().info("Carregando $totalChunks chunks")
+        ActionBar("${ChatColor.YELLOW}Carregando arena ${ChatColor.RED}${arena.name}${ChatColor.YELLOW}...").sendToAll()
 
-        int endChunkX = (arena.getMinX() + arena.getMapSize().getX() + 8) >> 4;
-        int endChunkZ = (arena.getMinZ() + arena.getMapSize().getZ() + 8) >> 4;
-
-        int totalChunks = Math.abs((endChunkX - startChunkX + 1) * (endChunkZ - startChunkZ + 1));
-        Bukkit.getLogger().info("Carregando " + totalChunks + " chunks");
-        new ActionBar(ChatColor.YELLOW + "Carregando arena " + ChatColor.RED + arena.getName() + ChatColor.YELLOW + "...").sendToAll();
-
-        int i = 1;
-        for (int x = startChunkX; x <= endChunkX; x++) {
-            for (int z = startChunkZ; z <= endChunkZ; z++) {
-                int finalX = x;
-                int finalZ = z;
-                int finalI = i;
-                Bukkit.getScheduler().runTaskLater(main, () -> {
-                    Chunk c = w.getChunkAt(finalX, finalZ);
-                    c.load();
-                    arenaChunks.add(c);
-
+        var i = 1
+        for (x in startChunkX..endChunkX) {
+            for (z in startChunkZ..endChunkZ) {
+                val finalX = x
+                val finalZ = z
+                val finalI = i
+                Bukkit.getScheduler().runTaskLater(main, Runnable {
+                    val c = w.getChunkAt(finalX, finalZ)
+                    c.load()
+                    arenaChunks.add(c)
                     if (finalI == totalChunks) {
-                        arena.setArenaChunks(arenaChunks);
-                        NaturalDisaster.getGameManager().startNextGame();
+                        arena.setArenaChunks(arenaChunks)
+                        NaturalDisaster.instance.gameManager.startNextGame()
                     }
-                }, i);
-                i++;
+                }, i.toLong())
+                i++
             }
         }
     }

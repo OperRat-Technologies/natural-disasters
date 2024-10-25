@@ -21,20 +21,16 @@ object AdminInventoryClickEvent : Listener {
     }
 
     private fun defineMapByName(name: String, p: Player) {
-        val map = NaturalDisaster.getGameManager().arenaManager.getArenaByName(name)
-        if (map != null) {
-            NaturalDisaster.getGameManager().currentMap = map
-            p.sendMessage("${ChatColor.GREEN}Mapa definido como ${ChatColor.RED}${name}")
-        } else p.sendMessage("${ChatColor.RED}Erro ao definir o mapa.")
+        val map = NaturalDisaster.instance.gameManager.arenaManager.getArenaByName(name)
+        NaturalDisaster.instance.gameManager.currentMap = map
+        p.sendMessage("${ChatColor.GREEN}Mapa definido como ${ChatColor.RED}${name}")
     }
 
     private fun defineDisasterByName(name: String, p: Player) {
-        val disaster = NaturalDisaster.getGameManager().disasterManager.getDisasterByName(name)
-        if (disaster != null) {
-            NaturalDisaster.getGameManager().currentDisaster = disaster
-            p.sendMessage("${ChatColor.GREEN}Desastre definido como ${ChatColor.RED}${name}")
-            p.closeInventory()
-        } else p.sendMessage("${ChatColor.RED}Erro ao definir o desastre.")
+        val disaster = NaturalDisaster.instance.gameManager.disasterManager.getDisasterByName(name)
+        NaturalDisaster.instance.gameManager.currentDisaster = disaster
+        p.sendMessage("${ChatColor.GREEN}Desastre definido como ${ChatColor.RED}${name}")
+        p.closeInventory()
     }
 
     @EventHandler

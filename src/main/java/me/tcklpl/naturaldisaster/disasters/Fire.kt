@@ -1,134 +1,125 @@
-package me.tcklpl.naturaldisaster.disasters;
+package me.tcklpl.naturaldisaster.disasters
 
-import me.tcklpl.naturaldisaster.util.BiomeUtils;
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.block.Block;
-import org.bukkit.block.BlockFace;
-import org.bukkit.entity.Player;
+import me.tcklpl.naturaldisaster.util.BiomeUtils
+import org.bukkit.Bukkit
+import org.bukkit.Material
+import org.bukkit.block.Block
+import org.bukkit.block.BlockFace
+import java.util.ArrayList
+import java.util.concurrent.atomic.AtomicInteger
+import kotlin.math.min
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.atomic.AtomicInteger;
+class Fire : Disaster("Fire", true, Material.FIRE_CHARGE, BiomeUtils.PrecipitationRequirements.ANYTHING) {
+    private val calcBuffer = 50
+    private val replacementBuffer = 200
+    private val burnedBlocksMaterials = listOf(Material.COAL_BLOCK)
 
-public class Fire extends Disaster {
+    var currentFireSources = ArrayList<Block>()
+    var previousBurnedBlocks = ArrayList<Block>()
 
-    private final int calcBuffer = 50;
-    private final int replacementBuffer = 200;
-    private final List<Material> burnedBlocksMaterials;
-
-    public Fire() {
-        super("Fire", true, Material.FIRE_CHARGE, BiomeUtils.PrecipitationRequirements.ANYTHING);
-        burnedBlocksMaterials = new ArrayList<>();
-        burnedBlocksMaterials.add(Material.COAL_BLOCK);
-    }
-
-    private boolean theresBlockInY(int x, int z) {
-        for (int y = map.getLowestCoordsLocation().getBlockY() + 1; y <= map.getHighestCoordsLocation().getBlockY(); y++) {
-            if (map.getWorld().getBlockAt(x, y, z).getType() != Material.AIR)
-                return true;
+    private fun theresBlockInY(x: Int, z: Int): Boolean {
+        for (y in map.getLowestCoordsLocation().blockY + 1..map.getHighestCoordsLocation().blockY) {
+            if (map.getWorld().getBlockAt(x, y, z).type != Material.AIR) return true
         }
-        return false;
+        return false
     }
 
-    @Override
-    public void startDisaster() {
-        super.startDisaster();
+    override fun setupDisaster() {
+        super.setupDisaster()
 
-        Random r = new Random();
-        int sourceX, sourceY, sourceZ;
-        List<Integer> yCandidates = new ArrayList<>();
-        List<Block> currentFireSources = new ArrayList<>();
-        List<Block> previousBurnedBlocks = new ArrayList<>();
+        var sourceX: Int
+        var sourceY: Int
+        var sourceZ: Int
+        val yCandidates: MutableList<Int?> = ArrayList<Int?>()
+
+        currentFireSources.clear()
+        previousBurnedBlocks.clear()
 
         do {
-            sourceX = map.getLowestCoordsLocation().getBlockX() + r.nextInt(map.getMapSize().getX());
-            sourceZ = map.getLowestCoordsLocation().getBlockZ() + r.nextInt(map.getMapSize().getZ());
-        } while (!theresBlockInY(sourceX, sourceZ));
+            sourceX = map.getLowestCoordsLocation().blockX + random.nextInt(map.mapSize.x)
+            sourceZ = map.getLowestCoordsLocation().blockZ + random.nextInt(map.mapSize.z)
+        } while (!theresBlockInY(sourceX, sourceZ))
 
-        Block sourceBlock;
-
-        for (int y = map.getLowestCoordsLocation().getBlockY(); y <= map.getHighestCoordsLocation().getBlockY(); y++) {
-            if (map.getWorld().getBlockAt(sourceX, y, sourceZ).getType() != Material.AIR)
-                yCandidates.add(y);
+        for (y in map.getLowestCoordsLocation().blockY..map.getHighestCoordsLocation().blockY) {
+            if (map.getWorld().getBlockAt(sourceX, y, sourceZ).type != Material.AIR) yCandidates.add(y)
         }
 
-        sourceY = yCandidates.get(r.nextInt(yCandidates.size()));
+        sourceY = yCandidates[random.nextInt(yCandidates.size)]!!
 
-        sourceBlock = map.getWorld().getBlockAt(sourceX, sourceY, sourceZ);
-        currentFireSources.add(sourceBlock);
+        var sourceBlock = map.getWorld().getBlockAt(sourceX, sourceY, sourceZ)
+        currentFireSources.add(sourceBlock)
+    }
 
-        AtomicInteger timesCycled = new AtomicInteger(0);
+    override fun startDisaster() {
+        super.startDisaster()
 
-        int taskId = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, () -> {
+        val timesCycled = AtomicInteger(0)
 
-            if (timesCycled.get() == 0)
-                sourceBlock.setType(Material.COAL_BLOCK, false);
-
+        val burnTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, Runnable {
+            if (timesCycled.get() == 0) currentFireSources[0].setType(Material.COAL_BLOCK, false)
             if ((timesCycled.incrementAndGet() % 2) == 0) {
+                val currentBlockIndex = AtomicInteger(0)
 
-                AtomicInteger currentBlockIndex = new AtomicInteger(0);
+                val bufferedBlocks: MutableList<Block> = ArrayList<Block>()
 
-                List<Block> bufferedBlocks = new ArrayList<>();
+                val cycles = 1 + Math.floorDiv(currentFireSources.size, calcBuffer)
 
-                int cycles = 1 + Math.floorDiv(currentFireSources.size(), calcBuffer);
+                for (currentCycle in 0 until cycles) {
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(main, Runnable {
+                        val max = min(calcBuffer, (currentFireSources.size - currentBlockIndex.get()))
+                        for (i in 0 until max) {
+                            val b = currentFireSources[currentBlockIndex.get()]
 
-                for (int currentCycle = 0; currentCycle < cycles; currentCycle++) {
-
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> {
-
-                        int max = Math.min(calcBuffer, currentFireSources.size() - currentBlockIndex.get());
-
-                        for (int i = 0; i < max; i++) {
-
-                            Block b = currentFireSources.get(currentBlockIndex.get());
-
-                            for (BlockFace face : BlockFace.values()) {
-                                Block relative = b.getRelative(face);
-                                if (relative.getType() != Material.WATER && relative .getType() != Material.AIR &&
-                                        !previousBurnedBlocks.contains(relative) && !bufferedBlocks.contains(relative))
-                                    bufferedBlocks.add(relative);
+                            for (face in BlockFace.entries) {
+                                val relative = b.getRelative(face)
+                                if (relative.type != Material.WATER && relative.type != Material.AIR &&
+                                    !previousBurnedBlocks.contains(relative) && !bufferedBlocks.contains(relative)
+                                ) bufferedBlocks.add(relative)
                             }
 
-                            if (currentBlockIndex.get() < (currentFireSources.size() - 1))
-                                currentBlockIndex.incrementAndGet();
+                            if (currentBlockIndex.get() < (currentFireSources.size - 1)) currentBlockIndex.incrementAndGet()
                         }
-
-                    }, 1 + currentCycle);
-
+                    }, (1 + currentCycle).toLong())
                 }
 
                 // Schedule to the end of the buffers
-                Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> {
-                    for (Block b : bufferedBlocks) {
-                        if (!previousBurnedBlocks.contains(b))
-                            previousBurnedBlocks.add(b);
+                Bukkit.getScheduler().scheduleSyncDelayedTask(main, Runnable {
+                    for (b in bufferedBlocks) {
+                        if (!previousBurnedBlocks.contains(b)) previousBurnedBlocks.add(b)
                     }
-                    map.bufferedReplaceBlocks(bufferedBlocks, Material.MAGMA_BLOCK, replacementBuffer, false);
+                    map.bufferedReplaceBlocks(bufferedBlocks, Material.MAGMA_BLOCK, replacementBuffer, false)
 
-                    Bukkit.getScheduler().scheduleSyncDelayedTask(main, () -> map.bufferedReplaceBlocks(bufferedBlocks, burnedBlocksMaterials, replacementBuffer, false), 20L);
+                    Bukkit.getScheduler().scheduleSyncDelayedTask(
+                        main,
+                        Runnable {
+                            map.bufferedReplaceBlocks(
+                                bufferedBlocks,
+                                burnedBlocksMaterials,
+                                replacementBuffer,
+                                false
+                            )
+                        },
+                        20L
+                    )
 
-                    currentFireSources.clear();
-                    currentFireSources.addAll(bufferedBlocks);
-                }, 2 + cycles);
-
+                    currentFireSources.clear()
+                    currentFireSources.addAll(bufferedBlocks)
+                }, (2 + cycles).toLong())
             }
 
-            // Do damage to the player
-            for (Player p : map.getPlayersInArena()) {
+        }, startDelay, 20L)
 
-                assert p != null;
-                Material m = p.getLocation().getBlock().getRelative(BlockFace.DOWN).getType();
+        val damageTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, Runnable {
+            for (p in map.playersInArena) {
+                checkNotNull(p)
+                val m = p.getLocation().block.getRelative(BlockFace.DOWN).type
                 if (m == Material.MAGMA_BLOCK || m == Material.COAL_BLOCK || m == Material.BLACK_TERRACOTTA) {
-                    p.damage(4);
-                    p.setFireTicks(60);
+                    p.damage(4.0)
+                    p.fireTicks = 60
                 }
             }
+        }, startDelay, 20L)
 
-        }, startDelay, 20L);
-
-        registerTasks(taskId);
-
+        registerTasks(burnTask, damageTask)
     }
 }

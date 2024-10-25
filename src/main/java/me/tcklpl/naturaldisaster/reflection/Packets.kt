@@ -1,48 +1,66 @@
-package me.tcklpl.naturaldisaster.reflection;
+package me.tcklpl.naturaldisaster.reflection
 
-import net.minecraft.network.protocol.game.*;
-import net.minecraft.server.level.ServerEntity;
-import org.bukkit.Chunk;
-import org.bukkit.craftbukkit.v1_21_R1.CraftChunk;
-import org.bukkit.craftbukkit.v1_21_R1.entity.CraftPlayer;
-import org.bukkit.entity.Player;
-
-import java.util.BitSet;
-import java.util.Collections;
-import java.util.Set;
+import net.minecraft.network.protocol.Packet
+import net.minecraft.network.protocol.game.ClientboundAddEntityPacket
+import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoRemovePacket
+import net.minecraft.network.protocol.game.ClientboundPlayerInfoUpdatePacket
+import net.minecraft.network.protocol.game.ClientboundRemoveEntitiesPacket
+import net.minecraft.server.level.ServerEntity
+import net.minecraft.server.network.ServerPlayerConnection
+import org.bukkit.Chunk
+import org.bukkit.craftbukkit.v1_21_R1.CraftChunk
+import org.bukkit.craftbukkit.v1_21_R1.entity.CraftPlayer
+import org.bukkit.entity.Player
+import java.util.BitSet
+import java.util.UUID
+import java.util.function.Consumer
 
 /**
  * Class with packets used in the plugin, used to call all packets using reflection and to keep normal classes cleaner
  */
-public class Packets {
+class Packets {
 
-    public static class Play {
-
-        public static ClientboundPlayerInfoUpdatePacket PlayOutPlayerInfo(ClientboundPlayerInfoUpdatePacket.Action playerInfoEnum, Player player) {
-            return new ClientboundPlayerInfoUpdatePacket(playerInfoEnum, ((CraftPlayer) player).getHandle());
+    object Play {
+        fun playOutPlayerInfo(
+            playerInfoEnum: ClientboundPlayerInfoUpdatePacket.Action,
+            player: Player
+        ): ClientboundPlayerInfoUpdatePacket {
+            return ClientboundPlayerInfoUpdatePacket(playerInfoEnum, (player as CraftPlayer).handle)
         }
 
-        public static ClientboundPlayerInfoRemovePacket PlayerInfoRemove(Player p) {
-            return new ClientboundPlayerInfoRemovePacket(Collections.singletonList(p.getUniqueId()));
+        fun playerInfoRemove(p: Player): ClientboundPlayerInfoRemovePacket {
+            return ClientboundPlayerInfoRemovePacket(mutableListOf<UUID?>(p.uniqueId))
         }
 
-        public static ClientboundRemoveEntitiesPacket PlayOutEntityDestroy(int entityId) {
-            return new ClientboundRemoveEntitiesPacket(entityId);
+        fun playOutEntityDestroy(entityId: Int): ClientboundRemoveEntitiesPacket {
+            return ClientboundRemoveEntitiesPacket(entityId)
         }
 
-        public static ClientboundAddEntityPacket PlayOutNamedEntitySpawn(Player p) {
-            var cp = (CraftPlayer) p;
-            var sp = cp.getHandle();
-            var serverEntity = new ServerEntity(sp.serverLevel(), sp, 0, false, packet -> {}, Set.of());
+        fun playOutNamedEntitySpawn(p: Player): ClientboundAddEntityPacket {
+            val cp = p as CraftPlayer
+            val sp = cp.handle
+            val serverEntity = ServerEntity(
+                sp.serverLevel(),
+                sp,
+                0,
+                false,
+                Consumer { packet: Packet<*>? -> },
+                mutableSetOf<ServerPlayerConnection?>()
+            )
 
-            return new ClientboundAddEntityPacket(cp.getHandle(), serverEntity);
+            return ClientboundAddEntityPacket(cp.handle, serverEntity)
         }
 
-        public static ClientboundLevelChunkWithLightPacket PlayOutMapChunk(Chunk chunkToUpdate) {
-            var levelChunk = ((CraftChunk) chunkToUpdate).getCraftWorld().getHandle().getLevel().getChunk(chunkToUpdate.getX(), chunkToUpdate.getZ());
-            return new ClientboundLevelChunkWithLightPacket(levelChunk, levelChunk.getLevel().getLightEngine(), new BitSet(), new BitSet());
+        fun playOutMapChunk(chunkToUpdate: Chunk): ClientboundLevelChunkWithLightPacket {
+            val levelChunk = (chunkToUpdate as CraftChunk).craftWorld.handle.level
+                .getChunk(chunkToUpdate.x, chunkToUpdate.z)
+            return ClientboundLevelChunkWithLightPacket(
+                levelChunk,
+                levelChunk.level.lightEngine,
+                BitSet(),
+                BitSet()
+            )
         }
-
     }
-
 }
