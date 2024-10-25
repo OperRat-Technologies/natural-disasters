@@ -55,10 +55,7 @@ class Blizzard : Disaster("Blizzard", true, Material.SNOWBALL, BiomeUtils.Precip
         // -------------------------------------------------------------------------------------------------------------
         val currentY = AtomicInteger(map.maxY)
 
-        val blockPallete = listOf(
-            Material.BLUE_ICE, Material.PACKED_ICE, Material.CYAN_STAINED_GLASS, Material.BLUE_STAINED_GLASS,
-            Material.LIGHT_BLUE_STAINED_GLASS
-        )
+        val blockPallete = listOf(Material.BLUE_ICE, Material.PACKED_ICE)
         val maxPartialLayers = 8
         val minPartialLayers = 2
 
@@ -76,7 +73,7 @@ class Blizzard : Disaster("Blizzard", true, Material.SNOWBALL, BiomeUtils.Precip
                     val blocksToPick = (layerBlocks.size * weight).roundToInt()
 
                     for (j in 0 until blocksToPick) {
-                        val pickedBlock = random!!.nextInt(layerBlocks.size)
+                        val pickedBlock = random.nextInt(layerBlocks.size)
                         extraBlocksToReplace.add(layerBlocks[pickedBlock])
                     }
                 }
@@ -93,7 +90,7 @@ class Blizzard : Disaster("Blizzard", true, Material.SNOWBALL, BiomeUtils.Precip
 
         val snowTask = Bukkit.getScheduler().scheduleSyncRepeatingTask(main, Runnable {
             for (i in 0 until blocksAddSnowLayers.get()) {
-                val randomLocation = map!!.getRandomBlockInMap()
+                val randomLocation = map.getRandomBlockInMap()
 
                 // if it's a solid block, get the one on top
                 if (!randomLocation.block.isPassable) {
