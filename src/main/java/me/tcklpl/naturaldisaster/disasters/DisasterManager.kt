@@ -1,5 +1,6 @@
 package me.tcklpl.naturaldisaster.disasters
 
+import me.tcklpl.naturaldisaster.disasters.tornado.TornadoDisaster
 import java.util.ArrayList
 import java.util.stream.Collectors
 
@@ -18,6 +19,7 @@ class DisasterManager {
             Thunderstorm(),
             TNTRain(),
             ToxicRain(),
+            TornadoDisaster()
         )
     }
 
