@@ -28,7 +28,6 @@ abstract class Disaster(
     protected var arenaSpecificBiome: Biome? = null
 
     var startDelay: Long = 100L
-    var timeout: Long = 3L // minutes
     var random: Random = Random()
 
     override fun equals(o: Any?): Boolean {
@@ -43,11 +42,9 @@ abstract class Disaster(
     }
 
     open fun setupDisaster() {
-        val timeoutTaskId = Bukkit.getScheduler()
-            .scheduleSyncDelayedTask(main, Runnable { this.endByTimeout() }, timeout * 20 * 60)
         val damagePlayersId = Bukkit.getScheduler()
             .scheduleSyncRepeatingTask(main, Runnable { this.damagePlayersOutsideBounds() }, 0L, 20L)
-        registerTasks(timeoutTaskId, damagePlayersId)
+        registerTasks(damagePlayersId)
     }
 
     /**
@@ -65,14 +62,6 @@ abstract class Disaster(
                 p.damage(2.0)
             }
         })
-    }
-
-    /**
-     * Private method to end by timeout, to be called by the scheduled task declared above.
-     */
-    private fun endByTimeout() {
-        stopDisaster()
-        NaturalDisaster.instance.gameManager.endByTimeout()
     }
 
     fun registerTasks(vararg taskNumber: Int) {

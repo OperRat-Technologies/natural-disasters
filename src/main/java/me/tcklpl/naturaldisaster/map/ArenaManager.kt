@@ -125,7 +125,7 @@ class ArenaManager {
             .orElseThrow()
     }
 
-    fun loadArenaWorld(arena: DisasterMap) {
+    fun loadArenaWorld(arena: DisasterMap, callback: () -> Unit) {
         val w: World = checkNotNull(Bukkit.createWorld(WorldCreator(arena.worldName)))
         w.isAutoSave = false
         w.difficulty = Difficulty.NORMAL
@@ -156,7 +156,7 @@ class ArenaManager {
                     arenaChunks.add(c)
                     if (finalI == totalChunks) {
                         arena.setArenaChunks(arenaChunks)
-                        NaturalDisaster.instance.gameManager.startNextGame()
+                        callback()
                     }
                 }, i.toLong())
                 i++
